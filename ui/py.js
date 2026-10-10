@@ -37,4 +37,6 @@ export const py = {
   circuitText: (layout) => call('circuit_text_json', layout),
   challengeSetup: (params) => call('challenge_setup_json', JSON.stringify(params)),
   challenge: (params) => call('challenge_json', JSON.stringify(params)),
+  twinReplay: (params) => call('twin_replay_json', JSON.stringify(params)),
+  twinRun: (params) => call('twin_run_json', sensorBackend, JSON.stringify(params)),
 };

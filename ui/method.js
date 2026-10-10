@@ -11,8 +11,9 @@ const REFS = [
   ['Demkowicz-Dobrzański, Kołodyński, Guţă 2012', 'The elusive Heisenberg limit in quantum-enhanced metrology. Nat. Commun. 3, 1063 (with uncorrelated noise, only a constant-factor gain asymptotically).'],
   ['Cao et al. 2024', 'Multi-qubit gates and Schrödinger cat states in an optical clock. Nature 634, 315 (a GHZ cascade; still about 2 dB above the standard quantum limit).'],
   ['Kimmel, Low, Yoder 2015', 'Robust calibration of a universal single-qubit gate set via robust phase estimation. Phys. Rev. A 92, 062315; erratum Phys. Rev. A 104, 069901 (2021).'],
+  ['Ruster et al. 2017', 'Entanglement-based dc magnetometry with separated ions. Phys. Rev. X 7, 031050 (a Bell pair of two ions measures a field difference and rejects common magnetic noise).'],
   ['IonQ', 'Simulation with noise models, docs.ionq.com/features/simulation-with-noise-models (read 2026-10-10).'],
-  ['USGS', 'Geomagnetism Program web service, geomag.usgs.gov/ws/ (Boulder, BOU; read 2026-10-10).'],
+  ['USGS', 'Geomagnetism Program web service, geomag.usgs.gov/ws/ (Boulder BOU and Tucson TUC; read 2026-10-10).'],
 ];
 
 export function methodView() {
@@ -40,7 +41,7 @@ export function methodView() {
     el('section', { class: 'card' }, el('h2', null, 'Sources'), el('ul', { class: 'refs' }, REFS.map(([a, b]) => el('li', null, el('strong', null, `${a}. `), b)))),
     el('section', { class: 'card' }, el('h2', null, 'Disclosure and credits'),
       el('p', null, 'Built during the hackathon window (10–12 October 2026) as a second entry next to the author’s Bell-Test Lab; no code is shared between them. Generative-AI coding assistance was used for code, documents and research drafts; the author checked the results.'),
-      el('p', null, 'Geomagnetic data: USGS Geomagnetism Program, Boulder (BOU) observatory, courtesy of the U.S. Geological Survey; thanks to INTERMAGNET (www.intermagnet.org). Code: MIT licence. This effort is supported by Qollab & IonQ.')));
+      el('p', null, 'Geomagnetic data: USGS Geomagnetism Program, Boulder (BOU) and Tucson (TUC) observatories, courtesy of the U.S. Geological Survey; thanks to INTERMAGNET (www.intermagnet.org). Code: MIT licence. This effort is supported by Qollab & IonQ.')));
   let loaded = false;
   return {
     element: view,

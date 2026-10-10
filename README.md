@@ -34,6 +34,12 @@ nothing ran on a magnetometer or on quantum hardware.
   atan2(⟨Y⟩, ⟨X⟩); its length is the measured visibility. A GHZ-4 needle turns four times as
   far as a single qubit's; past half a turn it still points the right way, but reading it back
   gives the wrong field. Next to the dials, the fringes cos(m·s·ΔF) show why.
+- **Two observatories** (a what-if). One qubit at Boulder and one at Tucson, about 1,000 km apart,
+  entangled as (|01⟩ + |10⟩)/√2, pick up only the *difference* of the two fields, so anything
+  both sites feel cancels; as (|00⟩ + |11⟩)/√2 they pick up the sum. Trapped-ion experiments use
+  this to ignore magnetic noise shared by two ions millimetres apart (Ruster et al. 2017). The
+  app replays the real storm at both observatories and runs one minute of the 13-qubit twin
+  circuit as one job.
 - **Overview.** The claim, four answers computed when the page opens, and what is real and
   what is simulated.
 
@@ -48,7 +54,7 @@ one job per Run and refuses a second one.
 
 ```
 python -m venv .venv && .venv/bin/pip install -r requirements-dev.txt
-.venv/bin/pytest -q                                   # 43 tests
+.venv/bin/pytest -q                                   # 52 tests
 .venv/bin/python tools/devserver/server.py            # http://127.0.0.1:8770/tools/devserver/dev.html
 PYTHONPATH=. .venv/bin/python scripts/headline_numbers.py   # every number in this README
 ```
@@ -97,7 +103,7 @@ minute, mean ± 2 standard errors over 32 replays (quiet day) unless stated; all
 | Ideal gates | 2.00 ± 0.02 / 2 | 1.41 ± 0.01 / √2 |
 | IonQ Aria 1 gate noise (documented rates) | 1.92 ± 0.02 / 1.918 | 1.36 ± 0.01 / 1.356 |
 | Dephasing γ = 0.05 per qubit | 1.72 ± 0.02 / 1.721 | 1.21 ± 0.01 / 1.217 |
-| Dephasing γ = 0.10 | 1.48 ± 0.01 / 1.482 | — |
+| Dephasing γ = 0.10 | 1.48 ± 0.01 / 1.482 | 1.04 ± 0.01 / 1.048 |
 | Dephasing γ = 0.20 | 1.10 ± 0.01 / 1.098 | 0.78 ± 0.01 / 0.776 |
 
 **The strong baseline.** The standard quantum limit (SQL) for the same 8 qubits and 1000 shots
@@ -123,6 +129,14 @@ for every setting.
   rounds (3, 4, 6, 8, 9) contain a one-minute step beyond GHZ-4's range, so a player who uses
   GHZ-4 in the calm rounds and the cascade in the stormy ones beats every fixed strategy (for
   example 0.42 in our test game).
+- **Two observatories.** The storm is *not* common noise across 1,000 km: one-minute changes at
+  Boulder and Tucson correlate only r = 0.33, and only 29% of their variance is shared, so the
+  Boulder − Tucson difference jumps almost as much as Boulder itself (standard deviation of
+  one-minute steps 7.95 nT against 8.13 nT; largest 119.6 nT). What remains is the plain
+  advantage of measuring a difference directly: with the same 4 qubits per shot the entangled
+  pair tracks the difference 1.42 ± 0.01 times as precisely as one qubit per site (ideal √2;
+  1.56 against 2.21 nT). At the storm's onset (17:06 UTC) both sites jumped together
+  (+12.6 and +21.5 nT): the difference pair read −9.0 nT of it, the sum pair +34.1 nT.
 - **Circuit runs** (one job each): see "Where it ran".
 
 ## Where it ran
@@ -170,8 +184,8 @@ for every setting.
 
 ## With more time
 
-- A differential (Bell-pair) gradiometer that cancels a field shared by two sites
-  (Ruster et al. 2017), with a labelled synthetic gradient.
+- Twin sensors at sites close enough to share the storm (the cancelling then matters), and a
+  GHZ gradiometer with two qubits per site.
 - Re-optimised interrogation time per noise level, to show Huelga's tie directly.
 - More storms (for example October 2024) as out-of-sample challenge maps.
 
@@ -187,7 +201,8 @@ page scroll at 320 px.
 
 - Built during the hackathon window (10–12 October 2026). It is a second entry next to the
   author's *Bell-Test Lab* (Quantum Unlocked); no code is shared between the two.
-- The USGS records were downloaded on 2026-10-10 by `scripts/fetch_usgs.py`.
+- The USGS records were downloaded on 2026-10-10 by `scripts/fetch_usgs.py` (Boulder at
+  12:23 UTC, Tucson at 13:05 UTC).
 - Use of AI: generative-AI coding assistance was used for code, documents and research drafts,
   including independent checks of the physics and the test vectors; the author checked the
   results.
@@ -205,15 +220,16 @@ page scroll at 320 px.
 - S. Kimmel, G. H. Low, T. J. Yoder, Phys. Rev. A 92, 062315 (2015); erratum Phys. Rev. A 104,
   069901 (2021).
 - A. Cao et al., Nature 634, 315 (2024); R. Finkelstein et al., Nature 634, 321 (2024).
-- T. Ruster et al., Phys. Rev. X 7, 031050 (2017).
+- T. Ruster et al., Phys. Rev. X 7, 031050 (2017): a Bell pair of two ions 6.2 mm apart
+  measures a field difference and rejects common magnetic noise.
 - IonQ, Simulation with noise models, docs.ionq.com (read 2026-10-10).
 - USGS Geomagnetism Program web service, geomag.usgs.gov/ws (read 2026-10-10).
 
 ## Data and licence
 
-Geomagnetic data: USGS Geomagnetism Program, Boulder (BOU) observatory, courtesy of the U.S.
-Geological Survey; thanks to INTERMAGNET (www.intermagnet.org) for promoting high standards of
-magnetic observatory practice. The storm record is quasi-definitive, the quiet day adjusted;
+Geomagnetic data: USGS Geomagnetism Program, Boulder (BOU) and Tucson (TUC) observatories,
+courtesy of the U.S. Geological Survey; thanks to INTERMAGNET (www.intermagnet.org) for promoting high standards of
+magnetic observatory practice. The storm records are quasi-definitive, the quiet day adjusted;
 values are as served. The data in `data/` are not covered by this project's licence.
 
 Code and documentation: MIT licence (see LICENSE).

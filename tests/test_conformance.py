@@ -31,15 +31,21 @@ def test_index_html_is_body_only_without_scripts():
     assert not re.search(r"<(script|html|head|body)\b", html)
 
 
-def test_backend_used_only_in_run_json():
-    """One job per run: only api.run_json calls backend.run."""
+def test_backend_used_only_in_the_two_run_functions():
+    """One job per run: only api.run_json and api.twin_run_json call backend.run, and both check
+    the shared one-IonQ-job counter before they do."""
     hits = [
         (p.name, m.start()) for p in PY for m in re.finditer(r"backend\.run\(", p.read_text(encoding="utf-8"))
     ]
-    assert [h[0] for h in hits] == ["api.py"]
+    assert [h[0] for h in hits] == ["api.py", "api.py"]
     api = (ROOT / "compass" / "api.py").read_text(encoding="utf-8")
-    run_start = api.index("def run_json(")
-    assert run_start < hits[0][1] < api.index("\ndef ", run_start + 1)
+    for fn, (_, pos) in zip(("def run_json(", "def twin_run_json("), hits, strict=True):
+        start = api.index(fn)
+        end = api.find("\ndef ", start + 1)
+        end = end if end > 0 else len(api)
+        assert start < pos < end
+        body = api[start:end]
+        assert body.index('_jobs["ionq"] >= 1') < body.index("backend.run(")
 
 
 def test_no_sampler_no_measure_all_no_dynamic_circuits():

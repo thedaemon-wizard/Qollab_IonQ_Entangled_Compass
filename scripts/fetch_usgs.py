@@ -2,10 +2,10 @@
 
 Usage: python scripts/fetch_usgs.py
 
-Writes data/bou_storm_2024-05-10_F.csv (quasi-definitive, 2 days) and
-data/bou_quiet_2026-10-01_F.csv (adjusted, 1 day): Boulder (BOU) observatory, total field F
-in nT, one value per minute, exactly as served (no rounding, no gap filling; a missing value
-would be written as an empty field and the app refuses such a file).
+Writes data/bou_storm_2024-05-10_F.csv and data/tuc_storm_2024-05-10_F.csv (quasi-definitive,
+2 days) and data/bou_quiet_2026-10-01_F.csv (adjusted, 1 day): Boulder (BOU) and Tucson (TUC)
+observatories, total field F in nT, one value per minute, exactly as served (no rounding, no gap
+filling; a missing value would be written as an empty field and the app refuses such a file).
 """
 
 from __future__ import annotations
@@ -19,19 +19,21 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 BASE = "https://geomag.usgs.gov/ws/data/"
 RECORDS = [
-    ("bou_storm_2024-05-10_F.csv", "2024-05-10T00:00:00Z", "2024-05-11T23:59:00Z", "quasi-definitive"),
-    ("bou_quiet_2026-10-01_F.csv", "2026-10-01T00:00:00Z", "2026-10-01T23:59:00Z", "adjusted"),
+    ("BOU", "bou_storm_2024-05-10_F.csv", "2024-05-10T00:00:00Z", "2024-05-11T23:59:00Z", "quasi-definitive"),
+    ("BOU", "bou_quiet_2026-10-01_F.csv", "2026-10-01T00:00:00Z", "2026-10-01T23:59:00Z", "adjusted"),
+    ("TUC", "tuc_storm_2024-05-10_F.csv", "2024-05-10T00:00:00Z", "2024-05-11T23:59:00Z", "quasi-definitive"),
 ]
+NAMES = {"BOU": "Boulder", "TUC": "Tucson"}
 CREDIT = (
-    "Geomagnetic data: USGS Geomagnetism Program, Boulder (BOU) observatory, courtesy of the "
+    "Geomagnetic data: USGS Geomagnetism Program, {name} ({code}) observatory, courtesy of the "
     "U.S. Geological Survey. Thanks to INTERMAGNET (www.intermagnet.org) for promoting high "
     "standards of magnetic observatory practice."
 )
 
 
-def fetch(start: str, end: str, data_type: str) -> tuple[str, dict]:
+def fetch(station: str, start: str, end: str, data_type: str) -> tuple[str, dict]:
     url = (
-        f"{BASE}?id=BOU&starttime={start}&endtime={end}&elements=F&sampling_period=60"
+        f"{BASE}?id={station}&starttime={start}&endtime={end}&elements=F&sampling_period=60"
         f"&type={data_type}&format=json"
     )
     with urllib.request.urlopen(url, timeout=60) as resp:
@@ -40,18 +42,18 @@ def fetch(start: str, end: str, data_type: str) -> tuple[str, dict]:
 
 def main() -> int:
     now = datetime.now(UTC).strftime("%Y-%m-%dT%H:%MZ")
-    for name, start, end, data_type in RECORDS:
-        url, doc = fetch(start, end, data_type)
+    for station, name, start, end, data_type in RECORDS:
+        url, doc = fetch(station, start, end, data_type)
         (series,) = [v for v in doc["values"] if v["id"] == "F"]
         times, values = doc["times"], series["values"]
         if len(times) != len(values):
             raise ValueError(f"{name}: {len(times)} times but {len(values)} values")
         lines = [
-            "# Source: USGS geomagnetism web service, observatory BOU (Boulder), element F"
+            f"# Source: USGS geomagnetism web service, observatory {station} ({NAMES[station]}), element F"
             " (total field, nT), 1-minute",
             f"# URL: {url}",
             f"# Data type: {data_type}; retrieved {now}; values as served",
-            f"# Credit: {CREDIT}",
+            f"# Credit: {CREDIT.format(name=NAMES[station], code=station)}",
             "# These data are not covered by this project's MIT licence (U.S. Government work, see README).",
             "time_utc,F_nT",
         ]

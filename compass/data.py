@@ -12,6 +12,7 @@ import numpy as np
 
 STORM_PATH = "data/bou_storm_2024-05-10_F.csv"
 QUIET_PATH = "data/bou_quiet_2026-10-01_F.csv"
+TUCSON_STORM_PATH = "data/tuc_storm_2024-05-10_F.csv"
 
 DATASETS = {
     "quiet": {
@@ -52,3 +53,12 @@ def load(dataset: str) -> tuple[list[str], np.ndarray]:
         a, b = spec["window"]
         times, f = times[a:b], f[a:b]
     return times, f
+
+
+def load_pair() -> tuple[list[str], np.ndarray, np.ndarray]:
+    """The storm at Boulder and at Tucson (about 1,000 km apart), minute by minute."""
+    t_a, f_a = _read(STORM_PATH)
+    t_b, f_b = _read(TUCSON_STORM_PATH)
+    if t_a != t_b:
+        raise ValueError("the two storm records do not share the same minutes")
+    return t_a, f_a, f_b

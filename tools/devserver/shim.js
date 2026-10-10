@@ -22,3 +22,5 @@ export const run_json = make('run_json');
 export const circuit_text_json = make('circuit_text_json');
 export const challenge_setup_json = make('challenge_setup_json');
 export const challenge_json = make('challenge_json');
+export const twin_replay_json = make('twin_replay_json');
+export const twin_run_json = make('twin_run_json');

@@ -480,3 +480,83 @@ def challenge_setup_json(params_json: str) -> str:
             "ghz4_range_nt": math.pi / (4 * SCALE),
         }
     )
+
+
+def twin_replay_json(params_json: str) -> str:
+    """Track the Boulder - Tucson field difference through the storm with the entangled pair and
+    with one qubit per site (same 4 qubits per shot)."""
+    from compass import twin
+
+    p = json.loads(params_json)
+    shots = int(p.get("shots", 1000))
+    times, f_a, f_b = data.load_pair()
+    est = twin.track(
+        f_a, f_b, SCALE, shots, replicates=int(p.get("replicates", 32)), seed=int(p.get("seed", 0))
+    )
+    g = f_a - f_b
+    rmse = {k: np.sqrt(((v[:, 1:] - g[1:]) ** 2).mean(axis=1)) for k, v in est.items()}
+    return json.dumps(
+        {
+            "times": times,
+            "gradient": [round(float(x - g[0]), 3) for x in g],
+            "boulder": [round(float(x - f_a[0]), 3) for x in f_a],
+            "tucson": [round(float(x - f_b[0]), 3) for x in f_b],
+            "traces": {k: [round(float(x - g[0]), 3) for x in v[0]] for k, v in est.items()},
+            "rmse": {k: replay.mean_2se(v) for k, v in rmse.items()},
+            "gain": {**replay.mean_2se(rmse["IND"] / rmse["DIFF"]), "theory": math.sqrt(2)},
+            "steps": twin.step_statistics(f_a, f_b),
+            "scale": SCALE,
+            "shots": shots,
+        }
+    )
+
+
+def twin_run_json(backend, params_json: str) -> str:
+    """One minute of the twin sensors as ONE job (shares the one-IonQ-job guard with run_json)."""
+    from compass import twin
+
+    p = json.loads(params_json)
+    kind = _backend_kind(backend)
+    if kind == "hardware":
+        return json.dumps({"error": "hardware", "message": "This project runs on simulators only."})
+    if kind == "ionq" and _jobs["ionq"] >= 1:
+        return json.dumps(
+            {
+                "error": "one_job_per_run",
+                "message": "IonQ allows one job per Run. Press Stop, then Run again.",
+            }
+        )
+    shots = int(p.get("shots", 1000))
+    times, f_a, f_b = data.load_pair()
+    i = _minute_index(times, p["minute"])
+    d_a, d_b = float(f_a[i] - f_a[i - 1]), float(f_b[i] - f_b[i - 1])
+    qc = twin.build(SCALE * d_a, SCALE * d_b)
+    compiled = _transpiled(qc, backend, kind)
+    if kind == "ionq":
+        _jobs["ionq"] += 1
+    t0 = time.time()
+    counts = dict(backend.run(compiled, shots=shots).result().get_counts())
+    wall = time.time() - t0
+    dec = twin.parities(counts)
+    m = dec["mean"]
+    reads = {
+        "difference": (float(theta(m["DIFFX"], m["DIFFY"])) / SCALE, d_a - d_b),
+        "sum": (float(theta(m["SUMX"], m["SUMY"])) / SCALE, d_a + d_b),
+        "boulder": (float(theta(m["AX"], m["AY"])) / SCALE, d_a),
+        "tucson": (float(theta(m["BX"], m["BY"])) / SCALE, d_b),
+    }
+    return json.dumps(
+        {
+            "backend": {"name": getattr(backend, "name", None) or type(backend).__name__, "kind": kind},
+            "minute": p["minute"],
+            "shots": dec["shots"],
+            "wall_s": round(wall, 3),
+            "canary": dec["canary"],
+            "n_qubits": twin.N_QUBITS,
+            "parities": m,
+            "reads": {k: {"estimate_nT": a, "true_nT": b, "error_nT": a - b} for k, (a, b) in reads.items()},
+            "independent_difference_nT": reads["boulder"][0] - reads["tucson"][0],
+            "ops": {k: int(v) for k, v in compiled.count_ops().items()},
+            "ionq_jobs_used": _jobs["ionq"],
+        }
+    )

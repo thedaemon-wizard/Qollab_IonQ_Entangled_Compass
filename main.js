@@ -8,6 +8,7 @@ import { methodView } from './ui/method.js';
 import { overviewView } from './ui/overview.js';
 import { connect, py } from './ui/py.js';
 import { trackerView } from './ui/tracker.js';
+import { twinView } from './ui/twin.js';
 
 const main = document.getElementById('ec-main');
 const tablist = document.getElementById('ec-tablist');
@@ -58,6 +59,7 @@ async function start() {
     { id: 'overview', title: 'Overview', element: overview.element },
     { id: 'challenge', title: 'Storm challenge', element: challengeView(state) },
     { id: 'tracker', title: 'Field tracker', element: tracker },
+    { id: 'twin', title: 'Two observatories', element: twinView(info) },
     { id: 'method', title: 'Method & sources', element: method.element, onShow: method.onShow },
   ]);
   try {

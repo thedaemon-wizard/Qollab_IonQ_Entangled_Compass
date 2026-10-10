@@ -32,7 +32,7 @@ export function timeChart(spec) {
   const tId = uid('t');
   const dId = uid('d');
   const clip = uid('clip');
-  const root = svg('svg', { viewBox: `0 0 ${W} ${H}`, role: 'img', 'aria-labelledby': `${tId} ${dId}` },
+  const root = svg('svg', { viewBox: `0 0 ${W} ${H}`, role: 'img', 'aria-labelledby': `${tId} ${dId}`, style: `max-width:${Math.round(W * 1.25)}px` },
     svg('title', { id: tId, text: spec.title }), svg('desc', { id: dId, text: spec.desc }),
     svg('defs', null, svg('clipPath', { id: clip }, svg('rect', { x: PAD.l, y: PAD.t, width: iw, height: ih }))));
   const grid = svg('g', { class: 'grid' });

@@ -35,4 +35,6 @@ export const py = {
   replay: (params) => call('replay_json', JSON.stringify(params)),
   run: (params) => call('run_json', sensorBackend, JSON.stringify(params)),
   circuitText: (layout) => call('circuit_text_json', layout),
+  challengeSetup: (params) => call('challenge_setup_json', JSON.stringify(params)),
+  challenge: (params) => call('challenge_json', JSON.stringify(params)),
 };

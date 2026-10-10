@@ -24,11 +24,6 @@ DATASETS = {
         "label": "G5 storm, 2024-05-10 to 05-11 (quasi-definitive data)",
         "window": None,
     },
-    "onset": {
-        "path": STORM_PATH,
-        "label": "Storm onset, 2024-05-10 16:00 to 19:00 UTC",
-        "window": (960, 1141),
-    },
 }
 
 _ROOT = Path(__file__).resolve().parent.parent

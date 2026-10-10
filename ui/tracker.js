@@ -6,11 +6,11 @@ import { announce, el, fmt, nextPaint } from './dom.js';
 import { py } from './py.js';
 
 const ARM_STYLE = {
-  IND8: { color: 'var(--s1)', dash: null, name: '8 independent qubits' },
+  IND8: { color: 'var(--s1)', dash: null, name: '8 independent qubits (matched, unentangled)' },
   GHZ4: { color: 'var(--s2)', dash: null, name: 'GHZ-4 (entangled)' },
   CASC: { color: 'var(--s3)', dash: '7 4', name: 'Cascade 1-2-4 (entangled)' },
   IND14: { color: 'var(--s4)', dash: '2 3', name: '14 independent qubits' },
-  MP4: { color: 'var(--s5)', dash: '9 3 2 3', name: '1 qubit, 4 passes' },
+  MP4: { color: 'var(--s5)', dash: '9 3 2 3', name: '1 qubit, 4 passes (4× interrogation)' },
 };
 const SHOWN = ['IND8', 'GHZ4', 'CASC', 'MP4'];
 
@@ -26,9 +26,7 @@ function select(id, options, value) {
 }
 
 export function trackerView(init, info, state) {
-  const scaleOpts = init.scales.map((s) => [s.value, `${s.value} rad/nT (electron spin, ${s.ramsey_us} µs; GHZ-4 range ±${s.ghz4_range_nt} nT per minute)`]);
   const dataset = select('ec-dataset', Object.entries(init.datasets).map(([k, d]) => [k, `${d.label}: ${d.minutes} min`]), 'quiet');
-  const scale = select('ec-scale', scaleOpts, 0.02);
   const shots = select('ec-shots', init.shots.map((s) => [s, String(s)]), info.default_shots);
   const noise = select('ec-noise', [['off', 'Off (only the backend’s own gate noise)'], ['indep', 'Independent dephasing γ, added by this app']], 'off');
   const gamma = el('input', { type: 'range', id: 'ec-gamma', min: '0', max: String(init.gamma_max), step: '0.01', value: '0.05', 'aria-describedby': 'ec-gamma-out' });
@@ -50,7 +48,7 @@ export function trackerView(init, info, state) {
   syncGamma();
 
   const params = () => ({
-    dataset: dataset.value, scale: Number(scale.value), shots: Number(shots.value), noise: noise.value,
+    dataset: dataset.value, shots: Number(shots.value), noise: noise.value,
     gamma: Number(gamma.value), gate_model: gateModel.value, measured: state.measuredVis, replicates: 32, seed: 0,
   });
 
@@ -113,7 +111,7 @@ export function trackerView(init, info, state) {
     });
     charts.replaceChildren(fieldChart, errChart);
     metrics.replaceChildren(dataTable({
-      caption: `32 replays (mean ± 2 standard errors), ${shots.value} shots per register per minute, ${scale.value} rad/nT`,
+      caption: `32 replays (mean ± 2 standard errors), ${shots.value} shots per register per minute, ${init.scale.value} rad/nT`,
       columns: ['Sensor arm', 'Qubits per shot', 'RMS error (nT)', 'RMS error on the right fringe (nT)', 'Minutes on a wrong fringe', 'Fringe jumps'],
       rows: Object.entries(r.arms).map(([a, x]) => [ARM_STYLE[a].name, String(x.qubits), fmt.pm(x.rmse), fmt.pm(x.rmse_ok), fmt.pm(x.wrong_minutes, 1), fmt.pm(x.slips, 1)]),
     }), el('p', { class: 'small' },
@@ -154,10 +152,11 @@ export function trackerView(init, info, state) {
   });
 
   const controls = el('fieldset', { class: 'card controls' }, el('legend', null, 'Replay settings'),
-    field('Field record', dataset), field('Phase per nT (model choice)', scale, 'How strongly 1 nT turns the qubit phase. Larger means more sensitive but a smaller range before the GHZ-4 fringe wraps.'),
+    field('Field record', dataset),
+    el('p', { class: 'small muted' }, `Phase per nT: ${init.scale.value} rad (a model choice: an electron spin with a ${init.scale.ramsey_us} µs Ramsey time). GHZ-4 can then follow at most ±${init.scale.ghz4_range_nt} nT per minute.`),
     field('Shots per register per minute', shots), field('Added noise', noise),
     el('div', { class: 'field' }, el('label', { for: 'ec-gamma' }, 'Dephasing strength'), gamma, gammaOut),
-    field('Gate noise in the replay', gateModel, 'IonQ’s documented depolarizing rates (Aria; Forte before Sept 2025), or the visibilities measured in your last circuit run.'),
+    field('Gate noise in the replay', gateModel, 'IonQ’s documented depolarizing rates for Aria 1 (now retired), or the visibilities measured in your last circuit run.'),
     el('div', { class: 'row' }, replayBtn), status);
   const runCardEl = el('section', { class: 'card', 'aria-labelledby': 'ec-run-h' }, el('h3', { id: 'ec-run-h' }, 'One minute on the quantum simulator'),
     el('p', { class: 'small muted' }, 'Every sensor below is in ONE circuit and sees the same field step: GHZ-1, GHZ-2 and GHZ-4 registers read in X and Y, a single qubit that passes the field four times, and a canary qubit that checks the bit order.'),

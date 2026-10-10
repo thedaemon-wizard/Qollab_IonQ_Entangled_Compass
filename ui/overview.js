@@ -5,7 +5,7 @@ function tile(heading, value, text) {
   return el('li', { class: 'tile' }, el('h3', null, heading), el('p', { class: 'big' }, value), el('p', { class: 'small' }, text));
 }
 
-export function overviewView(answers, goTracker) {
+export function overviewView(answers, goTracker, goChallenge) {
   const tiles = el('ul', { class: 'tiles', 'aria-label': 'Four answers' });
   const status = el('p', { role: 'status', class: 'status' }, 'Computing the answers (model replay of the quiet day and the storm)…');
   function fill(a) {
@@ -35,6 +35,8 @@ export function overviewView(answers, goTracker) {
         el('li', null, 'Open the Field tracker and press “Update replay”: the quiet day shows the √N gain.'),
         el('li', null, 'Switch to the storm: GHZ-4 alone loses track whenever the field moves more than its fringe allows in one minute.'),
         el('li', null, 'Add dephasing: above γ ≈ 0.23 per qubit the gain falls below 1. Then run one minute on the quantum simulator.')),
-      el('button', { type: 'button', class: 'primary', on: { click: goTracker } }, 'Open the Field tracker')));
+      el('div', { class: 'row' },
+        el('button', { type: 'button', class: 'primary', on: { click: goChallenge } }, 'Play the Storm challenge'),
+        el('button', { type: 'button', on: { click: goTracker } }, 'Open the Field tracker'))));
   return { element: view, fill, fail: (msg) => { status.textContent = `Could not compute the answers: ${msg}`; } };
 }

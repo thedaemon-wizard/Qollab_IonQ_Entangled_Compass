@@ -93,6 +93,8 @@ pre.circuit { overflow-x: auto; max-width: 100%; background: var(--bg); border: 
 .dial-true { stroke: var(--text); stroke-width: 2; }
 .dials-panel h4 { margin: 0.6rem 0 0.2rem; font-size: 1rem; }
 .ok { color: var(--ok); font-weight: 650; }
+.choices { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 0.6rem; margin-top: 0.4rem; }
+.choices button { text-align: left; padding: 0.7rem 0.8rem; min-height: 64px; }
 .bad { color: var(--bad); font-weight: 650; }
 .card p, .card li, .tile p, .ec-footer p { overflow-wrap: anywhere; }
 .ec-footer { margin-top: 1.4rem; border-top: 1px solid var(--border); padding-top: 0.6rem; }

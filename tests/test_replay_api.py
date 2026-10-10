@@ -20,8 +20,6 @@ def test_records():
     steps = np.abs(np.diff(f))
     assert steps.max() == pytest.approx(118.82, abs=1e-6) and t[int(steps.argmax()) + 1] == "2024-05-11T02:07"
     assert int((steps > math.pi / (4 * 0.02)).sum()) == 20
-    t, f = data.load("onset")
-    assert len(f) == 181 and t[0] == "2024-05-10T16:00" and t[-1] == "2024-05-10T19:00"
     t, f = data.load("quiet")
     assert len(f) == 1440 and np.ptp(f) == pytest.approx(30.207, abs=1e-3)
 
@@ -106,3 +104,24 @@ def test_one_ionq_job_per_run_and_no_hardware(monkeypatch):
     second = json.loads(api.run_json(ionq, req))
     assert second["error"] == "one_job_per_run" and ionq.calls == 1
     assert json.loads(api.run_json(_FakeQPU(), req))["error"] == "hardware"
+
+
+def test_storm_challenge_rounds_and_carry_over():
+    setup = json.loads(api.challenge_setup_json("{}"))
+    assert len(setup["rounds"]) == 12
+    assert (
+        setup["rounds"][0]["start"] == "2024-05-10T16:00" and setup["rounds"][-1]["end"] == "2024-05-11T15:59"
+    )
+    always = {c: v["mean_score"] for c, v in setup["always"].items()}
+    assert always["CASC"] < always["IND8"] < always["GHZ4"]  # GHZ-4 alone is ruined by the jumps
+    # round 3 (20:00-22:00) contains the 21:47 jump: GHZ-4 slips and the error carries over
+    r = json.loads(api.challenge_json(json.dumps({"round": 2, "choice": "GHZ4", "offset_nt": 0.0})))
+    assert r["result"]["slips"] >= 1 and abs(r["result"]["end_offset_nt"]) > 30
+    nxt = json.loads(
+        api.challenge_json(
+            json.dumps({"round": 3, "choice": "IND8", "offset_nt": r["result"]["end_offset_nt"]})
+        )
+    )
+    assert abs(nxt["result"]["end_offset_nt"]) < 5  # a wide-range sensor re-anchors
+    # same start and random draws for every option
+    assert nxt["others"]["IND8"]["score"] == pytest.approx(nxt["result"]["score"])

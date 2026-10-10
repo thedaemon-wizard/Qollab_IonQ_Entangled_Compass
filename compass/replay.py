@@ -40,9 +40,12 @@ def _measure(rng, m, k, shots, delta, v, exact):
     return 2 * rng.binomial(n, px) / n - 1, 2 * rng.binomial(n, py) / n - 1
 
 
-def track(f, scale, shots, vis, arms=("IND8", "GHZ4", "CASC"), replicates=32, seed=0, exact=False):
+def track(
+    f, scale, shots, vis, arms=("IND8", "GHZ4", "CASC"), replicates=32, seed=0, exact=False, start_offset=0.0
+):
     """Run the loop over the record `f` (nT). `vis[(kind, m)]` gives each register's visibility,
-    kind "ghz" or "mp". Returns estimates with shape (replicates, len(f)) per arm."""
+    kind "ghz" or "mp". The estimate starts `start_offset` nT away from f[0]. Returns estimates with
+    shape (replicates, len(f)) per arm."""
     rng = np.random.default_rng(seed)
     r = 1 if exact else replicates
     out = {}
@@ -50,7 +53,7 @@ def track(f, scale, shots, vis, arms=("IND8", "GHZ4", "CASC"), replicates=32, se
         spec = ARMS[name]
         kind = "mp" if spec.get("multipass") else "ghz"
         est = np.empty((r, len(f)))
-        est[:, 0] = f[0]
+        est[:, 0] = f[0] + start_offset
         for t in range(1, len(f)):
             delta = scale * (f[t] - est[:, t - 1])
             thetas = {}

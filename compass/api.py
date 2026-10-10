@@ -17,7 +17,7 @@ from compass import circuits, data, model, replay
 from compass.decode import decode
 from compass.estimators import cascade, theta, var_theta, visibility, wrap
 
-SCALES = [0.01, 0.02, 0.05]
+SCALE = 0.02  # rad per nT, fixed: the slip counts and ranges quoted in the app depend on it
 SHOTS = [100, 200, 500, 1000, 2000]
 GAMMA_MAX = 0.30
 PRESETS = [
@@ -101,17 +101,14 @@ def init_json() -> str:
         {
             "datasets": sets,
             "presets": PRESETS,
-            "scales": [
-                {
-                    "value": s,
-                    "ramsey_us": round(model.ramsey_time_us(s), 1),
-                    "ghz4_range_nt": round(math.pi / (4 * s), 2),
-                }
-                for s in SCALES
-            ],
+            "scale": {
+                "value": SCALE,
+                "ramsey_us": round(model.ramsey_time_us(SCALE), 1),
+                "ghz4_range_nt": round(math.pi / (4 * SCALE), 2),
+            },
             "shots": SHOTS,
             "gamma_max": GAMMA_MAX,
-            "documented_models": {k: v["label"] for k, v in model.IONQ_DOCUMENTED.items()},
+            "documented_models": {"aria-1": model.IONQ_DOCUMENTED["aria-1"]["label"]},
             "crossover_gamma": {str(n): round(model.crossover_gamma(n), 4) for n in (2, 4, 8)},
         }
     )
@@ -149,7 +146,7 @@ def _visibilities(gate_model: str, gamma: float, measured: dict | None) -> dict:
 
 def replay_json(params_json: str) -> str:
     p = json.loads(params_json)
-    scale, shots = float(p.get("scale", 0.02)), int(p.get("shots", 1000))
+    scale, shots = SCALE, int(p.get("shots", 1000))
     gamma = float(p.get("gamma", 0.0)) if p.get("noise") == "indep" else 0.0
     vis = _visibilities(p.get("gate_model", "none"), gamma, p.get("measured"))
     times, f = data.load(p.get("dataset", "quiet"))
@@ -249,7 +246,7 @@ def run_json(backend, params_json: str) -> str:
                 "message": "IonQ allows one job per Run. Press Stop, then Run again for another minute.",
             }
         )
-    scale, shots = float(p.get("scale", 0.02)), int(p.get("shots", 1000))
+    scale, shots = SCALE, int(p.get("shots", 1000))
     gamma = float(p.get("gamma", 0.0)) if p.get("noise") == "indep" else 0.0
     times, f = data.load(p.get("dataset", "storm"))
     i = _minute_index(times, p["minute"])
@@ -415,5 +412,60 @@ def overview_json() -> str:
                 "shots": 1000,
             },
             "seconds": round(time.time() - t0, 2),
+        }
+    )
+
+
+def challenge_json(params_json: str) -> str:
+    """One round of the storm challenge: the player's pick and, from the same starting point and
+    the same random draws, what the other two sensors would have done."""
+    from compass import challenge
+
+    p = json.loads(params_json)
+    k = int(p["round"])
+    shots = int(p.get("shots", 1000))
+    vis = _visibilities(p.get("gate_model", "none"), 0.0, p.get("measured"))
+    offset = float(p.get("offset_nt", 0.0))
+    seed = int(p.get("seed", 7))
+    results = {c: challenge.play(k, c, offset, vis, SCALE, shots, seed) for c in challenge.CHOICES}
+    times, _ = challenge._window(k)
+    return json.dumps(
+        {
+            "round": k,
+            "rounds": challenge.ROUNDS,
+            "start": times[1],
+            "end": times[-1],
+            "choice": p["choice"],
+            "result": results[p["choice"]],
+            "others": {
+                c: {kk: v for kk, v in r.items() if kk not in ("times", "error_nt")}
+                for c, r in results.items()
+            },
+            "largest_step_nt": challenge.largest_step(k),
+            "next_round_previous_step_nt": challenge.largest_step(k) if k + 1 < challenge.ROUNDS else None,
+            "choices": challenge.CHOICES,
+        }
+    )
+
+
+def challenge_setup_json(params_json: str) -> str:
+    """Round list and the three 'always the same sensor' benchmarks."""
+    from compass import challenge
+
+    p = json.loads(params_json)
+    shots = int(p.get("shots", 1000))
+    vis = _visibilities(p.get("gate_model", "none"), 0.0, p.get("measured"))
+    seed = int(p.get("seed", 7))
+    rounds = []
+    for k in range(challenge.ROUNDS):
+        times, _ = challenge._window(k)
+        rounds.append({"start": times[1], "end": times[-1]})
+    return json.dumps(
+        {
+            "rounds": rounds,
+            "choices": challenge.CHOICES,
+            "always": {c: challenge.always(c, vis, SCALE, shots, seed) for c in challenge.CHOICES},
+            "scale": SCALE,
+            "ghz4_range_nt": math.pi / (4 * SCALE),
         }
     )

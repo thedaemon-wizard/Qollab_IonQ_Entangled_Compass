@@ -2,6 +2,7 @@
 // dialog) and resolves the Python import below. All numbers come from Python (compass/);
 // this file only builds the interface.
 import * as compassApi from 'compass.api';
+import { challengeView } from './ui/challenge.js';
 import { el } from './ui/dom.js';
 import { methodView } from './ui/method.js';
 import { overviewView } from './ui/overview.js';
@@ -50,11 +51,12 @@ async function start() {
   document.getElementById('ec-backend').textContent = `Simulator for this session: ${info.name}${info.noise_model ? ` (noise model ${info.noise_model})` : ''}. Choose another in Qollab’s Run dialog.`;
   const state = { lastRun: null, measuredVis: null };
   let tabCtl = null;
-  const overview = overviewView(null, () => tabCtl.select(1, true));
+  const overview = overviewView(null, () => tabCtl.select(2, true), () => tabCtl.select(1, true));
   const tracker = trackerView(init, info, state);
   const method = methodView();
   tabCtl = tabs([
     { id: 'overview', title: 'Overview', element: overview.element },
+    { id: 'challenge', title: 'Storm challenge', element: challengeView(state) },
     { id: 'tracker', title: 'Field tracker', element: tracker },
     { id: 'method', title: 'Method & sources', element: method.element, onShow: method.onShow },
   ]);

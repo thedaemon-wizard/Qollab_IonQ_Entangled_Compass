@@ -20,3 +20,5 @@ export const series_json = make('series_json');
 export const replay_json = make('replay_json');
 export const run_json = make('run_json');
 export const circuit_text_json = make('circuit_text_json');
+export const challenge_setup_json = make('challenge_setup_json');
+export const challenge_json = make('challenge_json');

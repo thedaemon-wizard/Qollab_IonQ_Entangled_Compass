@@ -41,8 +41,9 @@ behind it, and what would make us revisit it.
 
 - **Decision.** Field tracking, the challenge and the twin replay use binomial shot noise with
   each register's visibility instead of thousands of circuit runs.
-- **Evidence.** One replay of the storm is 2,880 minutes × 5 sensors × 32 repetitions; as
-  circuits that would be over 450,000 jobs. Tests check the model against exact circuit
+- **Evidence.** One replay of the storm is 2,880 minutes × 32 repetitions; even with every
+  sensor packed into one circuit per minute, that would be 92,160 jobs, and the estimate of each
+  minute depends on the previous one, so they could not be batched. Tests check the model against exact circuit
   parities (Statevector) and against simulator runs.
 
 ## E6 — Dephasing by one ancilla per register

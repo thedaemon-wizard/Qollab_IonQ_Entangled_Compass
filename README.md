@@ -197,6 +197,12 @@ challenge round, charts as SVG with a title, a description that states the numbe
 table, series that differ by dash as well as colour, dark and light schemes, and no horizontal
 page scroll at 320 px.
 
+## Design decisions
+
+The choices behind the theme, the baselines, the fixed scale, the one-job circuits, the replay
+model and the two-observatory what-if are recorded with their evidence in
+[docs/decisions.md](docs/decisions.md).
+
 ## Disclosure
 
 - Built during the hackathon window (10–12 October 2026). It is a second entry next to the

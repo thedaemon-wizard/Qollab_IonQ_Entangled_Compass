@@ -1,0 +1,33 @@
+# Python
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.ipynb_checkpoints/
+
+# Secrets and local configuration (never commit)
+.env
+.env.*
+*.env
+*.pem
+*.key
+
+# Media working files (the published demo video lives at a public link, not in git)
+*.wav
+*.flac
+*.mp3
+*.mp4
+*.webm
+*.mkv
+media_work/
+
+# Upload bundles for Qollab are build outputs
+dist/
+*.zip
+
+# Editors / OS
+.vscode/
+.idea/
+.DS_Store
+*.swp

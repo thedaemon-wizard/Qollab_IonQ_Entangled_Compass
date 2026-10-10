@@ -1,0 +1,109 @@
+"""Replay on the real records, and the JSON interface against a local simulator."""
+
+import json
+import math
+from collections import Counter
+
+import numpy as np
+import pytest
+from qiskit.providers.basic_provider import BasicSimulator
+
+from compass import api, data, replay
+
+IDEAL = {("ghz", 1): 1.0, ("ghz", 2): 1.0, ("ghz", 4): 1.0, ("mp", 4): 1.0}
+
+
+def test_records():
+    t, f = data.load("storm")
+    assert len(f) == 2880 and t[0] == "2024-05-10T00:00" and t[-1] == "2024-05-11T23:59"
+    assert f[0] == pytest.approx(51324.01) and f[-1] == pytest.approx(51334.46)
+    steps = np.abs(np.diff(f))
+    assert steps.max() == pytest.approx(118.82, abs=1e-6) and t[int(steps.argmax()) + 1] == "2024-05-11T02:07"
+    assert int((steps > math.pi / (4 * 0.02)).sum()) == 20
+    t, f = data.load("onset")
+    assert len(f) == 181 and t[0] == "2024-05-10T16:00" and t[-1] == "2024-05-10T19:00"
+    t, f = data.load("quiet")
+    assert len(f) == 1440 and np.ptp(f) == pytest.approx(30.207, abs=1e-3)
+
+
+def test_storm_exact_means():
+    """Without shot noise: GHZ-4 alone slips 20 times; the cascade and independent qubits never."""
+    t, f = data.load("storm")
+    est = replay.track(f, 0.02, 1000, IDEAL, arms=("IND8", "GHZ4", "CASC"), exact=True)
+    g4 = replay.metrics(f, est["GHZ4"], 0.02, 4)
+    assert int(g4["slips"][0]) == 20 and int(g4["wrong"][0]) == 1115
+    offsets = Counter(np.round(g4["err"][0] / g4["spacing"]).astype(int).tolist())
+    assert offsets == {0: 1764, -1: 973, -2: 98, 1: 29, 2: 15}
+    assert t[int(np.argmax(np.round(g4["err"][0] / g4["spacing"]) != 0)) + 1] == "2024-05-10T21:47"
+    for arm in ("IND8", "CASC"):
+        assert np.abs(est[arm][0] - f).max() < 1e-6
+
+
+def test_quiet_day_gain_matches_sqrt_n():
+    t, f = data.load("quiet")
+    est = replay.track(f, 0.02, 1000, IDEAL, arms=("IND8", "GHZ4"), replicates=32, seed=0)
+    i8 = replay.metrics(f, est["IND8"], 0.02, 1)["rmse"]
+    g4 = replay.metrics(f, est["GHZ4"], 0.02, 4)["rmse"]
+    assert replay.mean_2se(i8)["mean"] == pytest.approx(1 / (0.02 * math.sqrt(4000)), abs=0.02)  # 0.7906
+    assert replay.mean_2se(g4)["mean"] == pytest.approx(1 / (4 * 0.02 * math.sqrt(1000)), abs=0.01)  # 0.3953
+    assert replay.mean_2se(i8 / g4)["mean"] == pytest.approx(2.0, abs=0.05)
+
+
+@pytest.mark.parametrize("gamma", [0.05, 0.10, 0.20])
+def test_dephasing_gain_follows_theory(gamma):
+    t, f = data.load("quiet")
+    out = json.loads(api.replay_json(json.dumps({"dataset": "quiet", "noise": "indep", "gamma": gamma})))
+    g = out["gain_ghz4"]
+    assert g["theory"] == pytest.approx(2 * math.exp(-3 * gamma), rel=1e-9)
+    assert g["mean"] == pytest.approx(g["theory"], abs=0.05)
+
+
+def test_run_on_local_simulator():
+    b = BasicSimulator()
+    out = json.loads(
+        api.run_json(b, json.dumps({"dataset": "storm", "minute": "2024-05-10T21:47", "shots": 2000}))
+    )
+    assert out["layout"] == "A" and out["n_qubits"] == 17 and out["canary"] == 1.0
+    assert out["dF_nT"] == pytest.approx(44.59, abs=1e-6)
+    arms = out["arms"]
+    assert abs(arms["CASC"]["error_nT"]) < 5 and abs(arms["IND2"]["error_nT"]) < 10
+    assert arms["GHZ4"]["error_nT"] == pytest.approx(-2 * math.pi / (4 * 0.02), abs=5)  # one fringe off
+    assert all(abs(r["z"]) < 5 for r in out["registers"])
+
+
+def test_run_with_dephasing_layout_b():
+    out = json.loads(
+        api.run_json(
+            BasicSimulator(),
+            json.dumps({"dataset": "quiet", "minute": "2026-10-01T12:00", "noise": "indep", "gamma": 0.1}),
+        )
+    )
+    assert out["layout"] == "B" and out["n_qubits"] == 21
+    assert out["visibility"]["4"]["hat"] == pytest.approx(math.exp(-0.4), abs=0.08)
+
+
+class _FakeIonQ:
+    name = "ionq_simulator"
+
+    def __init__(self):
+        self.calls = 0
+
+    def run(self, qc, shots):
+        self.calls += 1
+        return BasicSimulator().run(qc, shots=shots)
+
+
+class _FakeQPU:
+    name = "ionq_qpu.forte-1"
+
+
+def test_one_ionq_job_per_run_and_no_hardware(monkeypatch):
+    monkeypatch.setitem(api._jobs, "ionq", 0)
+    ionq = _FakeIonQ()
+    req = json.dumps({"dataset": "quiet", "minute": "2026-10-01T12:00", "shots": 200})
+    first = json.loads(api.run_json(ionq, req))
+    assert "error" not in first and first["backend"]["kind"] == "ionq"
+    assert set(first["ops"]) <= {"rz", "cx", "h", "x", "measure"}
+    second = json.loads(api.run_json(ionq, req))
+    assert second["error"] == "one_job_per_run" and ionq.calls == 1
+    assert json.loads(api.run_json(_FakeQPU(), req))["error"] == "hardware"

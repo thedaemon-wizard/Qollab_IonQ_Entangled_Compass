@@ -1,0 +1,9 @@
+# Local development environment (CPython 3.14). The project runs on Qollab.xyz (Python 3.14
+# in Pyodide); these pins follow what that runtime provides.
+qiskit==2.5.2
+qiskit-aer==0.17.2
+qiskit-ionq==1.0.2
+numpy==2.4.6
+
+pytest==9.1.1
+ruff==0.16.10

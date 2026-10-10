@@ -1,0 +1,13 @@
+# Tooling configuration only. The project runs on Qollab.xyz as a JS project, and locally
+# from the repository root.
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 110
+target-version = "py314"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "SIM", "RUF"]

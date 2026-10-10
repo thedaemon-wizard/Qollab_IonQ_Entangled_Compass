@@ -40,7 +40,7 @@ def test_storm_exact_means():
 
 
 def test_quiet_day_gain_matches_sqrt_n():
-    t, f = data.load("quiet")
+    _, f = data.load("quiet")
     est = replay.track(f, 0.02, 1000, IDEAL, arms=("IND8", "GHZ4"), replicates=32, seed=0)
     i8 = replay.metrics(f, est["IND8"], 0.02, 1)["rmse"]
     g4 = replay.metrics(f, est["GHZ4"], 0.02, 4)["rmse"]
@@ -51,7 +51,6 @@ def test_quiet_day_gain_matches_sqrt_n():
 
 @pytest.mark.parametrize("gamma", [0.05, 0.10, 0.20])
 def test_dephasing_gain_follows_theory(gamma):
-    t, f = data.load("quiet")
     out = json.loads(api.replay_json(json.dumps({"dataset": "quiet", "noise": "indep", "gamma": gamma})))
     g = out["gain_ghz4"]
     assert g["theory"] == pytest.approx(2 * math.exp(-3 * gamma), rel=1e-9)

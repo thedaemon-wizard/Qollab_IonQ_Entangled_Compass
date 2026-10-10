@@ -42,8 +42,9 @@ a { color: var(--accent); }
 [role='tabpanel']:focus-visible { outline-offset: 4px; }
 
 .view { display: grid; gap: 0.9rem; }
+.view > * { min-width: 0; }
 .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 0.9rem 1rem; min-width: 0; }
-fieldset.card { margin: 0; }
+fieldset.card { margin: 0; min-width: 0; min-inline-size: 0; }
 fieldset.card legend { font-weight: 650; padding: 0 0.3rem; }
 .grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 0.9rem; }
 .field { display: grid; gap: 0.2rem; margin-bottom: 0.65rem; }
@@ -107,6 +108,21 @@ pre.circuit { overflow-x: auto; max-width: 100%; background: var(--bg); border: 
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; animation: none !important; }
 }
+
+/* formulas (ui/tex.js): Latin Modern Math from jsDelivr, after any locally installed copy;
+   fonts as data: URLs would be blocked by the project frame's CSP (font-src *). */
+@font-face {
+  font-family: 'Latin Modern Math';
+  font-display: swap;
+  src: local('Latin Modern Math'), local('LatinModernMath-Regular'),
+    url('https://cdn.jsdelivr.net/gh/ronkok/Temml@4ffdf0e56577c426375d0b2818f8895edb5e5030/site/assets/latinmodernmath.woff2') format('woff2');
+}
+.ec-root math {
+  font-family: 'Latin Modern Math', 'STIX Two Math', 'Cambria Math', math;
+  font-size: 1.1em; font-style: normal; font-weight: normal; line-height: normal; letter-spacing: normal;
+  font-feature-settings: 'dtls' off;
+}
+.ec-root math.tml-display { display: block; width: 100%; overflow-x: auto; }
 
 /* explanatory figures (ui/schematic.js) */
 .schematic-fig { margin: 0; }

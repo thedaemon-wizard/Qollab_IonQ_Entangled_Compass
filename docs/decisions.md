@@ -91,3 +91,18 @@ behind it, and what would make us revisit it.
   disclosure. Tests check that the drawn register matches the circuit `compass/circuits.py`
   builds, that the figures use only theme colours and that no physics number is typed into them.
 - **Revisit if** the circuit layout changes (the tests will fail first).
+
+## E11 — Formulas typeset as math everywhere a judge reads them
+
+- **Decision** (2026-10-11). README and docs use GitHub math (`` $`…`$ `` inline, which keeps
+  backslashes and `*` intact; ```` ```math ```` for display). The Qollab write-up is generated
+  from the README with `$…$`, which Qollab renders with KaTeX. In the app, `ui/tex.js` turns
+  TeX strings into native MathML with Temml 0.14.0, loaded at run time from jsDelivr, in the
+  Latin Modern Math font. SVG text, `<option>`, ARIA labels and live messages stay plain
+  Unicode.
+- **Evidence.** Plain `$…$` on GitHub drops backslashes before punctuation (`\,`, `\%`), which
+  changes formulas. Qollab's write-up renderer understands only `$…$` and `$$…$$`. The project
+  frame's CSP allows scripts and fonts from cdn.jsdelivr.net but blocks `data:` fonts. MathML is
+  exposed to screen readers; if the import fails, the same strings appear as Unicode text
+  (tested with jsDelivr blocked).
+- **Revisit if** the app must work offline (vendor Temml and the font with their licences).

@@ -4,6 +4,7 @@ import { dataTable, timeChart } from './chart.js';
 import { dialsPanel } from './dials.js';
 import { el, fmt, nextPaint } from './dom.js';
 import { py } from './py.js';
+import { rich } from './tex.js';
 
 const ARM_STYLE = {
   IND8: { color: 'var(--s1)', dash: '2 3', name: '8 independent qubits (matched, unentangled)' },
@@ -119,7 +120,7 @@ export function trackerView(init, info, state) {
       `Gain of GHZ-4 over 8 independent qubits (same 8 qubits per shot): ${fmt.pm(r.gain_ghz4)}; model at zero field step ${fmt.n(r.gain_ghz4.theory)}. `,
       `Gain of the cascade over 14 independent qubits: ${fmt.pm(r.gain_cascade)}; ideal ${fmt.n(r.gain_cascade.theory_ideal)}.`),
     el('p', { class: 'small' }, el('strong', null, 'Strong baseline: '),
-      `the standard quantum limit for the same 8 qubits and shots, the best any unentangled sensor could reach with one interrogation of the same length per qubit (every qubit read at its most sensitive point), is ${fmt.n(r.sql.nt, 3)} nT per minute. This X/Y GHZ-4 readout beats it by ${fmt.pm(r.sql.gain_ghz4)}× on the right fringe (model ${fmt.n(r.sql.gain_ghz4.theory)}; ideal √2). Below 1, this readout no longer beats the best single-pass unentangled sensor. (An optimally read GHZ-4 would gain 2 ideally and keep a gain until γ ≈ 0.23, but it would need the working point to be known even more closely. The 4-pass qubit beats the limit by spending four times the interrogation time.)`));
+      rich(String.raw`the standard quantum limit for the same 8 qubits and shots, the best any unentangled sensor could reach with one interrogation of the same length per qubit (every qubit read at its most sensitive point), is ${fmt.n(r.sql.nt, 3)} nT per minute. This X/Y GHZ-4 readout beats it by ${fmt.pm(r.sql.gain_ghz4)}× on the right fringe (model ${fmt.n(r.sql.gain_ghz4.theory)}; ideal $\sqrt{2}$). Below 1, this readout no longer beats the best single-pass unentangled sensor. (An optimally read GHZ-4 would gain 2 ideally and keep a gain until $\gamma \approx 0.23$, but it would need the working point to be known even more closely. The 4-pass qubit beats the limit by spending four times the interrogation time.)`)));
   }
 
   // ---------- one circuit run ----------
@@ -177,8 +178,9 @@ function runCard(r) {
     el('p', null, `Field step at ${r.minute.replace('T', ' ')} UTC: ${fmt.signed(r.dF_nT)} nT, so every register sees ${fmt.n(r.delta_rad, 4)} rad per qubit. Canary read correctly in ${fmt.n(100 * r.canary, 1)}% of shots.`),
     dialsPanel(r),
     fringeChart(r),
+    el('p', { class: 'small muted' }, rich(String.raw`The fringes are the X parity $\cos(m\,s\,\Delta F)$ for $m = 1, 2, 4$ at $s = ${r.scale}$ rad/nT: GHZ-4 is four times as steep, but repeats every ${fmt.n(2 * r.fringes.half_range_nT['4'], 1)} nT.`)),
     dataTable({ caption: 'What each sensor reads from this one job', columns: ['Sensor', 'Estimate (nT)', 'Error (nT)', '± 1 SE (nT)'], rows: arms }),
-    el('p', { class: 'small' }, `Visibility measured: GHZ-1 ${fmt.n(r.visibility['1'].hat, 3)}, GHZ-2 ${fmt.n(r.visibility['2'].hat, 3)}, GHZ-4 ${fmt.n(r.visibility['4'].hat, 3)}${r.visibility.MP4 ? `, 4-pass ${fmt.n(r.visibility.MP4.hat, 3)}` : ''}. Gain implied by them, 2·V₄/V₁ = ${fmt.n(r.gain_from_visibility)} (ideal 2).`),
+    el('p', { class: 'small' }, rich(String.raw`Visibility measured: GHZ-1 ${fmt.n(r.visibility['1'].hat, 3)}, GHZ-2 ${fmt.n(r.visibility['2'].hat, 3)}, GHZ-4 ${fmt.n(r.visibility['4'].hat, 3)}${r.visibility.MP4 ? `, 4-pass ${fmt.n(r.visibility.MP4.hat, 3)}` : ''}. Gain implied by them, $2V_4/V_1$ = ${fmt.n(r.gain_from_visibility)} (ideal 2).`)),
     dataTable({ caption: 'Register parities (mean of ±1 over shots) against the ideal-gate model', columns: ['Register', 'Qubits', 'Measured', '± SE', 'Model', 'z'],
       rows: r.registers.map((g) => [g.name, g.qubits.join(' '), fmt.n(g.mean, 3), fmt.n(g.se, 3), fmt.n(g.ideal_model, 3), fmt.n(g.z, 1)]) }, 'Register parities'),
     el('p', { class: 'small muted' }, `Compiled circuit: ${Object.entries(r.ops).map(([k, v]) => `${k} ${v}`).join(', ')}; depth ${r.depth}. Job wall time ${r.wall_s} s (measured).`));

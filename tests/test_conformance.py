@@ -74,3 +74,25 @@ def test_js_parses(path, tmp_path):
     copy.write_text(path.read_text(encoding="utf-8"), encoding="utf-8")
     out = subprocess.run(["node", "--check", str(copy)], capture_output=True, text=True)
     assert out.returncode == 0, out.stderr
+
+
+def test_formulas_use_temml_from_one_place_and_a_math_font():
+    """Formulas: Temml (pinned version) is imported only by ui/tex.js; main.css loads Latin Modern
+    Math from a pinned jsDelivr URL (data: fonts would be blocked by the frame's CSP)."""
+    users = [p.name for p in JS if "cdn.jsdelivr.net/npm/temml" in p.read_text(encoding="utf-8")]
+    assert users == ["tex.js"]
+    assert "temml@0.14.0/dist/temml.mjs" in (ROOT / "ui" / "tex.js").read_text(encoding="utf-8")
+    css = (ROOT / "main.css").read_text(encoding="utf-8")
+    pinned = r"cdn\.jsdelivr\.net/gh/ronkok/Temml@[0-9a-f]{40}/"
+    assert re.search(r"@font-face\s*\{[^}]*'Latin Modern Math'[^}]*" + pinned, css)
+    assert "url(data:" not in css.replace("'", "").replace('"', "")
+    assert re.search(r"math\s*\{[^}]*font-family:\s*'Latin Modern Math'", css)
+
+
+@pytest.mark.parametrize("path", JS, ids=lambda p: p.name)
+def test_tex_in_js_strings_keeps_its_backslashes(path):
+    """A formula with a backslash must sit in String.raw`...`: in any other JS string the
+    backslash would be dropped (\\s becomes s)."""
+    for n, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
+        rest = re.sub(r"String\.raw`[^`]*`", "", line)
+        assert not re.search(r"\$\\[a-zA-Z]", rest), f"{path.name}:{n}"

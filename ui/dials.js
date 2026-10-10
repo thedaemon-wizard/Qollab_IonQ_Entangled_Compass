@@ -4,6 +4,7 @@
 // Past half a turn the needle still points the right way, but reading it back gives the wrong
 // field: that is the GHZ fringe problem, drawn.
 import { el, fmt, svg, uid } from './dom.js';
+import { rich } from './tex.js';
 
 const COLORS = { 1: 'var(--s1)', 2: 'var(--s3)', 4: 'var(--s2)' };
 
@@ -45,5 +46,5 @@ export function dialsPanel(r) {
   return el('section', { class: 'dials-panel', 'aria-label': 'Compass dials' },
     el('h3', null, 'The dials: entanglement turns the needle faster'),
     row,
-    el('p', { class: 'small muted' }, `A GHZ register of m qubits turns its needle m times as far for the same field step, so the needle is m times as sensitive, but it can only be read back unambiguously within ±${fmt.n(r.fringes.half_range_nT['4'], 1)} nT per minute for GHZ-4 (±${fmt.n(r.fringes.half_range_nT['1'], 1)} nT for one qubit). The cascade reads the 1-qubit and GHZ-2 dials first to know which turn GHZ-4 is on.`));
+    el('p', { class: 'small muted' }, rich(`A GHZ register of $m$ qubits turns its needle $m$ times as far for the same field step, so the needle is $m$ times as sensitive, but it can only be read back unambiguously within ±${fmt.n(r.fringes.half_range_nT['4'], 1)} nT per minute for GHZ-4 (±${fmt.n(r.fringes.half_range_nT['1'], 1)} nT for one qubit). The cascade reads the 1-qubit and GHZ-2 dials first to know which turn GHZ-4 is on.`)));
 }

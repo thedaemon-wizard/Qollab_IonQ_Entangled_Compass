@@ -1,0 +1,92 @@
+{
+ "date": "2026-10-11",
+ "tool": "puppeteer + Chrome 152, local harness",
+ "with_jsdelivr": {
+  "overview": {
+   "math": 11,
+   "merror": 0,
+   "rawTex": []
+  },
+  "tracker": {
+   "math": 9,
+   "merror": 0,
+   "rawTex": []
+  },
+  "twin": {
+   "math": 8,
+   "merror": 0,
+   "rawTex": []
+  },
+  "challenge": {
+   "math": 2,
+   "merror": 0,
+   "rawTex": []
+  },
+  "method": {
+   "math": 24,
+   "merror": 0,
+   "rawTex": []
+  },
+  "header": 1,
+  "font": {
+   "lmm": true,
+   "loaded": [
+    "Latin Modern Math"
+   ]
+  },
+  "narrow": {
+   "overview": 320,
+   "tracker": 320,
+   "twin": 320,
+   "challenge": 320,
+   "method": 320
+  },
+  "errors": [
+   "Failed to load resource: the server responded with a status of 404 (File not found)"
+  ]
+ },
+ "jsdelivr_blocked": {
+  "overview": {
+   "math": 0,
+   "merror": 0,
+   "rawTex": []
+  },
+  "tracker": {
+   "math": 0,
+   "merror": 0,
+   "rawTex": []
+  },
+  "twin": {
+   "math": 0,
+   "merror": 0,
+   "rawTex": []
+  },
+  "challenge": {
+   "math": 0,
+   "merror": 0,
+   "rawTex": []
+  },
+  "method": {
+   "math": 0,
+   "merror": 0,
+   "rawTex": []
+  },
+  "header": 1,
+  "font": {
+   "lmm": false,
+   "loaded": []
+  },
+  "narrow": {
+   "overview": 320,
+   "tracker": 320,
+   "twin": 320,
+   "challenge": 320,
+   "method": 320
+  },
+  "errors": [
+   "Failed to load resource: the server responded with a status of 404 (File not found)",
+   "Failed to load resource: net::ERR_FAILED",
+   "Failed to load resource: net::ERR_FAILED"
+  ]
+ }
+}

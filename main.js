@@ -7,6 +7,7 @@ import { el, nextPaint } from './ui/dom.js';
 import { methodView } from './ui/method.js';
 import { overviewView } from './ui/overview.js';
 import { connect, py } from './ui/py.js';
+import { loadTex } from './ui/tex.js';
 import { trackerView } from './ui/tracker.js';
 import { twinView } from './ui/twin.js';
 
@@ -48,7 +49,9 @@ function tabs(items) {
 
 async function start() {
   connect(compassApi, backend);
+  const texReady = loadTex(); // formulas: Temml from jsDelivr, or plain text if it cannot load
   const [init, info] = [await py.init(), await py.backendInfo()];
+  await texReady;
   document.getElementById('ec-backend').textContent = `Simulator for this session: ${info.name}${info.noise_model ? ` (noise model ${info.noise_model})` : ''}. Choose another in Qollab’s Run dialog.`;
   const state = { lastRun: null, measuredVis: null };
   let tabCtl = null;

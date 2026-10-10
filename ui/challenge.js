@@ -4,6 +4,7 @@
 import { dataTable, timeChart } from './chart.js';
 import { announce, el, fmt, nextPaint } from './dom.js';
 import { py } from './py.js';
+import { rich } from './tex.js';
 
 const ORDER = ['IND8', 'GHZ4', 'CASC'];
 const STYLE = { IND8: 'var(--s1)', GHZ4: 'var(--s2)', CASC: 'var(--s3)' };
@@ -79,7 +80,7 @@ export function challengeView(state) {
       const verdict = `${fresh}${mine.slips > 0 ? `${label} changed fringe ${mine.slips} time(s).` : 'No fringe changes.'}${off}`;
       result.replaceChildren(el('section', { class: 'card' },
         el('h3', null, `Round ${k + 1}: you chose ${out.choices[choice].label}`),
-        el('p', null, `Score ${fmt.n(mine.score)} (RMS error ${fmt.n(mine.rmse_nt)} nT × √(qubits/8); lower is better). ${verdict} The largest jump in this round was ${fmt.n(out.largest_step_nt, 1)} nT.`),
+        el('p', null, rich(String.raw`Score ${fmt.n(mine.score)} (RMS error ${fmt.n(mine.rmse_nt)} nT $\times \sqrt{q/8}$ for a sensor of $q$ qubits; lower is better). ${verdict} The largest jump in this round was ${fmt.n(out.largest_step_nt, 1)} nT.`)),
         timeChart({
           title: `Round ${k + 1}: your estimation error`,
           desc: `Error of ${out.choices[choice].label} from ${out.start} to ${out.end} UTC. RMS ${fmt.n(mine.rmse_nt)} nT, ${mine.wrong_minutes} minutes on a wrong fringe.`,

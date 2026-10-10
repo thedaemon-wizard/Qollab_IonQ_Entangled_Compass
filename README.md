@@ -56,7 +56,7 @@ one job per Run and refuses a second one.
 
 ```
 python -m venv .venv && .venv/bin/pip install -r requirements-dev.txt
-.venv/bin/pytest -q                                   # 84 tests
+.venv/bin/pytest -q                                   # 100 tests
 .venv/bin/python tools/devserver/server.py            # http://127.0.0.1:8770/tools/devserver/dev.html
 PYTHONPATH=. .venv/bin/python scripts/headline_numbers.py   # every number in this README
 ```
@@ -228,8 +228,9 @@ agree; the other registers differ. All values are in `results/qollab/compass_run
 Keyboard-only use (tabs with arrow keys, Home and End; every control is a native button,
 select or slider with a label), visible focus, live status messages, focus moved to each new
 challenge round, charts and figures as SVG with a title, a description that states the numbers and a data
-table, series that differ by dash as well as colour, dark and light schemes, and no horizontal
-page scroll at 320 px.
+table, series that differ by dash as well as colour, formulas as native MathML (read by screen
+readers; plain Unicode text if the formula library cannot load), dark and light schemes, and no
+horizontal page scroll at 320 px.
 
 ## Design decisions
 

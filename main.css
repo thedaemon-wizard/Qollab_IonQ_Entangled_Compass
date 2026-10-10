@@ -5,6 +5,7 @@
   --text: #eef2f8; --muted: #b3bdd0; --accent: #7cc0ff; --accent-ink: #08111f; --focus: #ffd166;
   --s1: #56b4e9; --s2: #ff9a5c; --s3: #3ccf9e; --s4: #c0c8d8; --s5: #e79cc8;
   --band: rgba(86, 180, 233, 0.18); --bad: #ff8a8a; --ok: #6fdcaa;
+  --math-font: 'STIX Two Text', 'Latin Modern Roman', Cambria, 'Times New Roman', 'Liberation Serif', serif;
   color-scheme: dark;
 }
 @media (prefers-color-scheme: light) {
@@ -106,3 +107,26 @@ pre.circuit { overflow-x: auto; max-width: 100%; background: var(--bg); border: 
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; animation: none !important; }
 }
+
+/* explanatory figures (ui/schematic.js) */
+.schematic-fig { margin: 0; }
+.schematic-wrap { overflow-x: auto; max-width: 100%; }
+.schematic { width: 100%; height: auto; display: block; }
+.schematic .sk-title { fill: var(--text); font-size: 14px; font-weight: 650; }
+.schematic .sk-small { fill: var(--muted); font-size: 12px; }
+.schematic .sk-label { fill: var(--muted); font-size: 11px; font-weight: 650; letter-spacing: 0.04em; }
+.schematic .sk-gate { fill: var(--text); font-size: 12px; font-weight: 650; }
+.schematic .sk-frame { fill: none; stroke: var(--border); stroke-width: 1.5; stroke-dasharray: 6 5; }
+.schematic .sk-wire { stroke: var(--muted); stroke-width: 1.2; }
+.schematic .sk-wire-strong { stroke: var(--text); stroke-width: 1.6; }
+.schematic .sk-dot { fill: var(--text); }
+.schematic .sk-target { fill: none; stroke: var(--text); stroke-width: 1.6; }
+.schematic .sk-head { fill: var(--muted); }
+.schematic .sk-key { fill: var(--text); font-size: 20px; font-weight: 700; }
+.schematic .sk-note { fill: var(--text); font-size: 12px; }
+.schematic .sk-anc { stroke: var(--muted); stroke-width: 1.2; stroke-dasharray: 4 4; }
+/* formulas inside figures: math font, italic variables, smaller scripts */
+.schematic .sk-math { font-family: var(--math-font); font-size: 1.12em; font-weight: 400; }
+.schematic .sk-key .sk-math { font-weight: 400; }
+.schematic .sk-mi { font-style: italic; }
+.schematic .sk-script { font-size: 0.8em; }

@@ -1,0 +1,116 @@
+{
+ "date": "2026-10-11",
+ "tool": "puppeteer + Chrome (local harness); text boxes trimmed to 1.05 em before the overlap test",
+ "runs": [
+  {
+   "scheme": "dark",
+   "figures": [
+    {
+     "title": "One minute of the model",
+     "descLen": 1372,
+     "role": "img",
+     "texts": 53,
+     "overlaps": [],
+     "outOfView": [],
+     "notInBox": []
+    },
+    {
+     "title": "Two observatories, one entangled pair: a what-if",
+     "descLen": 575,
+     "role": "img",
+     "texts": 21,
+     "overlaps": [],
+     "outOfView": [],
+     "notInBox": []
+    },
+    {
+     "title": "Where each number comes from",
+     "descLen": 1477,
+     "role": "img",
+     "texts": 56,
+     "overlaps": [],
+     "outOfView": [],
+     "notInBox": []
+    },
+    {
+     "title": "One sensor register as a circuit, and every sensor in one job",
+     "descLen": 1236,
+     "role": "img",
+     "texts": 62,
+     "overlaps": [],
+     "outOfView": [],
+     "notInBox": []
+    }
+   ],
+   "narrow_320px": {
+    "overview": {
+     "scrollWidth": 320,
+     "clientWidth": 320
+    },
+    "method": {
+     "scrollWidth": 320,
+     "clientWidth": 320
+    },
+    "twin": {
+     "scrollWidth": 320,
+     "clientWidth": 320
+    }
+   }
+  },
+  {
+   "scheme": "light",
+   "figures": [
+    {
+     "title": "One minute of the model",
+     "descLen": 1372,
+     "role": "img",
+     "texts": 53,
+     "overlaps": [],
+     "outOfView": [],
+     "notInBox": []
+    },
+    {
+     "title": "Two observatories, one entangled pair: a what-if",
+     "descLen": 575,
+     "role": "img",
+     "texts": 21,
+     "overlaps": [],
+     "outOfView": [],
+     "notInBox": []
+    },
+    {
+     "title": "Where each number comes from",
+     "descLen": 1477,
+     "role": "img",
+     "texts": 56,
+     "overlaps": [],
+     "outOfView": [],
+     "notInBox": []
+    },
+    {
+     "title": "One sensor register as a circuit, and every sensor in one job",
+     "descLen": 1236,
+     "role": "img",
+     "texts": 62,
+     "overlaps": [],
+     "outOfView": [],
+     "notInBox": []
+    }
+   ],
+   "narrow_320px": {
+    "overview": {
+     "scrollWidth": 320,
+     "clientWidth": 320
+    },
+    "method": {
+     "scrollWidth": 320,
+     "clientWidth": 320
+    },
+    "twin": {
+     "scrollWidth": 320,
+     "clientWidth": 320
+    }
+   }
+  }
+ ]
+}

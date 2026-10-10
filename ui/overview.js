@@ -1,11 +1,12 @@
 // Overview: the question, the claim under test, four answers computed when the page opens.
 import { el, fmt } from './dom.js';
+import { modelFigure } from './figures.js';
 
 function tile(heading, value, text) {
   return el('li', { class: 'tile' }, el('h3', null, heading), el('p', { class: 'big' }, value), el('p', { class: 'small' }, text));
 }
 
-export function overviewView(answers, goTracker, goChallenge) {
+export function overviewView(init, goTracker, goChallenge) {
   const tiles = el('ul', { class: 'tiles', 'aria-label': 'Four answers' });
   const status = el('p', { role: 'status', class: 'status' }, 'Computing the answers (model replay of the quiet day and the storm)…');
   function fill(a) {
@@ -23,11 +24,12 @@ export function overviewView(answers, goTracker, goChallenge) {
       el('blockquote', null, '“An N-qubit GHZ sensor is √N times more precise than N independent sensors.”'),
       el('p', { class: 'small muted' }, 'From Qollab’s example project “Scaled Entanglement” (qollab.xyz/u/qollab/scaled-entanglement, version 1.0).'),
       el('p', null, 'True for ideal qubits, the same number of qubits, shots and interrogation time, and a field that stays inside the GHZ fringe. This playground tests it with simulated sensors on a real record: the total magnetic field at the USGS Boulder observatory, on a quiet day and during the G5 storm of 10–11 May 2024.')),
+    el('section', { class: 'card' }, el('h2', null, 'How one minute works'), modelFigure(init)),
     el('section', { class: 'card' }, el('h2', null, 'Four answers'), status, tiles),
     el('section', { class: 'card' }, el('h2', null, 'Real and simulated'),
       el('ul', null,
         el('li', null, el('strong', null, 'Real: '), 'the field data (one value per minute, as served by USGS).'),
-        el('li', null, el('strong', null, 'Simulated: '), 'the sensors. Each minute, a qubit phase of s·ΔF (s = 0.02 rad per nT by default) stands for the field step; GHZ registers multiply it by their size.'),
+        el('li', null, el('strong', null, 'Simulated: '), 'the sensors. Each minute, a qubit phase of s·ΔF (s = 0.02 rad per nT) stands for the field step; GHZ registers multiply it by their size.'),
         el('li', null, el('strong', null, 'Circuits: '), 'one packed Qiskit circuit per run on the simulator chosen in Qollab’s Run dialog (one job, also on IonQ).'),
         el('li', null, el('strong', null, 'Added by this app: '), 'the dephasing knob (one extra qubit per sensor). It is not part of any IonQ noise model.'))),
     el('section', { class: 'card' }, el('h2', null, 'Try it'),

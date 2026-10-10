@@ -2,8 +2,10 @@
 
 Usage: python scripts/make_writeup.py [git-ref] [--interim]   (default ref: v1.0-submission)
 
-Relative links point at the public repository at the given ref. With --interim, a note says
-that the repository goes public with the final version (its links do not open before that).
+Relative links point at the public repository at the given ref, and relative images at its raw
+files (Qollab shows images from raw.githubusercontent.com). With --interim, a note says that the
+repository goes public with the final version, and each image line becomes its alt text in
+italics, because the raw files do not open while the repository is private.
 """
 
 from __future__ import annotations
@@ -15,12 +17,18 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 REPO = "thedaemon-wizard/Qollab_IonQ_Entangled_Compass"
 LIMIT = 65_000
+LOCAL_IMAGE = r"!\[([^\]]*)\]\((?![a-z][a-z0-9+.-]*:|//)([^)]+)\)"
 LOCAL_LINK = r"(?<!!)\[([^\]]+)\]\((?![a-z][a-z0-9+.-]*:|//|#)([^)]+)\)"
 
 
 def convert(text: str, ref: str, interim: bool) -> str:
     blob = f"https://github.com/{REPO}/blob/{ref}/"
+    raw = f"https://raw.githubusercontent.com/{REPO}/{ref}/"
     text = text.replace("\r\n", "\n")
+    if interim:
+        text = re.sub(LOCAL_IMAGE, lambda m: f"*Figure (shown in the app): {m.group(1)}*", text)
+    else:
+        text = re.sub(LOCAL_IMAGE, lambda m: f"![{m.group(1)}]({raw}{m.group(2)})", text)
     text = re.sub(LOCAL_LINK, lambda m: f"[{m.group(1)}]({blob}{m.group(2)})", text)
     if interim:
         marker = f"> Repository: https://github.com/{REPO}\n"

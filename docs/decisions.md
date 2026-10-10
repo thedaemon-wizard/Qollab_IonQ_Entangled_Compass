@@ -77,3 +77,17 @@ behind it, and what would make us revisit it.
   never mixed within one comparison, and every comparison uses changes from a start value.
 - **Evidence.** Adjusted and quasi-definitive values of the same storm day differed by about 11 nT
   on average in an earlier fetch.
+
+## E10 — Figures drawn by the app from its own numbers
+
+- **Decision** (2026-10-11). Four explanatory figures: the model loop (Overview), one sensor
+  register as a circuit with the map of all qubits in the one job (Method), where each number
+  comes from (Method) and the two-observatory what-if (Two observatories). They are SVGs drawn by
+  `ui/figures.js` from what Python returns (the scale, the ranges, the qubit counts, the register
+  layout), and the README shows screenshots of the same figures.
+- **Evidence.** Before this, the model was only bullet text and Qiskit's 17-wire text drawing,
+  and the dials appeared only after a circuit run. A full gate-by-gate drawing of all 17 qubits
+  was left out: it reads no better than Qiskit's own drawing, which stays available under a
+  disclosure. Tests check that the drawn register matches the circuit `compass/circuits.py`
+  builds, that the figures use only theme colours and that no physics number is typed into them.
+- **Revisit if** the circuit layout changes (the tests will fail first).

@@ -3,6 +3,7 @@
 // both sites share cancels; (|00> + |11>)/sqrt(2) reads the SUM. The field records are real.
 import { dataTable, timeChart } from './chart.js';
 import { el, fmt, nextPaint } from './dom.js';
+import { twinFigure } from './figures.js';
 import { py } from './py.js';
 
 const MINUTES = [
@@ -87,6 +88,7 @@ export function twinView(info) {
     el('section', { class: 'card' }, el('h2', null, 'Two observatories: can entanglement cancel the storm?'),
       el('p', null, 'Put one qubit at Boulder and one at Tucson, about 1,000 km apart, and entangle them as (|01⟩ + |10⟩)/√2. The pair then picks up only the difference of the two fields: anything both sites feel cancels. Trapped-ion experiments use exactly this to ignore magnetic noise shared by two ions a few millimetres apart (Ruster et al. 2017). Does it cancel a geomagnetic storm across a continent?'),
       el('p', { class: 'small muted' }, 'A what-if: sharing entanglement between observatories needs a quantum network that does not exist. The field records are real (USGS, quasi-definitive); the sensors are simulated.'),
+      twinFigure(),
       el('div', { class: 'row' }, replayBtn), status, out),
     el('section', { class: 'card', 'aria-labelledby': 'ec-twin-run-h' }, el('h2', { id: 'ec-twin-run-h' }, 'One minute with the twin circuit'),
       el('p', { class: 'small muted' }, 'One circuit holds both entangled pairs (difference and sum, each read in X and Y), a single qubit per site, and a canary qubit.'),

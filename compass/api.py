@@ -13,7 +13,7 @@ import time
 import numpy as np
 from qiskit import transpile
 
-from compass import circuits, data, model, replay
+from compass import circuits, data, model, replay, twin
 from compass.decode import BitOrderError, decode
 from compass.estimators import cascade, theta, var_theta, visibility, wrap
 
@@ -141,6 +141,13 @@ def init_json() -> str:
                 "value": SCALE,
                 "ramsey_us": round(model.ramsey_time_us(SCALE), 1),
                 "ghz4_range_nt": round(math.pi / (4 * SCALE), 2),
+                # half-range of one GHZ-m reading per minute, pi / (m s), for the figures
+                "range_nt": {str(m): round(math.pi / (m * SCALE), 2) for m in (1, 2, 4)},
+            },
+            "qubits": {
+                "A": circuits.layout("A").n_qubits,
+                "B": circuits.layout("B").n_qubits,
+                "twin": twin.N_QUBITS,
             },
             "shots": SHOTS,
             "gamma_max": GAMMA_MAX,
@@ -533,7 +540,6 @@ def challenge_setup_json(params_json: str) -> str:
 def twin_replay_json(params_json: str) -> str:
     """Track the Boulder - Tucson field difference through the storm with the entangled pair and
     with one qubit per site (same 4 qubits per shot)."""
-    from compass import twin
 
     p = json.loads(params_json)
     shots = int(p.get("shots", 1000))
@@ -563,7 +569,6 @@ def twin_replay_json(params_json: str) -> str:
 
 def twin_run_json(backend, params_json: str) -> str:
     """One minute of the twin sensors as ONE job (shares the one-IonQ-job guard with run_json)."""
-    from compass import twin
 
     p = json.loads(params_json)
     kind = _backend_kind(backend)

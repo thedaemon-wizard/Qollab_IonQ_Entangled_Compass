@@ -56,12 +56,18 @@ one job per Run and refuses a second one.
 
 ```
 python -m venv .venv && .venv/bin/pip install -r requirements-dev.txt
-.venv/bin/pytest -q                                   # 52 tests
+.venv/bin/pytest -q                                   # 77 tests
 .venv/bin/python tools/devserver/server.py            # http://127.0.0.1:8770/tools/devserver/dev.html
 PYTHONPATH=. .venv/bin/python scripts/headline_numbers.py   # every number in this README
 ```
 
 ## How it works
+
+![One minute of the model: real field, phase δ = s·ΔF, GHZ register, X/Y parity readout, update; the estimate loops back.](docs/figures/model.png)
+
+*Figure 1. One minute of the model. Outlines and tag words mark what is real (solid), a model
+choice (dashed), simulated (double outline) and classical arithmetic (dotted). Nothing ran on a
+magnetometer or on quantum hardware.*
 
 - **Field to phase.** Each minute the residual field step becomes a qubit phase δ = s·(F − F̂),
   with s = 0.02 rad per nT (an electron spin with a 113.6 µs Ramsey time; this mapping is a
@@ -72,6 +78,13 @@ PYTHONPATH=. .venv/bin/python scripts/headline_numbers.py   # every number in th
   (|0…0⟩ + e^{imδ}|1…1⟩)/√2. Read with H on every qubit, its parity has mean V·cos(mδ); with
   Sdg on the first qubit first, V·sin(mδ). The angle atan2(Y, X)/m estimates δ, but only
   modulo 2π/m. V is the visibility.
+
+![One sensor register (GHZ-4 read in Y) as a circuit, with the dephasing ancilla of layout B, and the 17-qubit map of the packed circuit.](docs/figures/circuit.png)
+
+*Figure 2. Top: one of the eight sensor registers as `compass/circuits.py` builds it; the dashed
+box is added only in layout B. Bottom: every sensor and the canary qubit in the one circuit that
+runs as one job.*
+
 - **Fair comparison.** GHZ-4 read in X and in Y uses 8 qubits per shot; the baseline is a
   *matched unentangled sensor* with the same 8 qubits (4 read X, 4 read Y) and the same shots.
   Ideal standard deviations: 1/(4s√S) against 1/(2s√S) per minute, a factor 2 = √4. (This
@@ -94,9 +107,14 @@ PYTHONPATH=. .venv/bin/python scripts/headline_numbers.py   # every number in th
   Rz(−b) with equal odds. With cos b = e^{−mγ} this equals independent dephasing of each of the
   m qubits as seen by the GHZ coherence, which decays as e^{−mγ} (Huelga et al. 1997); the
   construction is ours.
-- **One job.** The canary qubit (X, then measure) must read 1 on every shot; if it does not, the
-  bit order of the returned keys is wrong and the app stops instead of guessing. Counts are read
-  with `backend.run` and `get_counts()`; no Sampler.
+- **One job.** The canary qubit (X, then measure) must read 1; if it reads 1 in fewer than 90% of
+  shots, the bit order of the returned keys is wrong and the app stops instead of guessing.
+  Counts are read with `backend.run` and `get_counts()`; no Sampler.
+
+![Architecture: USGS records feed the replay model and the packed Qiskit circuit inside the Python package; the circuit runs as one job on the backend chosen in Qollab's Run dialog; the estimators feed the JavaScript views.](docs/figures/architecture.png)
+
+*Figure 3. Where each number comes from. The JavaScript views reach Python only through
+`ui/py.js`, as JSON strings.*
 
 ## Results
 
@@ -209,7 +227,7 @@ agree; the other registers differ. All values are in `results/qollab/compass_run
 
 Keyboard-only use (tabs with arrow keys, Home and End; every control is a native button,
 select or slider with a label), visible focus, live status messages, focus moved to each new
-challenge round, charts as SVG with a title, a description that states the numbers and a data
+challenge round, charts and figures as SVG with a title, a description that states the numbers and a data
 table, series that differ by dash as well as colour, dark and light schemes, and no horizontal
 page scroll at 320 px.
 

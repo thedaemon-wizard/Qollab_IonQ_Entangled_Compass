@@ -1,5 +1,6 @@
 // Method & sources: the model in words and formulas, the circuit, the noise models, credits.
 import { el } from './dom.js';
+import { architectureFigure, circuitFigure } from './figures.js';
 import { py } from './py.js';
 
 const REFS = [
@@ -16,18 +17,19 @@ const REFS = [
   ['USGS', 'Geomagnetism Program web service, geomag.usgs.gov/ws/ (Boulder BOU and Tucson TUC; read 2026-10-10).'],
 ];
 
-export function methodView() {
+export function methodView(init) {
   const circuitBox = el('div', null, el('p', { class: 'muted' }, 'Loading the circuit…'));
   const view = el('div', { class: 'view' },
+    el('section', { class: 'card' }, el('h2', null, 'How the app is built'), architectureFigure(init)),
     el('section', { class: 'card' }, el('h2', null, 'The model'),
       el('ul', null,
         el('li', null, 'Field to phase: δ = s·(F_t − estimate), with s = 0.02 rad per nT. For an electron spin (28.025 Hz per nT) this is a Ramsey time of 113.6 µs; the mapping is a model choice, fixed because the slip counts depend on it.'),
-        el('li', null, 'A GHZ register of m qubits picks up m·δ: its X parity is V·cos(mδ), its Y parity V·sin(mδ). The angle atan2(Y, X)/m estimates δ, but only modulo 2π/m: GHZ-4 cannot tell a step of +44.6 nT from −34.0 nT at s = 0.02.'),
+        el('li', null, 'A GHZ register of m qubits picks up m·δ: its X parity is V·cos(mδ), its Y parity V·sin(mδ). The angle atan2(Y, X)/m estimates δ, but only modulo 2π/m: GHZ-4 cannot tell a step of +44.6 nT from −33.9 nT at s = 0.02.'),
         el('li', null, 'Fair comparison: GHZ-4 read in X and in Y uses 8 qubits per shot, the same as 8 independent qubits (4 read X, 4 read Y). With ideal qubits the standard deviation is 1/(4√S) against 1/(2√S): a factor 2 = √4.'),
         el('li', null, 'Cascade 1-2-4: the single qubit fixes the coarse value, GHZ-2 and GHZ-4 refine it; 14 qubits per shot, compared with 14 independent qubits (ideal gain 2·√(8/14) ≈ 1.51). Cascades extend the unambiguous range (theory: Kimmel et al. 2015; experiment without entanglement: Higgins et al. 2007; with GHZ states: Cao et al. 2024, whose cascade still stayed about 2 dB above the standard quantum limit).'),
         el('li', null, 'Independent dephasing with coherence e^(−γ) per qubit multiplies a GHZ-m visibility by e^(−mγ), so at a fixed interrogation time the gain is √N·e^(−(N−1)γ); for N = 4 it falls below 1 at γ = ln 4 / 6 ≈ 0.231. If the interrogation time is re-optimised, GHZ and independent qubits reach the same best precision (Huelga et al. 1997); for uncorrelated (Markovian) noise any gain is asymptotically a constant factor (Demkowicz-Dobrzański et al. 2012).'),
         el('li', null, 'Hybrid loop: a classical predictor (the last estimate) sets the working point, the quantum readout measures the residual, the estimate is updated; nothing else is fitted.'))),
-    el('section', { class: 'card' }, el('h2', null, 'The circuit (layout A, δ = 0.3 rad)'), circuitBox),
+    el('section', { class: 'card' }, el('h2', null, 'The circuit'), circuitBox),
     el('section', { class: 'card' }, el('h2', null, 'What the IonQ noise models can and cannot show'),
       el('ul', null,
         el('li', null, 'IonQ documents its Aria models (and Forte jobs before mid-September 2025) as depolarizing after each one- and two-qubit gate; the current Forte models are described as more complex and not yet documented, so this app reports what it measures and assumes nothing about their contents.'),
@@ -50,10 +52,12 @@ export function methodView() {
       loaded = true;
       try {
         const c = await py.circuitText('A');
+        const b = await py.circuitText('B');
         const pre = el('pre', { class: 'circuit', tabindex: '0', role: 'region', 'aria-label': `Qiskit text drawing of the ${c.n_qubits}-qubit circuit` }, c.text);
         circuitBox.replaceChildren(
+          circuitFigure(c, b),
           el('p', null, `${c.n_qubits} qubits: q0 is the canary; ${c.registers.map((r) => `${r.name} on q${r.qubits.join(',q')}`).join('; ')}. Gate counts: ${Object.entries(c.ops).map(([k, v]) => `${k} ${v}`).join(', ')}.`),
-          pre);
+          el('details', null, el('summary', null, `Qiskit’s own drawing of all ${c.n_qubits} qubits (layout A, δ = 0.3 rad)`), pre));
       } catch (err) {
         circuitBox.replaceChildren(el('p', null, `Could not draw the circuit: ${err.message}`));
       }

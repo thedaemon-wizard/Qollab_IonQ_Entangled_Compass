@@ -52,9 +52,9 @@ async function start() {
   document.getElementById('ec-backend').textContent = `Simulator for this session: ${info.name}${info.noise_model ? ` (noise model ${info.noise_model})` : ''}. Choose another in Qollab’s Run dialog.`;
   const state = { lastRun: null, measuredVis: null };
   let tabCtl = null;
-  const overview = overviewView(null, () => tabCtl.select(2, true), () => tabCtl.select(1, true));
+  const overview = overviewView(init, () => tabCtl.select(2, true), () => tabCtl.select(1, true));
   const tracker = trackerView(init, info, state);
-  const method = methodView();
+  const method = methodView(init);
   tabCtl = tabs([
     { id: 'overview', title: 'Overview', element: overview.element },
     { id: 'challenge', title: 'Storm challenge', element: challengeView(state) },

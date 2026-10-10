@@ -319,3 +319,65 @@ def run_json(backend, params_json: str) -> str:
             "ionq_jobs_used": _jobs["ionq"],
         }
     )
+
+
+def circuit_text_json(layout_name: str) -> str:
+    """Qiskit's text drawing of the packed circuit (for the Method view), at delta = 0.3 rad."""
+    lay = circuits.layout(layout_name)
+    qc = circuits.build(lay, 0.3, 0.1 if layout_name == "B" else 0.0)
+    return json.dumps(
+        {
+            "layout": layout_name,
+            "n_qubits": lay.n_qubits,
+            "text": str(qc.draw(output="text", fold=-1)),
+            "ops": {k: int(v) for k, v in qc.count_ops().items()},
+            "registers": [
+                {
+                    "name": r.name,
+                    "kind": r.kind,
+                    "m": r.m,
+                    "basis": r.basis,
+                    "qubits": list(r.qubits),
+                    "ancilla": r.ancilla,
+                }
+                for r in lay.registers
+            ],
+        }
+    )
+
+
+def _gain_quiet(vis: dict, scale: float = 0.02, shots: int = 1000) -> dict:
+    _, f = data.load("quiet")
+    est = replay.track(f, scale, shots, vis, arms=("IND8", "GHZ4"), replicates=16, seed=1)
+    i8 = replay.metrics(f, est["IND8"], scale, 1)["rmse"]
+    g4 = replay.metrics(f, est["GHZ4"], scale, 4)["rmse"]
+    return {**replay.mean_2se(i8 / g4), "theory": 2 * vis[("ghz", 4)] / vis[("ghz", 1)]}
+
+
+def overview_json() -> str:
+    """The four answers on the Overview, computed when the page opens (model replay)."""
+    t0 = time.time()
+    ideal = _gain_quiet(_visibilities("none", 0.0, None))
+    aria = _gain_quiet(_visibilities("aria-1", 0.0, None))
+    deph = _gain_quiet(_visibilities("none", 0.2, None))
+    _, f = data.load("storm")
+    est = replay.track(
+        f, 0.02, 1000, _visibilities("none", 0.0, None), arms=("GHZ4", "CASC"), replicates=8, seed=2
+    )
+    g4 = replay.metrics(f, est["GHZ4"], 0.02, 4)
+    casc = replay.metrics(f, est["CASC"], 0.02, 1)
+    return json.dumps(
+        {
+            "ideal": ideal,
+            "aria1": aria,
+            "dephasing_0_2": deph,
+            "storm": {
+                "ghz4_slips": replay.mean_2se(g4["slips"]),
+                "ghz4_wrong_minutes": replay.mean_2se(g4["wrong"]),
+                "cascade_slips": replay.mean_2se(casc["slips"]),
+                "scale": 0.02,
+                "shots": 1000,
+            },
+            "seconds": round(time.time() - t0, 2),
+        }
+    )

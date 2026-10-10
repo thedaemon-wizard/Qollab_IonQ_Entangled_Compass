@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Entangled Compass (local harness)</title>
+<link rel="stylesheet" href="/main.css">
+<style>body { margin: 0; }</style>
+<script type="importmap">{ "imports": { "compass.api": "/tools/devserver/shim.js" } }</script>
+</head>
+<body>
+<script type="module">
+  const params = new URLSearchParams(location.search);
+  window.backend = { name: params.get('backend') || 'basic_simulator' };
+  const html = await (await fetch('/index.html')).text();
+  document.body.insertAdjacentHTML('beforeend', html);
+  await import('/main.js');
+</script>
+</body>
+</html>

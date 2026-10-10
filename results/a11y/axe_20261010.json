@@ -1,6 +1,6 @@
 {
  "tool": "axe-core 4.14.0",
- "date": "2026-10-10T12:45:14.562Z",
+ "date": "2026-10-10T13:09:50.989Z",
  "runs": [
   {
    "scheme": "dark",
@@ -19,6 +19,14 @@
   {
    "scheme": "dark",
    "view": "tracker",
+   "violations": [],
+   "incomplete": [
+    "color-contrast"
+   ]
+  },
+  {
+   "scheme": "dark",
+   "view": "twin",
    "violations": [],
    "incomplete": [
     "color-contrast"
@@ -47,6 +55,14 @@
   {
    "scheme": "light",
    "view": "tracker",
+   "violations": [],
+   "incomplete": [
+    "color-contrast"
+   ]
+  },
+  {
+   "scheme": "light",
+   "view": "twin",
    "violations": [],
    "incomplete": [
     "color-contrast"

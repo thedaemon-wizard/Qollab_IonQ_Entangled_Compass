@@ -1,0 +1,62 @@
+{
+ "tool": "axe-core 4.14.0",
+ "date": "2026-10-10T12:45:14.562Z",
+ "runs": [
+  {
+   "scheme": "dark",
+   "view": "overview",
+   "violations": [],
+   "incomplete": []
+  },
+  {
+   "scheme": "dark",
+   "view": "challenge",
+   "violations": [],
+   "incomplete": [
+    "color-contrast"
+   ]
+  },
+  {
+   "scheme": "dark",
+   "view": "tracker",
+   "violations": [],
+   "incomplete": [
+    "color-contrast"
+   ]
+  },
+  {
+   "scheme": "dark",
+   "view": "method",
+   "violations": [],
+   "incomplete": []
+  },
+  {
+   "scheme": "light",
+   "view": "overview",
+   "violations": [],
+   "incomplete": []
+  },
+  {
+   "scheme": "light",
+   "view": "challenge",
+   "violations": [],
+   "incomplete": [
+    "color-contrast"
+   ]
+  },
+  {
+   "scheme": "light",
+   "view": "tracker",
+   "violations": [],
+   "incomplete": [
+    "color-contrast"
+   ]
+  },
+  {
+   "scheme": "light",
+   "view": "method",
+   "violations": [],
+   "incomplete": []
+  }
+ ]
+}

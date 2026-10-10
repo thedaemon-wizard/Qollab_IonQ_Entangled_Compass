@@ -43,7 +43,7 @@ export function dialsPanel(r) {
   const readNt = (d) => (d.angle_deg * Math.PI) / 180 / d.m / r.scale;
   const row = el('div', { class: 'dials' }, r.dials.map((d) => dial(d, readNt(d), r.dF_nT, Math.PI / (d.m * r.scale))));
   return el('section', { class: 'dials-panel', 'aria-label': 'Compass dials' },
-    el('h4', null, 'The dials: entanglement turns the needle faster'),
+    el('h3', null, 'The dials: entanglement turns the needle faster'),
     row,
     el('p', { class: 'small muted' }, `A GHZ register of m qubits turns its needle m times as far for the same field step, so the needle is m times as sensitive, but it can only be read back unambiguously within ±${fmt.n(r.fringes.half_range_nT['4'], 1)} nT per minute for GHZ-4 (±${fmt.n(r.fringes.half_range_nT['1'], 1)} nT for one qubit). The cascade reads the 1-qubit and GHZ-2 dials first to know which turn GHZ-4 is on.`));
 }

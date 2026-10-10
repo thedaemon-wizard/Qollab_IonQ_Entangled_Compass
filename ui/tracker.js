@@ -158,7 +158,7 @@ export function trackerView(init, info, state) {
     el('div', { class: 'field' }, el('label', { for: 'ec-gamma' }, 'Dephasing strength'), gamma, gammaOut),
     field('Gate noise in the replay', gateModel, 'IonQ’s documented depolarizing rates for Aria 1 (now retired), or the visibilities measured in your last circuit run.'),
     el('div', { class: 'row' }, replayBtn), status);
-  const runCardEl = el('section', { class: 'card', 'aria-labelledby': 'ec-run-h' }, el('h3', { id: 'ec-run-h' }, 'One minute on the quantum simulator'),
+  const runCardEl = el('section', { class: 'card', 'aria-labelledby': 'ec-run-h' }, el('h2', { id: 'ec-run-h' }, 'One minute on the quantum simulator'),
     el('p', { class: 'small muted' }, 'Every sensor below is in ONE circuit and sees the same field step: GHZ-1, GHZ-2 and GHZ-4 registers read in X and Y, a single qubit that passes the field four times, and a canary qubit that checks the bit order.'),
     field('Minute', preset), el('div', { class: 'row' }, runBtn), runStatus, runOut);
   return el('div', { class: 'view' }, el('div', { class: 'grid' }, controls, runCardEl), charts, metrics);

@@ -92,13 +92,22 @@ Model replay of the same parity measurement, s = 0.02 rad/nT, 1000 shots per reg
 minute, mean ± 2 standard errors over 32 replays (quiet day) unless stated; all values are in
 `results/headline_numbers.json` and are recomputed by `scripts/headline_numbers.py`.
 
-| Quiet day, gain of GHZ-4 over the matched unentangled sensor | Replay | Model at δ = 0 |
+| Quiet day, gain of GHZ-4 over… | the matched unentangled sensor (replay / model) | the standard quantum limit (replay / model) |
 |---|---|---|
-| Ideal gates | 2.00 ± 0.02 | 2 |
-| IonQ Aria 1 gate noise (documented rates) | 1.92 ± 0.02 | 1.918 |
-| Dephasing γ = 0.05 per qubit | 1.72 ± 0.02 | 2e^{−3γ} = 1.721 |
-| Dephasing γ = 0.10 | 1.48 ± 0.01 | 1.482 |
-| Dephasing γ = 0.20 | 1.10 ± 0.01 | 1.098 |
+| Ideal gates | 2.00 ± 0.02 / 2 | 1.41 ± 0.01 / √2 |
+| IonQ Aria 1 gate noise (documented rates) | 1.92 ± 0.02 / 1.918 | 1.36 ± 0.01 / 1.356 |
+| Dephasing γ = 0.05 per qubit | 1.72 ± 0.02 / 1.721 | 1.21 ± 0.01 / 1.217 |
+| Dephasing γ = 0.10 | 1.48 ± 0.01 / 1.482 | — |
+| Dephasing γ = 0.20 | 1.10 ± 0.01 / 1.098 | 0.78 ± 0.01 / 0.776 |
+
+**The strong baseline.** The standard quantum limit (SQL) for the same 8 qubits and 1000 shots
+per minute is the best precision *any* unentangled sensor could reach, with every qubit read at
+its most sensitive point: 0.559 nT per minute here (for ideal gates). It is a stricter opponent
+than the matched sensor, which sits √2 above it. GHZ-4 beats the SQL by √2 ideally (four times
+the phase from 8 qubits read as two registers), by 1.36 under IonQ's documented Aria 1 gate
+noise, and no longer beats it at all once γ ≥ ln 2 / 6 ≈ 0.116 per qubit (at fixed
+interrogation time). This is the measurable difference the app reports, with its model value,
+for every setting.
 
 - At fixed interrogation time, GHZ-4 stops beating 4 independent qubits at γ = ln 4 / 6 ≈ 0.231
   (0.347 for N = 2, 0.149 for N = 8). If the interrogation time may be re-optimised, Huelga et

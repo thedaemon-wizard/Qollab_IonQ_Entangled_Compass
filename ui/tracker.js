@@ -116,7 +116,9 @@ export function trackerView(init, info, state) {
       rows: Object.entries(r.arms).map(([a, x]) => [ARM_STYLE[a].name, String(x.qubits), fmt.pm(x.rmse), fmt.pm(x.rmse_ok), fmt.pm(x.wrong_minutes, 1), fmt.pm(x.slips, 1)]),
     }), el('p', { class: 'small' },
       `Gain of GHZ-4 over 8 independent qubits (same 8 qubits per shot): ${fmt.pm(r.gain_ghz4)}; model at zero field step ${fmt.n(r.gain_ghz4.theory)}. `,
-      `Gain of the cascade over 14 independent qubits: ${fmt.pm(r.gain_cascade)}; ideal ${fmt.n(r.gain_cascade.theory_ideal)}.`));
+      `Gain of the cascade over 14 independent qubits: ${fmt.pm(r.gain_cascade)}; ideal ${fmt.n(r.gain_cascade.theory_ideal)}.`),
+    el('p', { class: 'small' }, el('strong', null, 'Strong baseline: '),
+      `the standard quantum limit for the same 8 qubits and shots, the best any unentangled sensor could reach (every qubit read at its most sensitive point), is ${fmt.n(r.sql.nt, 3)} nT per minute. GHZ-4 beats it by ${fmt.pm(r.sql.gain_ghz4)}× on the right fringe (model ${fmt.n(r.sql.gain_ghz4.theory)}; ideal √2). Below 1, entanglement no longer pays.`));
   }
 
   // ---------- one circuit run ----------

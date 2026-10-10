@@ -174,6 +174,10 @@ def replay_json(params_json: str) -> str:
     i8 = replay.metrics(f, est["IND8"], scale, 1)["err"]
     gain = np.sqrt(np.nanmean((i8 * ok) ** 2, axis=1)) / np.sqrt(np.nanmean((g4["err"] * ok) ** 2, axis=1))
     ic = replay.metrics(f, est["IND14"], scale, 1)["rmse"] / replay.metrics(f, est["CASC"], scale, 1)["rmse"]
+    # Standard quantum limit for the same 8 qubits x S shots: the best any unentangled strategy can
+    # reach (each qubit read at its most sensitive point, same visibility as a single qubit here).
+    sql_nt = 1 / (scale * vis[("ghz", 1)] * math.sqrt(8 * shots))
+    ghz_ok = np.sqrt(np.nanmean((g4["err"] * ok) ** 2, axis=1))
     return json.dumps(
         {
             "times": times,
@@ -181,6 +185,13 @@ def replay_json(params_json: str) -> str:
             "arms": out,
             "gain_ghz4": {**replay.mean_2se(gain), "theory": 2 * vis[("ghz", 4)] / vis[("ghz", 1)]},
             "gain_cascade": {**replay.mean_2se(ic), "theory_ideal": 2 * math.sqrt(8 / 14)},
+            "sql": {
+                "nt": sql_nt,
+                "gain_ghz4": {
+                    **replay.mean_2se(sql_nt / ghz_ok),
+                    "theory": math.sqrt(2) * vis[("ghz", 4)] / vis[("ghz", 1)],
+                },
+            },
             "visibility": {f"{k[0]}{k[1]}": v for k, v in vis.items()},
             "band_nt": {
                 "IND8": 1 / (scale * vis[("ghz", 1)] * math.sqrt(4 * shots)),

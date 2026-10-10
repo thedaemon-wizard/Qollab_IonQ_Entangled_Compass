@@ -39,6 +39,8 @@ def gain(gate_model: str, gamma: float, seed: int = 0) -> dict:
         **out["gain_ghz4"],
         "rmse_ind8": out["arms"]["IND8"]["rmse"],
         "rmse_ghz4": out["arms"]["GHZ4"]["rmse"],
+        "sql_nt": out["sql"]["nt"],
+        "gain_over_sql": out["sql"]["gain_ghz4"],
     }
 
 
@@ -67,6 +69,7 @@ def main() -> None:
             "dephasing_0.20": gain("none", 0.20),
         },
         "crossover_gamma_fixed_interrogation": {str(n): model.crossover_gamma(n) for n in (2, 4, 8)},
+        "crossover_gamma_vs_sql_ghz4": math.log(2) / 6,
         "storm_exact_means": {
             "ghz4_slips": int(g4["slips"][0]),
             "ghz4_wrong_minutes": int(g4["wrong"][0]),

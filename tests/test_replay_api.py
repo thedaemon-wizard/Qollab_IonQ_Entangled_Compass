@@ -125,3 +125,16 @@ def test_storm_challenge_rounds_and_carry_over():
     assert abs(nxt["result"]["end_offset_nt"]) < 5  # a wide-range sensor re-anchors
     # same start and random draws for every option
     assert nxt["others"]["IND8"]["score"] == pytest.approx(nxt["result"]["score"])
+
+
+@pytest.mark.parametrize(
+    ("gamma", "theory"), [(0.0, math.sqrt(2)), (math.log(2) / 6, 1.0), (0.2, math.sqrt(2) * math.exp(-0.6))]
+)
+def test_gain_over_standard_quantum_limit(gamma, theory):
+    """The strong baseline: the SQL for the same 8 qubits x S shots. GHZ-4 beats it by sqrt(2)
+    ideally, and no longer at gamma = ln 2 / 6."""
+    out = json.loads(api.replay_json(json.dumps({"dataset": "quiet", "noise": "indep", "gamma": gamma})))
+    g = out["sql"]["gain_ghz4"]
+    assert g["theory"] == pytest.approx(theory, rel=1e-9)
+    assert g["mean"] == pytest.approx(theory, abs=0.03)
+    assert out["sql"]["nt"] == pytest.approx(math.exp(gamma) / (0.02 * math.sqrt(8000)), rel=1e-9)

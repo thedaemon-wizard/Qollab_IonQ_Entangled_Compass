@@ -5,31 +5,156 @@
    "utc": "2026-10-10T13:52Z",
    "qollab_backend_label": "Built-in simulator (24q), ideal",
    "backend_name": "basic_simulator",
-   "layout": "A", "n_qubits": 17, "shots": 1000, "job_wall_time_s": 0.097,
-   "minute": "2024-05-10T21:47", "dF_nT": 44.59, "canary_fraction": 1.0,
-   "visibility": {"GHZ-1": 0.996, "GHZ-2": 0.996, "GHZ-4": 1.018, "4-pass": 0.995},
+   "layout": "A",
+   "n_qubits": 17,
+   "shots": 1000,
+   "job_wall_time_s": 0.097,
+   "minute": "2024-05-10T21:47",
+   "dF_nT": 44.59,
+   "canary_fraction": 1.0,
+   "visibility": {
+    "GHZ-1": 0.996,
+    "GHZ-2": 0.996,
+    "GHZ-4": 1.018,
+    "4-pass": 0.995
+   },
    "gain_from_visibility": 2.05,
-   "estimates_nT": {"2 independent qubits": 45.96, "GHZ-4 alone": -33.66, "Cascade 1-2-4": 44.88, "1 qubit, 4 passes": -33.93},
-   "errors_nT": {"2 independent qubits": 1.37, "GHZ-4 alone": -78.25, "Cascade 1-2-4": 0.29, "1 qubit, 4 passes": -78.52}
+   "estimates_nT": {
+    "2 independent qubits": 45.96,
+    "GHZ-4 alone": -33.66,
+    "Cascade 1-2-4": 44.88,
+    "1 qubit, 4 passes": -33.93
+   },
+   "errors_nT": {
+    "2 independent qubits": 1.37,
+    "GHZ-4 alone": -78.25,
+    "Cascade 1-2-4": 0.29,
+    "1 qubit, 4 passes": -78.52
+   }
   },
   {
    "utc": "2026-10-10T13:57Z",
    "qollab_backend_label": "IonQ Aria 1 (25q), noise model, free simulator",
-   "backend_name": "ionq_simulator", "noise_model": "aria-1",
-   "layout": "A", "n_qubits": 17, "shots": 200, "job_wall_time_s": 12.502,
-   "compiled_ops": {"rz": 26, "h": 24, "measure": 17, "cx": 8, "x": 1},
-   "minute": "2024-05-10T21:47", "dF_nT": 44.59, "canary_fraction": 1.0,
+   "backend_name": "ionq_simulator",
+   "noise_model": "aria-1",
+   "layout": "A",
+   "n_qubits": 17,
+   "shots": 200,
+   "job_wall_time_s": 12.502,
+   "compiled_ops": {
+    "rz": 26,
+    "h": 24,
+    "measure": 17,
+    "cx": 8,
+    "x": 1
+   },
+   "minute": "2024-05-10T21:47",
+   "dF_nT": 44.59,
+   "canary_fraction": 1.0,
    "register_parities": {
-    "G1X": [0.550, 0.059], "G1Y": [0.840, 0.038], "G2X": [-0.220, 0.069], "G2Y": [0.950, 0.022],
-    "G4X": [-0.830, 0.039], "G4Y": [-0.400, 0.065], "MP4X": [-0.950, 0.022], "MP4Y": [-0.440, 0.063]
+    "G1X": [
+     0.55,
+     0.059
+    ],
+    "G1Y": [
+     0.84,
+     0.038
+    ],
+    "G2X": [
+     -0.22,
+     0.069
+    ],
+    "G2Y": [
+     0.95,
+     0.022
+    ],
+    "G4X": [
+     -0.83,
+     0.039
+    ],
+    "G4Y": [
+     -0.4,
+     0.065
+    ],
+    "MP4X": [
+     -0.95,
+     0.022
+    ],
+    "MP4Y": [
+     -0.44,
+     0.063
+    ]
    },
    "register_parities_note": "[mean, standard error]; ideal-gate model: G1X 0.628, G1Y 0.778, G2X -0.211, G2Y 0.977, G4X -0.911, G4Y -0.413, MP4X -0.911, MP4Y -0.413",
-   "visibility": {"GHZ-1": 1.002, "GHZ-2": 0.972, "GHZ-4": 0.918, "4-pass": 1.045},
-   "visibility_model_documented_aria1": {"GHZ-1": 0.999, "GHZ-2": 0.985, "GHZ-4": 0.958, "4-pass": 0.999},
+   "visibility": {
+    "GHZ-1": 1.002,
+    "GHZ-2": 0.972,
+    "GHZ-4": 0.918,
+    "4-pass": 1.045
+   },
+   "visibility_model_documented_aria1": {
+    "GHZ-1": 0.999,
+    "GHZ-2": 0.985,
+    "GHZ-4": 0.958,
+    "4-pass": 0.999
+   },
    "gain_from_visibility": 1.83,
-   "estimates_nT": {"2 independent qubits": 49.55, "GHZ-4 alone": -33.66, "Cascade 1-2-4": 44.88, "1 qubit, 4 passes": -33.85},
-   "errors_nT": {"2 independent qubits": 4.96, "GHZ-4 alone": -78.25, "Cascade 1-2-4": 0.29, "1 qubit, 4 passes": -78.44},
-   "se_nT": {"2 independent qubits": 2.67, "GHZ-4 alone": 0.83, "Cascade 1-2-4": 0.83, "1 qubit, 4 passes": 0.70}
+   "estimates_nT": {
+    "2 independent qubits": 49.55,
+    "GHZ-4 alone": -33.66,
+    "Cascade 1-2-4": 44.88,
+    "1 qubit, 4 passes": -33.85
+   },
+   "errors_nT": {
+    "2 independent qubits": 4.96,
+    "GHZ-4 alone": -78.25,
+    "Cascade 1-2-4": 0.29,
+    "1 qubit, 4 passes": -78.44
+   },
+   "se_nT": {
+    "2 independent qubits": 2.67,
+    "GHZ-4 alone": 0.83,
+    "Cascade 1-2-4": 0.83,
+    "1 qubit, 4 passes": 0.7
+   }
+  },
+  {
+   "utc": "2026-10-10T14:10Z",
+   "qollab_backend_label": "IonQ Forte 1 (29q), noise model, free simulator",
+   "backend_name": "ionq_simulator",
+   "noise_model": "forte-1",
+   "circuit": "twin (13 qubits)",
+   "shots": 200,
+   "job_wall_time_s": 13.043,
+   "compiled_ops": {
+    "h": 20,
+    "rz": 16,
+    "measure": 13,
+    "cx": 4,
+    "x": 3
+   },
+   "minute": "2024-05-10T17:06",
+   "canary_fraction": 1.0,
+   "reads_nT": {
+    "difference pair |01>+|10>": [
+     -3.1,
+     -9.0
+    ],
+    "sum pair |00>+|11>": [
+     33.4,
+     34.1
+    ],
+    "single qubit at Boulder": [
+     9.3,
+     12.6
+    ],
+    "single qubit at Tucson": [
+     20.6,
+     21.5
+    ]
+   },
+   "reads_note": "[read, true] change in one minute; with 200 shots one standard error is about 3.5 nT for a pair read in X and Y and about 5 nT for one qubit read in X or Y",
+   "independent_difference_nT": -11.3
   }
  ]
 }

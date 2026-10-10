@@ -157,6 +157,7 @@ difference the app reports, with its model value, for every setting.
 | Local Qiskit BasicSimulator (tests and harness) | layout A, 2024-05-10 21:47 UTC, 1000–2000 shots | canary 1.000; cascade within ±1 nT, GHZ-4 alone one fringe off (−78 nT), as the model says |
 | Qollab built-in simulator (2026-10-10 13:52 UTC) | layout A, 2024-05-10 21:47 UTC, 1000 shots, one job, 0.10 s | canary 1.000; cascade +0.29 nT, GHZ-4 alone −78.25 nT (one fringe off); visibilities GHZ-1/2/4 = 0.996 / 0.996 / 1.018 |
 | Qollab IonQ Aria 1 noise-model simulator (13:57 UTC) | the same, 200 shots, one job, 12.5 s | canary 1.000; cascade +0.29 nT, GHZ-4 alone −78.25 nT; measured visibilities GHZ-1/2/4 = 1.00 / 0.97 / 0.92 (documented-rate estimate 0.999 / 0.985 / 0.958; with 200 shots the standard error of each is about 0.06), so 2·V₄/V₁ = 1.83 |
+| Qollab IonQ Forte 1 noise-model simulator (14:10 UTC) | twin circuit (13 qubits), 2024-05-10 17:06 UTC, 200 shots, one job, 13.0 s | canary 1.000; difference pair read −3.1 nT (true −9.0), sum pair +33.4 nT (true +34.1), single qubits +9.3 and +20.6 nT (true +12.6 and +21.5); one standard error is about 3.5 nT for a pair at 200 shots |
 
 The two runs give the same GHZ-4 and cascade readings to 0.01 nT because the estimate depends only
 on the ratio of the GHZ-4 Y and X parities (here −0.400 / −0.830 on IonQ), which happened to

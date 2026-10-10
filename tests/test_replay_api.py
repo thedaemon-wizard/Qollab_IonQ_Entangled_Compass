@@ -95,7 +95,7 @@ class _FakeQPU:
 
 
 def test_one_ionq_job_per_run_and_no_hardware(monkeypatch):
-    monkeypatch.setitem(api._jobs, "ionq", 0)
+    monkeypatch.setitem(api._jobs, "guarded", 0)
     ionq = _FakeIonQ()
     req = json.dumps({"dataset": "quiet", "minute": "2026-10-01T12:00", "shots": 200})
     first = json.loads(api.run_json(ionq, req))

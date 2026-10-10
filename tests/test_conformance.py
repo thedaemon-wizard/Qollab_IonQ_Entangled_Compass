@@ -45,7 +45,7 @@ def test_backend_used_only_in_the_two_run_functions():
         end = end if end > 0 else len(api)
         assert start < pos < end
         body = api[start:end]
-        assert body.index('_jobs["ionq"] >= 1') < body.index("backend.run(")
+        assert body.index("_guard(kind)") < body.index("backend.run(")
 
 
 def test_no_sampler_no_measure_all_no_dynamic_circuits():

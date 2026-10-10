@@ -18,9 +18,10 @@ behind it, and what would make us revisit it.
 - **Decision.** Besides the matched unentangled sensor (same 8 qubits, same X/Y split), every
   replay reports GHZ-4 against the standard quantum limit for the same qubits and shots.
 - **Evidence.** The matched sensor is √2 above the SQL because its X quadrature carries little
-  information near δ = 0; beating it by 2 would overstate the advantage. Against the SQL the
-  ideal gain is √2, 1.36 under IonQ's documented Aria 1 gate noise, and it vanishes at
-  γ = ln 2 / 6 ≈ 0.116 (tests check all three).
+  information near δ = 0; beating it by 2 would overstate the advantage. Against the SQL (one
+  interrogation of the same length per qubit) the X/Y GHZ-4 readout gains √2 ideally, 1.36
+  under IonQ's documented Aria 1 gate noise, and nothing from γ = ln 2 / 6 ≈ 0.116 on (tests
+  check all three). The twin view applies the same baseline to the difference (1.58 nT).
 
 ## E3 — Phase per nT fixed at 0.02 rad
 

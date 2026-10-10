@@ -56,7 +56,7 @@ def test_twin_run_and_shared_ionq_guard(monkeypatch):
         def run(self, qc, shots):
             return BasicSimulator().run(qc, shots=shots)
 
-    monkeypatch.setitem(api._jobs, "ionq", 0)
+    monkeypatch.setitem(api._jobs, "guarded", 0)
     req = json.dumps({"dataset": "quiet", "minute": "2026-10-01T12:00", "shots": 100})
     assert "error" not in json.loads(api.run_json(FakeIonQ(), req))
     refused = json.loads(api.twin_run_json(FakeIonQ(), json.dumps({"minute": "2024-05-10T17:06"})))

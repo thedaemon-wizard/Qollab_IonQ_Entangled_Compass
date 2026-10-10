@@ -6,6 +6,7 @@ its path appears literally in the Python source.
 
 from __future__ import annotations
 
+from functools import cache
 from pathlib import Path
 
 import numpy as np
@@ -30,7 +31,21 @@ DATASETS = {
 _ROOT = Path(__file__).resolve().parent.parent
 
 
+@cache
+def _read_cached(path: str) -> tuple[tuple[str, ...], np.ndarray]:
+    times, values = _parse(path)
+    arr = np.array(values)
+    arr.setflags(write=False)
+    return tuple(times), arr
+
+
 def _read(path: str) -> tuple[list[str], np.ndarray]:
+    """Parsed once per path (the literal path strings above stay in the source)."""
+    times, arr = _read_cached(path)
+    return list(times), arr.copy()
+
+
+def _parse(path: str) -> tuple[list[str], list[float]]:
     p = Path(path)
     if not p.exists():  # running from elsewhere (tests): resolve against the project root
         p = _ROOT / path
@@ -43,7 +58,7 @@ def _read(path: str) -> tuple[list[str], np.ndarray]:
             raise ValueError(f"{path}: missing value at {t}")
         times.append(t)
         values.append(float(v))
-    return times, np.array(values)
+    return times, values
 
 
 def load(dataset: str) -> tuple[list[str], np.ndarray]:

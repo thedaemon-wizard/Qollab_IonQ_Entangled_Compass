@@ -2,7 +2,7 @@
 // entangled pair. (|01> + |10>)/sqrt(2) reads only the DIFFERENCE of the two fields, so a change
 // both sites share cancels; (|00> + |11>)/sqrt(2) reads the SUM. The field records are real.
 import { dataTable, timeChart } from './chart.js';
-import { announce, el, fmt, nextPaint } from './dom.js';
+import { el, fmt, nextPaint } from './dom.js';
 import { py } from './py.js';
 
 const MINUTES = [
@@ -30,7 +30,7 @@ export function twinView(info) {
       const st = r.steps;
       const maxAbs = Math.max(...r.boulder.map(Math.abs), ...r.tucson.map(Math.abs), ...r.gradient.map(Math.abs));
       out.replaceChildren(
-        el('p', null, `One-minute changes at the two sites are only weakly correlated during the storm (r = ${fmt.n(st.corr_one_minute_changes)}); only ${fmt.n(100 * st.common_fraction, 0)}% of their variance is shared. So the Boulder − Tucson difference jumps almost as much as Boulder itself (standard deviation of one-minute steps ${fmt.n(st.std_step_gradient_nt, 1)} nT against ${fmt.n(st.std_step_a_nt, 1)} nT; largest ${fmt.n(st.largest_step_gradient_nt, 1)} nT). Across 1,000 km the storm is not common noise; the cancelling trick needs sensors close enough to share it.`),
+        el('p', null, `One-minute changes at the two sites are only weakly correlated during the storm (r = ${fmt.n(st.corr_one_minute_changes)}); only ${fmt.n(100 * st.corr_one_minute_changes ** 2, 0)}% of the variance of one is explained by the other (r²), and only ${fmt.n(100 * st.common_fraction, 0)}% of the summed variance cancels in the difference. So the Boulder − Tucson difference jumps almost as much as Boulder itself (standard deviation of one-minute steps ${fmt.n(st.std_step_gradient_nt, 1)} nT against ${fmt.n(st.std_step_a_nt, 1)} nT; largest ${fmt.n(st.largest_step_gradient_nt, 1)} nT). Across 1,000 km the storm is not common noise; the cancelling trick needs sensors close enough to share it.`),
         timeChart({
           title: 'The storm at Boulder and Tucson, and their difference',
           desc: `Change of the total field since ${r.times[0]} UTC at Boulder and at Tucson (USGS), and Boulder minus Tucson. The difference is nearly as stormy as Boulder alone.`,
@@ -38,17 +38,19 @@ export function twinView(info) {
           series: [
             { name: 'Boulder', values: r.boulder, color: 'var(--s1)' },
             { name: 'Tucson', values: r.tucson, color: 'var(--s3)', dash: '7 4' },
-            { name: 'Boulder − Tucson', values: r.gradient, color: 'var(--s2)', width: 2.2 },
+            { name: 'Boulder − Tucson', values: r.gradient, color: 'var(--s2)', width: 2.2, dash: '9 3' },
           ],
+          table: { caption: 'Change every 60 min (nT)', columns: ['Time (UTC)', 'Boulder', 'Tucson', 'Boulder − Tucson'],
+            rows: r.times.map((tt, i) => [tt, fmt.n(r.boulder[i]), fmt.n(r.tucson[i]), fmt.n(r.gradient[i])]).filter((_, i) => i % 60 === 0) },
         }),
         dataTable({
           caption: `Tracking the difference with 4 qubits per shot, ${r.shots} shots per minute, ${r.scale} rad/nT (32 replays, mean ± 2 standard errors)`,
           columns: ['Sensor', 'RMS error of the difference (nT)'],
-          rows: [['Entangled pair (|01⟩+|10⟩), read in X and Y', fmt.pm(r.rmse.DIFF)], ['One qubit per site, read in X and Y', fmt.pm(r.rmse.IND)]],
+          rows: [['Entangled pair (|01⟩+|10⟩), read in X and Y', fmt.pm(r.rmse.DIFF)], ['One qubit per site, read in X and Y', fmt.pm(r.rmse.IND)],
+            ['Standard quantum limit for a difference, 4 qubits (best single-pass unentangled sensor)', fmt.n(r.sql_difference_nt)]],
         }),
-        el('p', null, `The entangled pair is ${fmt.pm(r.gain)}× as precise for the difference (ideal √2 = ${fmt.n(r.gain.theory)}): it measures the difference directly instead of subtracting two noisy readings. That gain needs no shared noise at all.`));
+        el('p', null, `The entangled pair is ${fmt.pm(r.gain)}× as precise for the difference as one qubit per site (ideal √2 = ${fmt.n(r.gain.theory)}): it measures the difference directly instead of subtracting two noisy readings. Read in X and Y it only matches the standard quantum limit for a difference; an optimally read pair would beat that limit by √2. None of this needs shared noise.`));
       status.textContent = `Done. Correlation of one-minute changes r = ${fmt.n(st.corr_one_minute_changes)}; the pair is ${fmt.n(r.gain.mean)}× as precise for the difference.`;
-      announce(status.textContent);
     } catch (err) {
       status.textContent = `The replay failed: ${err.message}`;
     } finally {
@@ -74,7 +76,6 @@ export function twinView(info) {
           rows: Object.entries(r.reads).map(([k, v]) => [label[k], fmt.signed(v.estimate_nT, 1), fmt.signed(v.true_nT, 1), fmt.signed(v.error_nT, 1)]) }),
         el('p', { class: 'small' }, `Difference from the two single qubits: ${fmt.signed(r.independent_difference_nT, 1)} nT. Canary read correctly in ${fmt.n(100 * r.canary, 1)}% of ${r.shots} shots; ${r.wall_s} s; gates ${Object.entries(r.ops).map(([k, v]) => `${k} ${v}`).join(', ')}.`));
       runStatus.textContent = `Done: ${r.backend.name}. The difference pair read ${fmt.signed(r.reads.difference.estimate_nT, 1)} nT (true ${fmt.signed(r.reads.difference.true_nT, 1)}).`;
-      announce(runStatus.textContent);
     } catch (err) {
       runStatus.textContent = `The run failed: ${err.message}`;
     } finally {

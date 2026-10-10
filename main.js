@@ -3,7 +3,7 @@
 // this file only builds the interface.
 import * as compassApi from 'compass.api';
 import { challengeView } from './ui/challenge.js';
-import { el } from './ui/dom.js';
+import { el, nextPaint } from './ui/dom.js';
 import { methodView } from './ui/method.js';
 import { overviewView } from './ui/overview.js';
 import { connect, py } from './ui/py.js';
@@ -62,6 +62,12 @@ async function start() {
     { id: 'twin', title: 'Two observatories', element: twinView(info) },
     { id: 'method', title: 'Method & sources', element: method.element, onShow: method.onShow },
   ]);
+  // The skip link moves focus without changing the URL (the frame's hash belongs to Qollab).
+  document.querySelector('.skip-link').addEventListener('click', (e) => {
+    e.preventDefault();
+    main.focus();
+  });
+  await nextPaint(); // show the tabs before the first (blocking) replay
   try {
     overview.fill(await py.overview());
   } catch (err) {
@@ -69,7 +75,13 @@ async function start() {
   }
 }
 
-start().catch((err) => {
+try {
+  await start();
+} catch (err) {
   const box = document.getElementById('ec-loading') || main;
-  box.textContent = `The app could not start: ${err.message}`;
-});
+  box.textContent = `The app could not start: ${err && err.message ? err.message : err}`;
+  box.setAttribute('role', 'alert');
+}
+
+// Keep main.js running: the injected backend (and so the circuit runs) stays available only while it does.
+await new Promise(() => {});

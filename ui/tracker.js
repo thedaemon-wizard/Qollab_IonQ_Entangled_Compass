@@ -2,14 +2,14 @@
 // packed sensor circuit for one minute on the backend Qollab injected (one job).
 import { dataTable, timeChart } from './chart.js';
 import { dialsPanel } from './dials.js';
-import { announce, el, fmt, nextPaint } from './dom.js';
+import { el, fmt, nextPaint } from './dom.js';
 import { py } from './py.js';
 
 const ARM_STYLE = {
-  IND8: { color: 'var(--s1)', dash: null, name: '8 independent qubits (matched, unentangled)' },
+  IND8: { color: 'var(--s1)', dash: '2 3', name: '8 independent qubits (matched, unentangled)' },
   GHZ4: { color: 'var(--s2)', dash: null, name: 'GHZ-4 (entangled)' },
   CASC: { color: 'var(--s3)', dash: '7 4', name: 'Cascade 1-2-4 (entangled)' },
-  IND14: { color: 'var(--s4)', dash: '2 3', name: '14 independent qubits' },
+  IND14: { color: 'var(--s4)', dash: '1 4', name: '14 independent qubits' },
   MP4: { color: 'var(--s5)', dash: '9 3 2 3', name: '1 qubit, 4 passes (4× interrogation)' },
 };
 const SHOWN = ['IND8', 'GHZ4', 'CASC', 'MP4'];
@@ -63,7 +63,6 @@ export function trackerView(init, info, state) {
       draw(lastReplay);
       const g = lastReplay.gain_ghz4;
       status.textContent = `Done in ${lastReplay.seconds} s. GHZ-4 is ${fmt.pm(g)}× as precise as 8 independent qubits on the minutes where it stays on the right fringe (model at zero field step: ${fmt.n(g.theory)}).`;
-      announce(status.textContent);
     } catch (err) {
       status.textContent = `The replay failed: ${err.message}`;
     } finally {
@@ -108,6 +107,8 @@ export function trackerView(init, info, state) {
       bands: [{ y0: -bandI, y1: bandI, fill: 'var(--band)', name: `±1σ shot noise, 8 independent qubits (${fmt.n(bandI)} nT)` }],
       hlines: maxErr > half ? [{ y: half, label: `GHZ-4 fringe edge +${fmt.n(half)} nT` }, { y: -half, label: `−${fmt.n(half)} nT` }] : [],
       marker,
+      table: { caption: `Error of each arm every ${step} min (nT)`, columns: ['Time (UTC)', ...SHOWN.map((a) => ARM_STYLE[a].name)],
+        rows: sampled.map((i) => [r.times[i], ...errs.map((s) => fmt.n(s.values[i]))]) },
     });
     charts.replaceChildren(fieldChart, errChart);
     metrics.replaceChildren(dataTable({
@@ -118,7 +119,7 @@ export function trackerView(init, info, state) {
       `Gain of GHZ-4 over 8 independent qubits (same 8 qubits per shot): ${fmt.pm(r.gain_ghz4)}; model at zero field step ${fmt.n(r.gain_ghz4.theory)}. `,
       `Gain of the cascade over 14 independent qubits: ${fmt.pm(r.gain_cascade)}; ideal ${fmt.n(r.gain_cascade.theory_ideal)}.`),
     el('p', { class: 'small' }, el('strong', null, 'Strong baseline: '),
-      `the standard quantum limit for the same 8 qubits and shots, the best any unentangled sensor could reach (every qubit read at its most sensitive point), is ${fmt.n(r.sql.nt, 3)} nT per minute. GHZ-4 beats it by ${fmt.pm(r.sql.gain_ghz4)}× on the right fringe (model ${fmt.n(r.sql.gain_ghz4.theory)}; ideal √2). Below 1, entanglement no longer pays.`));
+      `the standard quantum limit for the same 8 qubits and shots, the best any unentangled sensor could reach with one interrogation of the same length per qubit (every qubit read at its most sensitive point), is ${fmt.n(r.sql.nt, 3)} nT per minute. This X/Y GHZ-4 readout beats it by ${fmt.pm(r.sql.gain_ghz4)}× on the right fringe (model ${fmt.n(r.sql.gain_ghz4.theory)}; ideal √2). Below 1, this readout no longer beats the best single-pass unentangled sensor. (An optimally read GHZ-4 would gain 2 ideally and keep a gain until γ ≈ 0.23, but it would need the working point to be known even more closely. The 4-pass qubit beats the limit by spending four times the interrogation time.)`));
   }
 
   // ---------- one circuit run ----------
@@ -143,7 +144,6 @@ export function trackerView(init, info, state) {
       gateModel.querySelector('option[value="measured"]').disabled = false;
       runOut.replaceChildren(runCard(r));
       runStatus.textContent = `Done: ${r.backend.name}, ${r.shots} shots, ${r.n_qubits} qubits, ${r.wall_s} s. Cascade error ${fmt.signed(r.arms.CASC.error_nT)} nT, GHZ-4 alone ${fmt.signed(r.arms.GHZ4.error_nT)} nT.`;
-      announce(runStatus.textContent);
       if (lastReplay) draw(lastReplay);
     } catch (err) {
       runStatus.textContent = `The run failed: ${err.message}`;
@@ -197,5 +197,7 @@ function fringeChart(r) {
     xLabels: fr.dF.map((x) => String(Math.round(x))), xEvery: 40, xLabel: 'Field step in one minute (nT)', yLabel: 'X parity', yMin: -1.05, yMax: 1.05,
     series: ['1', '2', '4'].map((m) => ({ name: names[m], values: fr.curves[m], color: colors[m], dash: dashes[m] })),
     marker: { index: idx, label: 'this minute' },
+    table: { caption: 'X parity every 20 nT', columns: ['Field step (nT)', '1 qubit', 'GHZ-2', 'GHZ-4'],
+      rows: fr.dF.map((x, i) => [String(Math.round(x)), fmt.n(fr.curves['1'][i]), fmt.n(fr.curves['2'][i]), fmt.n(fr.curves['4'][i])]).filter((_, i) => i % 20 === 0) },
   });
 }

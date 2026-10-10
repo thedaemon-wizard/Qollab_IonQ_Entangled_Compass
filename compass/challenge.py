@@ -1,7 +1,13 @@
 """Storm challenge: twelve two-hour rounds through the May 2024 storm (16:00 UTC on 10 May to
 16:00 UTC on 11 May). Before each round the player picks a sensor; the round is then replayed
-with that sensor, starting from wherever the previous round left the estimate (a GHZ-4 that
-jumped a fringe stays wrong until a wider-range sensor takes over).
+with that sensor.
+
+Rules: keeping the same sensor keeps its estimate, so a GHZ-4 that jumped a fringe stays off
+until another jump happens to bring it back. Switching to a different sensor starts it from a
+fresh absolute fix (we assume a slow absolute reference, like the observatory's own instrument,
+is available when you switch). Without that fix, an offset of two GHZ-4 fringes (157 nT) is
+exactly at the edge of what even a single qubit can resolve, and the estimate could lock 314 nT
+off for good.
 
 Score per round: RMS error times sqrt(qubits / 8), so that every sensor is charged for the
 qubits it uses (shot noise falls as 1/sqrt(qubits)); lower is better.

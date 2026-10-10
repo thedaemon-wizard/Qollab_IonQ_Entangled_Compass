@@ -14,7 +14,7 @@ import numpy as np
 from qiskit import transpile
 
 from compass import circuits, data, model, replay
-from compass.decode import decode
+from compass.decode import BitOrderError, decode
 from compass.estimators import cascade, theta, var_theta, visibility, wrap
 
 SCALE = 0.02  # rad per nT, fixed: the slip counts and ranges quoted in the app depend on it
@@ -38,22 +38,58 @@ PRESETS = [
         "note": "largest step (+118.8 nT): GHZ-4 alone is off by two fringes",
     },
 ]
-_jobs = {"ionq": 0}
+# Jobs submitted in this Run to backends that allow only one (IonQ, and anything unrecognised).
+_jobs = {"guarded": 0}
+GUARDED = ("ionq", "unknown")
 
 
 def _backend_kind(backend) -> str:
+    """Simulators this app knows; hardware is refused; anything else is run with care (one job)."""
     name = (getattr(backend, "name", "") or "").lower()
     cls = type(backend).__name__.lower()
     module = type(backend).__module__.lower()
     if "qpu" in name:
         return "hardware"
     if "ionq" in name or module.startswith("qiskit_ionq"):
-        return "ionq"
+        return "ionq" if "simulator" in name else "hardware"
     if "braket" in cls or "braket" in module:
-        return "braket"
-    if name.startswith("fake") or "fake" in cls:
+        return "braket" if "local" in cls else "hardware"
+    if name.startswith("fake") or cls.startswith("fake"):
         return "ibm_fake"
-    return "local"
+    if cls in ("basicsimulator", "aersimulator", "statevectorsimulator") or name in (
+        "basic_simulator",
+        "aer_simulator",
+    ):
+        return "local"
+    return "unknown"
+
+
+def _guard(kind: str):
+    """None if a job may be submitted; otherwise the error to return."""
+    if kind == "hardware":
+        return {"error": "hardware", "message": "This project runs on simulators only."}
+    if kind in GUARDED and _jobs["guarded"] >= 1:
+        return {
+            "error": "one_job_per_run",
+            "message": "This backend allows one job per Run. Press Stop, then Run again for another minute.",
+        }
+    return None
+
+
+def _shots(kind: str, requested: int) -> int:
+    # IBM noise models run in Aer inside the browser: keep them short.
+    return min(requested, 200) if kind == "ibm_fake" else requested
+
+
+def _finite(obj):
+    """JSON has no Infinity or NaN: send null instead (the UI shows a dash)."""
+    if isinstance(obj, float):
+        return obj if math.isfinite(obj) else None
+    if isinstance(obj, dict):
+        return {k: _finite(v) for k, v in obj.items()}
+    if isinstance(obj, (list, tuple)):
+        return [_finite(v) for v in obj]
+    return obj
 
 
 def _noise_model_name(backend):
@@ -69,8 +105,8 @@ def backend_info_json(backend) -> str:
             "name": getattr(backend, "name", None) or type(backend).__name__,
             "kind": kind,
             "noise_model": _noise_model_name(backend),
-            "default_shots": 200 if kind == "ionq" else 1000,
-            "ionq_jobs_used": _jobs["ionq"],
+            "default_shots": 200 if kind in ("ionq", "ibm_fake", "unknown") else 1000,
+            "guarded_jobs_used": _jobs["guarded"],
         }
     )
 
@@ -122,13 +158,17 @@ def series_json(dataset: str) -> str:
 def _visibilities(gate_model: str, gamma: float, measured: dict | None) -> dict:
     """Visibility of each register type for the replay (GHZ m = 1, 2, 4 and multi-pass 4)."""
     if gate_model == "measured" and measured:
+        # measured gate-only visibilities, times the dephasing chosen for this replay
         base = {
             ("ghz", 1): measured["1"],
             ("ghz", 2): measured["2"],
             ("ghz", 4): measured["4"],
             ("mp", 4): measured.get("MP4", measured["1"]),
         }
-        return {k: float(min(1.0, max(0.0, v))) for k, v in base.items()}
+        return {
+            (kind, m): float(min(1.0, max(0.0, v))) * model.dephasing_visibility(m, gamma)
+            for (kind, m), v in base.items()
+        }
     rates = model.IONQ_DOCUMENTED.get(gate_model, {"r1": 0.0, "r2": 0.0})
     knob = gamma > 0
     vis = {}
@@ -204,7 +244,7 @@ def replay_json(params_json: str) -> str:
 
 
 def _transpiled(qc, backend, kind):
-    if kind in ("ionq", "braket"):
+    if kind in ("ionq", "braket", "unknown"):
         return transpile(qc, basis_gates=["rz", "cx", "h", "x", "measure"], optimization_level=0)
     if kind == "ibm_fake":
         return transpile(qc, backend=backend, optimization_level=1, seed_transpiler=11)
@@ -248,16 +288,10 @@ def _fringes(scale: float, d_f: float, span_nt: float = 160.0, points: int = 321
 def run_json(backend, params_json: str) -> str:
     p = json.loads(params_json)
     kind = _backend_kind(backend)
-    if kind == "hardware":
-        return json.dumps({"error": "hardware", "message": "This project runs on simulators only."})
-    if kind == "ionq" and _jobs["ionq"] >= 1:
-        return json.dumps(
-            {
-                "error": "one_job_per_run",
-                "message": "IonQ allows one job per Run. Press Stop, then Run again for another minute.",
-            }
-        )
-    scale, shots = SCALE, int(p.get("shots", 1000))
+    refused = _guard(kind)
+    if refused:
+        return json.dumps(refused)
+    scale, shots = SCALE, _shots(kind, int(p.get("shots", 1000)))
     gamma = float(p.get("gamma", 0.0)) if p.get("noise") == "indep" else 0.0
     times, f = data.load(p.get("dataset", "storm"))
     i = _minute_index(times, p["minute"])
@@ -266,8 +300,8 @@ def run_json(backend, params_json: str) -> str:
     lay = circuits.layout("B" if gamma > 0 else "A")
     qc = circuits.build(lay, delta, gamma)
     compiled = _transpiled(qc, backend, kind)
-    if kind == "ionq":
-        _jobs["ionq"] += 1
+    if kind in GUARDED:
+        _jobs["guarded"] += 1
     t0 = time.time()
     counts = dict(backend.run(compiled, shots=shots).result().get_counts())
     wall = time.time() - t0
@@ -326,42 +360,44 @@ def run_json(backend, params_json: str) -> str:
         se["MP4"] = math.sqrt(thetas["MP4"][1]) / 4
     v1, v4 = vis["1"]["hat"], vis["4"]["hat"]
     return json.dumps(
-        {
-            "backend": {
-                "name": getattr(backend, "name", None) or type(backend).__name__,
-                "kind": kind,
-                "noise_model": _noise_model_name(backend),
-            },
-            "layout": lay.name,
-            "n_qubits": lay.n_qubits,
-            "shots": dec["shots"],
-            "wall_s": round(wall, 3),
-            "minute": p["minute"],
-            "dataset": p.get("dataset", "storm"),
-            "dF_nT": d_f,
-            "delta_rad": delta,
-            "scale": scale,
-            "gamma": gamma,
-            "canary": dec["canary"],
-            "registers": rows,
-            "visibility": vis,
-            "arms": {
-                k: {
-                    "delta_hat": v,
-                    "se_rad": se[k],
-                    "estimate_nT": v / scale,
-                    "error_nT": v / scale - d_f,
-                    "se_nT": se[k] / scale,
-                }
-                for k, v in arms.items()
-            },
-            "gain_from_visibility": 2 * v4 / v1 if v1 > 0 else None,
-            "dials": _dials(thetas, vis, delta),
-            "fringes": _fringes(scale, d_f),
-            "ops": {k: int(v) for k, v in compiled.count_ops().items()},
-            "depth": compiled.depth(),
-            "ionq_jobs_used": _jobs["ionq"],
-        }
+        _finite(
+            {
+                "backend": {
+                    "name": getattr(backend, "name", None) or type(backend).__name__,
+                    "kind": kind,
+                    "noise_model": _noise_model_name(backend),
+                },
+                "layout": lay.name,
+                "n_qubits": lay.n_qubits,
+                "shots": dec["shots"],
+                "wall_s": round(wall, 3),
+                "minute": p["minute"],
+                "dataset": p.get("dataset", "storm"),
+                "dF_nT": d_f,
+                "delta_rad": delta,
+                "scale": scale,
+                "gamma": gamma,
+                "canary": dec["canary"],
+                "registers": rows,
+                "visibility": vis,
+                "arms": {
+                    k: {
+                        "delta_hat": v,
+                        "se_rad": se[k],
+                        "estimate_nT": v / scale,
+                        "error_nT": v / scale - d_f,
+                        "se_nT": se[k] / scale,
+                    }
+                    for k, v in arms.items()
+                },
+                "gain_from_visibility": 2 * v4 / v1 if v1 > 0 else None,
+                "dials": _dials(thetas, vis, delta),
+                "fringes": _fringes(scale, d_f),
+                "ops": {k: int(v) for k, v in compiled.count_ops().items()},
+                "depth": compiled.depth(),
+                "guarded_jobs_used": _jobs["guarded"],
+            }
+        )
     )
 
 
@@ -442,8 +478,13 @@ def challenge_json(params_json: str) -> str:
     shots = int(p.get("shots", 1000))
     vis = _visibilities(p.get("gate_model", "none"), 0.0, p.get("measured"))
     offset = float(p.get("offset_nt", 0.0))
+    previous = p.get("previous_choice")
     seed = int(p.get("seed", 7))
-    results = {c: challenge.play(k, c, offset, vis, SCALE, shots, seed) for c in challenge.CHOICES}
+
+    def start(c):  # keep the estimate when the sensor stays, a fresh absolute fix when it changes
+        return offset if previous in (None, c) else 0.0
+
+    results = {c: challenge.play(k, c, start(c), vis, SCALE, shots, seed) for c in challenge.CHOICES}
     times, _ = challenge._window(k)
     return json.dumps(
         {
@@ -452,6 +493,8 @@ def challenge_json(params_json: str) -> str:
             "start": times[1],
             "end": times[-1],
             "choice": p["choice"],
+            "reanchored": previous not in (None, p["choice"]) and offset != 0.0,
+            "start_offset_nt": start(p["choice"]),
             "result": results[p["choice"]],
             "others": {
                 c: {kk: v for kk, v in r.items() if kk not in ("times", "error_nt")}
@@ -509,6 +552,8 @@ def twin_replay_json(params_json: str) -> str:
             "traces": {k: [round(float(x - g[0]), 3) for x in v[0]] for k, v in est.items()},
             "rmse": {k: replay.mean_2se(v) for k, v in rmse.items()},
             "gain": {**replay.mean_2se(rmse["IND"] / rmse["DIFF"]), "theory": math.sqrt(2)},
+            # best single-pass unentangled estimate of a difference with 4 qubits per shot
+            "sql_difference_nt": 1 / (SCALE * math.sqrt(shots)),
             "steps": twin.step_statistics(f_a, f_b),
             "scale": SCALE,
             "shots": shots,
@@ -522,27 +567,25 @@ def twin_run_json(backend, params_json: str) -> str:
 
     p = json.loads(params_json)
     kind = _backend_kind(backend)
-    if kind == "hardware":
-        return json.dumps({"error": "hardware", "message": "This project runs on simulators only."})
-    if kind == "ionq" and _jobs["ionq"] >= 1:
-        return json.dumps(
-            {
-                "error": "one_job_per_run",
-                "message": "IonQ allows one job per Run. Press Stop, then Run again.",
-            }
-        )
-    shots = int(p.get("shots", 1000))
+    refused = _guard(kind)
+    if refused:
+        return json.dumps(refused)
+    shots = _shots(kind, int(p.get("shots", 1000)))
     times, f_a, f_b = data.load_pair()
     i = _minute_index(times, p["minute"])
     d_a, d_b = float(f_a[i] - f_a[i - 1]), float(f_b[i] - f_b[i - 1])
     qc = twin.build(SCALE * d_a, SCALE * d_b)
     compiled = _transpiled(qc, backend, kind)
-    if kind == "ionq":
-        _jobs["ionq"] += 1
+    if kind in GUARDED:
+        _jobs["guarded"] += 1
     t0 = time.time()
     counts = dict(backend.run(compiled, shots=shots).result().get_counts())
     wall = time.time() - t0
     dec = twin.parities(counts)
+    if dec["canary"] < 0.9:
+        raise BitOrderError(
+            f"canary fraction {dec['canary']:.3f}: the bit order of the result is not the expected one"
+        )
     m = dec["mean"]
     reads = {
         "difference": (float(theta(m["DIFFX"], m["DIFFY"])) / SCALE, d_a - d_b),
@@ -551,17 +594,21 @@ def twin_run_json(backend, params_json: str) -> str:
         "tucson": (float(theta(m["BX"], m["BY"])) / SCALE, d_b),
     }
     return json.dumps(
-        {
-            "backend": {"name": getattr(backend, "name", None) or type(backend).__name__, "kind": kind},
-            "minute": p["minute"],
-            "shots": dec["shots"],
-            "wall_s": round(wall, 3),
-            "canary": dec["canary"],
-            "n_qubits": twin.N_QUBITS,
-            "parities": m,
-            "reads": {k: {"estimate_nT": a, "true_nT": b, "error_nT": a - b} for k, (a, b) in reads.items()},
-            "independent_difference_nT": reads["boulder"][0] - reads["tucson"][0],
-            "ops": {k: int(v) for k, v in compiled.count_ops().items()},
-            "ionq_jobs_used": _jobs["ionq"],
-        }
+        _finite(
+            {
+                "backend": {"name": getattr(backend, "name", None) or type(backend).__name__, "kind": kind},
+                "minute": p["minute"],
+                "shots": dec["shots"],
+                "wall_s": round(wall, 3),
+                "canary": dec["canary"],
+                "n_qubits": twin.N_QUBITS,
+                "parities": m,
+                "reads": {
+                    k: {"estimate_nT": a, "true_nT": b, "error_nT": a - b} for k, (a, b) in reads.items()
+                },
+                "independent_difference_nT": reads["boulder"][0] - reads["tucson"][0],
+                "ops": {k: int(v) for k, v in compiled.count_ops().items()},
+                "guarded_jobs_used": _jobs["guarded"],
+            }
+        )
     )

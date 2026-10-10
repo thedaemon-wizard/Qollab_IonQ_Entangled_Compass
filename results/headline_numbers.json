@@ -1,5 +1,5 @@
 {
- "generated_utc": "2026-10-10T13:04:19+00:00",
+ "generated_utc": "2026-10-10T13:45:06+00:00",
  "python": "3.14.7",
  "qiskit": "2.5.2",
  "numpy": "2.4.6",
@@ -135,6 +135,33 @@
   ],
   "cascade_slips_max": 0,
   "ind8_slips_max": 0
+ },
+ "two_observatories": {
+  "rmse": {
+   "DIFF": {
+    "mean": 1.5574233911430149,
+    "two_se": 0.008029570056876163
+   },
+   "IND": {
+    "mean": 2.2117308120082417,
+    "two_se": 0.009132036764536814
+   }
+  },
+  "gain": {
+   "mean": 1.4204140388190207,
+   "two_se": 0.009382709307111483,
+   "theory": 1.4142135623730951
+  },
+  "sql_difference_nt": 1.5811388300841895,
+  "steps": {
+   "corr_one_minute_changes": 0.3310941801845256,
+   "std_step_a_nt": 8.134160552562111,
+   "std_step_b_nt": 4.777624446070753,
+   "std_step_gradient_nt": 7.953384362599452,
+   "largest_step_a_nt": 118.81999999999971,
+   "largest_step_gradient_nt": 119.58000000000175,
+   "common_fraction": 0.2891770344938628
+  }
  },
  "challenge_fixed_strategies": {
   "IND8": 0.7710342747842126,

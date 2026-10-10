@@ -14,6 +14,8 @@ export function challengeView(state) {
   let offset = 0;
   let history = [];
   let lastStep = null;
+  let previous = null;
+  let frozen = null; // settings fixed at the start of a game, so the benchmarks stay comparable
   const status = el('p', { role: 'status', class: 'status' }, 'Press “Start the challenge”.');
   const roundBox = el('div');
   const result = el('div');
@@ -27,15 +29,17 @@ export function challengeView(state) {
     status.textContent = 'Preparing the storm and the three fixed strategies…';
     await nextPaint();
     try {
-      setup = await py.challengeSetup(settings());
+      frozen = settings();
+      setup = await py.challengeSetup(frozen);
       k = 0;
       offset = 0;
       history = [];
       lastStep = null;
+      previous = null;
       result.replaceChildren();
       summary.replaceChildren();
       showRound();
-      status.textContent = `Round 1 of ${setup.rounds.length}. ${state.measuredVis ? 'Visibilities from your last circuit run are used.' : 'Ideal visibilities (run the circuit in the Field tracker to use measured ones).'}`;
+      status.textContent = `Round 1 of ${setup.rounds.length}. ${frozen.measured ? 'Visibilities from your last circuit run are used for the whole game.' : 'Ideal visibilities for the whole game (run the circuit in the Field tracker first to use measured ones).'}`;
     } catch (err) {
       status.textContent = `Could not start: ${err.message}`;
     } finally {
@@ -52,7 +56,7 @@ export function challengeView(state) {
       el('h3', { id: 'ec-round-h', tabindex: '-1' }, `Round ${k + 1} of ${setup.rounds.length}: ${r.start.replace('T', ' ')} to ${r.end.slice(11)} UTC`),
       el('p', null, lastStep === null
         ? `The storm begins this afternoon. GHZ-4 reads the field four times as finely, but loses its place if the field jumps more than ±${fmt.n(setup.ghz4_range_nt, 1)} nT in one minute.`
-        : `Last round, the largest one-minute jump was ${fmt.n(lastStep, 1)} nT. Your estimate starts ${fmt.signed(offset, 1)} nT from the true field.`),
+        : `Last round, the largest one-minute jump was ${fmt.n(lastStep, 1)} nT. Your estimate is ${fmt.signed(offset, 1)} nT from the true field. Keep the same sensor and it keeps that estimate; switch, and the new sensor starts from a fresh absolute fix.`),
       el('p', { class: 'small muted' }, 'Which sensor tracks the next two hours?'),
       el('div', { class: 'choices', role: 'group', 'aria-label': 'Choose a sensor' }, buttons)));
     roundBox.querySelector('h3').focus();
@@ -63,12 +67,16 @@ export function challengeView(state) {
     status.textContent = 'Replaying two hours…';
     await nextPaint();
     try {
-      const out = await py.challenge({ ...settings(), round: k, choice, offset_nt: offset });
+      const out = await py.challenge({ ...frozen, round: k, choice, offset_nt: offset, previous_choice: previous });
+      previous = choice;
       const mine = out.result;
       history.push({ round: k, choice, score: mine.score, slips: mine.slips, best: ORDER.reduce((b, c) => (out.others[c].score < out.others[b].score ? c : b), ORDER[0]) });
       offset = mine.end_offset_nt;
       lastStep = out.largest_step_nt;
-      const verdict = mine.slips > 0 ? `GHZ-4 jumped a fringe ${mine.slips} time(s): the estimate is now ${fmt.signed(offset, 1)} nT off.` : 'No fringe jumps.';
+      const label = out.choices[choice].label;
+      const off = Math.abs(offset) > 5 ? ` The estimate ends ${fmt.signed(offset, 1)} nT off.` : '';
+      const fresh = out.reanchored ? 'Switching sensors started it from a fresh absolute fix. ' : '';
+      const verdict = `${fresh}${mine.slips > 0 ? `${label} changed fringe ${mine.slips} time(s).` : 'No fringe changes.'}${off}`;
       result.replaceChildren(el('section', { class: 'card' },
         el('h3', null, `Round ${k + 1}: you chose ${out.choices[choice].label}`),
         el('p', null, `Score ${fmt.n(mine.score)} (RMS error ${fmt.n(mine.rmse_nt)} nT × √(qubits/8); lower is better). ${verdict} The largest jump in this round was ${fmt.n(out.largest_step_nt, 1)} nT.`),
@@ -78,8 +86,10 @@ export function challengeView(state) {
           width: 640, height: 200, xLabels: mine.times, xEvery: 30, xLabel: 'Time (UTC)', yLabel: 'Error (nT)',
           yMin: Math.min(-3, ...mine.error_nt) * 1.1, yMax: Math.max(3, ...mine.error_nt) * 1.1,
           series: [{ name: out.choices[choice].label, values: mine.error_nt, color: STYLE[choice] }],
+          table: { caption: 'Error every 10 minutes (nT)', columns: ['Time (UTC)', 'Error (nT)'],
+            rows: mine.times.map((tt, i) => [tt, fmt.n(mine.error_nt[i])]).filter((_, i) => i % 10 === 0) },
         }),
-        dataTable({ caption: 'From the same starting point and the same random draws', columns: ['Sensor', 'Score', 'RMS error (nT)', 'Fringe jumps'],
+        dataTable({ caption: 'The three sensors from the same start (a switch starts from a fresh fix) and the same random seed', columns: ['Sensor', 'Score', 'RMS error (nT)', 'Fringe jumps'],
           rows: ORDER.map((c) => [`${out.choices[c].label}${c === choice ? ' (your pick)' : ''}`, fmt.n(out.others[c].score), fmt.n(out.others[c].rmse_nt), String(out.others[c].slips)]) })));
       announce(`Round ${k + 1}: score ${fmt.n(mine.score)}. ${verdict}`);
       k += 1;
@@ -108,7 +118,7 @@ export function challengeView(state) {
         : `The best fixed strategy, “always ${bestFixed[0]}”, scores ${fmt.n(bestFixed[1])}. GHZ-4 is the finest sensor in calm hours, but one big jump costs more than it gains.`),
       dataTable({ caption: 'Your rounds', columns: ['Round', 'Your pick', 'Score', 'Fringe jumps', 'Best pick this round'],
         rows: history.map((h) => [String(h.round + 1), setup.choices[h.choice].label, fmt.n(h.score), String(h.slips), setup.choices[h.best].label]) }),
-      dataTable({ caption: 'Fixed strategies over all 12 rounds (same random draws)', columns: ['Strategy', 'Mean score'], rows: always.map(([l, s]) => [`always ${l}`, fmt.n(s)]) })));
+      dataTable({ caption: 'Fixed strategies over all 12 rounds (same random seed)', columns: ['Strategy', 'Mean score'], rows: always.map(([l, s]) => [`always ${l}`, fmt.n(s)]) })));
     summary.querySelector('h3').focus();
     status.textContent = 'Challenge complete.';
     announce(`Challenge complete. Mean score ${fmt.n(mean)}.`);
@@ -118,7 +128,7 @@ export function challengeView(state) {
   return el('div', { class: 'view' },
     el('section', { class: 'card' }, el('h2', null, 'Storm challenge'),
       el('p', null, 'Track the 10–11 May 2024 G5 storm at the Boulder observatory, two hours at a time. Before each round you see only the past. Pick the sensor for the next two hours: the steady 8 independent qubits, the twice-as-precise but short-ranged GHZ-4, or the 1-2-4 cascade that costs 14 qubits.'),
-      el('p', { class: 'small muted' }, 'Sensors are simulated (model replay of the same parity measurement the circuit makes); the field is the measured USGS record. 1000 shots per register per minute, 0.02 rad per nT.'),
+      el('p', { class: 'small muted' }, 'Rules: keeping a sensor keeps its estimate (a GHZ-4 that jumped a fringe stays off until another jump brings it back); switching starts the new sensor from a fresh absolute fix. Sensors are simulated (model replay of the same parity measurement the circuit makes); the field is the measured USGS record. 1000 shots per register per minute, 0.02 rad per nT.'),
       el('div', { class: 'row' }, startBtn), status),
     result, roundBox, summary);
 }

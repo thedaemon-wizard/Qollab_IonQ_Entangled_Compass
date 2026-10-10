@@ -10,10 +10,10 @@ export function overviewView(answers, goTracker, goChallenge) {
   const status = el('p', { role: 'status', class: 'status' }, 'Computing the answers (model replay of the quiet day and the storm)…');
   function fill(a) {
     tiles.replaceChildren(
-      tile('Ideal sensors', `${fmt.n(a.ideal.mean)}×`, `GHZ-4 against 8 independent qubits on the quiet day: ${fmt.pm(a.ideal)}. The textbook √4 = 2 holds. Against the standard quantum limit for the same qubits (the best any unentangled sensor could do): ${fmt.pm(a.ideal.over_sql)}, ideal √2.`),
+      tile('Ideal sensors', `${fmt.n(a.ideal.mean)}×`, `GHZ-4 against 8 independent qubits on the quiet day: ${fmt.pm(a.ideal)}. The textbook √4 = 2 holds. Against the standard quantum limit for the same qubits (the best single-pass unentangled sensor): ${fmt.pm(a.ideal.over_sql)}, ideal √2 for this X/Y readout.`),
       tile('IonQ Aria 1 gate noise (documented)', `${fmt.n(a.aria1.mean)}×`, `Depolarizing after every gate costs little: ${fmt.pm(a.aria1)}, model ${fmt.n(a.aria1.theory)}; over the standard quantum limit ${fmt.pm(a.aria1.over_sql)}.`),
       tile('Dephasing γ = 0.2 per qubit', `${fmt.n(a.dephasing_0_2.mean)}×`, `At a fixed interrogation time almost all of the advantage is gone: ${fmt.pm(a.dephasing_0_2)}, model 2e^(−3γ) = ${fmt.n(a.dephasing_0_2.theory)}; against the standard quantum limit GHZ-4 now loses (${fmt.pm(a.dephasing_0_2.over_sql)}).`),
-      tile('The May 2024 storm', `${fmt.n(a.storm.ghz4_slips.mean, 0)} jumps`, `GHZ-4 alone jumps to a wrong fringe about ${fmt.n(a.storm.ghz4_slips.mean, 0)} times and is wrong for ${fmt.n(a.storm.ghz4_wrong_minutes.mean, 0)} minutes; the 1-2-4 cascade jumps ${fmt.n(a.storm.cascade_slips.mean, 0)} times (${a.storm.shots} shots, ${a.storm.scale} rad/nT).`),
+      tile('The May 2024 storm', `${fmt.n(a.storm.ghz4_slips.mean, 0)} fringe changes`, `GHZ-4 alone changes fringe about ${fmt.n(a.storm.ghz4_slips.mean, 0)} times and is on a wrong fringe for about ${fmt.n(a.storm.ghz4_wrong_minutes.mean, 0)} minutes; the 1-2-4 cascade changes fringe ${fmt.n(a.storm.cascade_slips.mean, 0)} times (${a.storm.shots} shots, ${a.storm.scale} rad/nT).`),
     );
     status.textContent = `Computed in ${a.seconds} s from the replay model; open the Field tracker to change the settings or run the circuit.`;
   }
@@ -22,7 +22,7 @@ export function overviewView(answers, goTracker, goChallenge) {
       el('h2', null, 'The claim'),
       el('blockquote', null, '“An N-qubit GHZ sensor is √N times more precise than N independent sensors.”'),
       el('p', { class: 'small muted' }, 'From Qollab’s example project “Scaled Entanglement” (qollab.xyz/u/qollab/scaled-entanglement, version 1.0).'),
-      el('p', null, 'True for ideal qubits, the same number of qubits and shots, and a field that stays inside the GHZ fringe. This playground tests it with simulated sensors on a real record: the total magnetic field at the USGS Boulder observatory, on a quiet day and during the G5 storm of 10–11 May 2024.')),
+      el('p', null, 'True for ideal qubits, the same number of qubits, shots and interrogation time, and a field that stays inside the GHZ fringe. This playground tests it with simulated sensors on a real record: the total magnetic field at the USGS Boulder observatory, on a quiet day and during the G5 storm of 10–11 May 2024.')),
     el('section', { class: 'card' }, el('h2', null, 'Four answers'), status, tiles),
     el('section', { class: 'card' }, el('h2', null, 'Real and simulated'),
       el('ul', null,

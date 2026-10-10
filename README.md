@@ -19,9 +19,11 @@ nothing ran on a magnetometer or on quantum hardware.
   you see only the past and pick a sensor: 8 independent qubits, a GHZ-4 pair of registers
   (twice as precise, but it loses its place if the field jumps more than ±39.3 nT in one
   minute), or a 1-2-4 cascade that costs 14 qubits. The round is replayed with your pick and
-  compared with what the other two would have done from the same starting point and the same
-  random draws. A GHZ-4 that jumps a fringe stays wrong until you switch to a wider-range
-  sensor.
+  compared with what the other two would have done from the same start and the same random
+  seed. Keeping a sensor keeps its estimate, so a GHZ-4 that jumped a fringe stays off until
+  another jump happens to bring it back; switching starts the new sensor from a fresh absolute
+  fix (we assume a slow absolute reference, such as the observatory's own instrument, is
+  available when you switch).
 - **Field tracker.** Replays a whole record with every sensor arm (32 replays) and shows the
   field, each arm's estimate and its error, with a table of RMS error, minutes on a wrong
   fringe and fringe jumps. Settings: record (quiet day or storm), shots, added dephasing γ, and
@@ -73,17 +75,21 @@ PYTHONPATH=. .venv/bin/python scripts/headline_numbers.py   # every number in th
 - **Fair comparison.** GHZ-4 read in X and in Y uses 8 qubits per shot; the baseline is a
   *matched unentangled sensor* with the same 8 qubits (4 read X, 4 read Y) and the same shots.
   Ideal standard deviations: 1/(4s√S) against 1/(2s√S) per minute, a factor 2 = √4. (This
-  baseline is √2 above the standard quantum limit because its X quadrature carries little
-  information near δ = 0; GHZ-4 loses the same factor, so the ratio is still 2.)
+  baseline is √2 above the standard quantum limit: near δ = 0 the atan2(Y, X) estimate draws
+  its information from the Y readings only. GHZ-4 read the same way loses the same factor, so
+  the ratio is still 2.)
 - **Cascade.** The single qubit fixes the coarse value; GHZ-2 and GHZ-4 refine it, so the
   estimate is never on a wrong fringe while one-minute steps stay below ±157 nT. Cascades extend
-  the unambiguous range (theory: Higgins et al. 2007; Kimmel et al. 2015 with its 2021
-  erratum; demonstrated with GHZ states by Cao et al. 2024, whose cascade still stayed about
-  2 dB above the standard quantum limit, and by Finkelstein et al. 2024). It costs 14 qubits, so it is
-  compared with 14 independent qubits (ideal gain 2·√(8/14) ≈ 1.51).
+  the unambiguous range (theory: Kimmel et al. 2015 with its 2021 erratum; without
+  entanglement, by passing the phase several times, in the experiment of Higgins et al. 2007;
+  with GHZ states by Cao et al. 2024, whose cascade still stayed about 2 dB above the standard
+  quantum limit; a GHZ cascade was also prepared by Finkelstein et al. 2024). It costs 14
+  qubits, so it is compared with 14 independent qubits (ideal gain 2·√(8/14) ≈ 1.51).
 - **Noise.** *Gate noise*: IonQ documents its Aria models (and Forte jobs before mid-September
-  2025) as depolarizing after each gate; for our gate counts this leaves GHZ-4 a visibility of
-  0.958 on Aria 1. *Independent dephasing* γ is added by this app (layout B): one extra qubit
+  2025) as depolarizing after each gate; counting the abstract gates of our circuit (H, X, CX;
+  Rz and Sdg taken as noise-free virtual rotations) this leaves GHZ-4 a visibility of 0.958 on
+  Aria 1. IonQ compiles to native gates before applying the noise, so this is an estimate; the
+  run reports the measured visibility. *Independent dephasing* γ is added by this app (layout B): one extra qubit
   per register, prepared in |+⟩ and coupled by CX·Rz(b)·CX, makes the register see Rz(+b) or
   Rz(−b) with equal odds. With cos b = e^{−mγ} this equals independent dephasing of each of the
   m qubits as seen by the GHZ coherence, which decays as e^{−mγ} (Huelga et al. 1997); the
@@ -95,8 +101,8 @@ PYTHONPATH=. .venv/bin/python scripts/headline_numbers.py   # every number in th
 ## Results
 
 Model replay of the same parity measurement, s = 0.02 rad/nT, 1000 shots per register per
-minute, mean ± 2 standard errors over 32 replays (quiet day) unless stated; all values are in
-`results/headline_numbers.json` and are recomputed by `scripts/headline_numbers.py`.
+minute, mean ± 2 standard errors over 32 replays (quiet day) unless stated. The values below
+are in `results/headline_numbers.json` and are recomputed by `scripts/headline_numbers.py`.
 
 | Quiet day, gain of GHZ-4 over… | the matched unentangled sensor (replay / model) | the standard quantum limit (replay / model) |
 |---|---|---|
@@ -107,36 +113,41 @@ minute, mean ± 2 standard errors over 32 replays (quiet day) unless stated; all
 | Dephasing γ = 0.20 | 1.10 ± 0.01 / 1.098 | 0.78 ± 0.01 / 0.776 |
 
 **The strong baseline.** The standard quantum limit (SQL) for the same 8 qubits and 1000 shots
-per minute is the best precision *any* unentangled sensor could reach, with every qubit read at
-its most sensitive point: 0.559 nT per minute here (for ideal gates). It is a stricter opponent
-than the matched sensor, which sits √2 above it. GHZ-4 beats the SQL by √2 ideally (four times
-the phase from 8 qubits read as two registers), by 1.36 under IonQ's documented Aria 1 gate
-noise, and no longer beats it at all once γ ≥ ln 2 / 6 ≈ 0.116 per qubit (at fixed
-interrogation time). This is the measurable difference the app reports, with its model value,
-for every setting.
+per minute is the best precision any unentangled sensor can reach with one interrogation of the
+same length per qubit, every qubit read at its most sensitive point: 0.559 nT per minute here
+(for ideal gates). It is a stricter opponent than the matched sensor, which sits √2 above it.
+The X/Y GHZ-4 readout used here beats the SQL by √2 ideally, by 1.36 under IonQ's documented
+Aria 1 gate noise, and no longer beats it once γ ≥ ln 2 / 6 ≈ 0.116 per qubit (at fixed
+interrogation time). An optimally read GHZ-4 would beat it by 2 and keep a gain until
+γ ≈ 0.231, but it needs the working point known even more closely; the 4-pass single qubit
+beats the SQL only by spending four times the interrogation time. This is the measurable
+difference the app reports, with its model value, for every setting.
 
 - At fixed interrogation time, GHZ-4 stops beating 4 independent qubits at γ = ln 4 / 6 ≈ 0.231
   (0.347 for N = 2, 0.149 for N = 8). If the interrogation time may be re-optimised, Huelga et
   al. show that the GHZ state and independent qubits then reach the same best precision; for uncorrelated (Markovian) noise any
   entanglement gain is asymptotically a constant factor (Demkowicz-Dobrzański et al. 2012).
-- **The storm.** With exact means (no shot noise), GHZ-4 alone jumps a fringe 20 times, first
+- **The storm.** With exact means (no shot noise), GHZ-4 alone changes fringe 20 times, first
   at 21:47 UTC on 10 May (+44.6 nT in one minute), and is on a wrong fringe for 1,115 of the
   2,879 minutes (by 78.5 or 157.1 nT); the cascade and the independent qubits never are. With
-  shot noise (200 replays): 20 jumps in 152 replays, 21 in 48; wrong-fringe minutes median
-  1,115, range 436–1,268; cascade and independent qubits 0 jumps in every replay.
+  shot noise (200 replays): 20 fringe changes in 152 replays, 21 in 48; wrong-fringe minutes
+  median 1,115, range 436–1,268; cascade and independent qubits never change fringe.
 - **The challenge.** Mean scores of the fixed strategies (lower is better):
   always 8 independent qubits 0.77, always GHZ-4 49.6, always cascade 0.47. Five of the twelve
   rounds (3, 4, 6, 8, 9) contain a one-minute step beyond GHZ-4's range, so a player who uses
   GHZ-4 in the calm rounds and the cascade in the stormy ones beats every fixed strategy (for
-  example 0.42 in our test game).
+  example 0.42 in our test game, with the rules above).
 - **Two observatories.** The storm is *not* common noise across 1,000 km: one-minute changes at
-  Boulder and Tucson correlate only r = 0.33, and only 29% of their variance is shared, so the
+  Boulder and Tucson correlate only r = 0.33 (r² = 0.11), and only 29% of their summed variance
+  cancels in the difference, so the
   Boulder − Tucson difference jumps almost as much as Boulder itself (standard deviation of
   one-minute steps 7.95 nT against 8.13 nT; largest 119.6 nT). What remains is the plain
   advantage of measuring a difference directly: with the same 4 qubits per shot the entangled
   pair tracks the difference 1.42 ± 0.01 times as precisely as one qubit per site (ideal √2;
-  1.56 against 2.21 nT). At the storm's onset (17:06 UTC) both sites jumped together
-  (+12.6 and +21.5 nT): the difference pair read −9.0 nT of it, the sum pair +34.1 nT.
+  1.56 against 2.21 nT). Read in X and Y, the pair only matches the SQL for a difference
+  with 4 qubits (1.58 nT); an optimally read pair would beat it by √2. At the storm's onset
+  (17:06 UTC) both sites jumped together (+12.6 and +21.5 nT): the difference pair ideally
+  reads −9.0 nT of it and the sum pair +34.1 nT (one 1000-shot local run read −8.0 and +34.2).
 - **Circuit runs** (one job each): see "Where it ran".
 
 ## Where it ran
@@ -219,15 +230,16 @@ model and the two-observatory what-if are recorded with their evidence in
 - J. J. Bollinger, W. M. Itano, D. J. Wineland, D. J. Heinzen, Phys. Rev. A 54, R4649 (1996).
 - S. F. Huelga et al., Phys. Rev. Lett. 79, 3865 (1997).
 - D. Leibfried et al., Science 304, 1476 (2004): three entangled ions, 1.45(2) times the
-  sensitivity of three unentangled ones (ideal √3 ≈ 1.73).
-- B. L. Higgins et al., Nature 450, 393 (2007).
+  sensitivity of a perfect experiment with three unentangled ions (ideal √3 ≈ 1.73).
+- B. L. Higgins et al., Nature 450, 393 (2007): Heisenberg-limited phase estimation without
+  entanglement, by passing the phase several times (an experiment).
 - T. Monz et al., Phys. Rev. Lett. 106, 130506 (2011): coherence of GHZ states of up to 8 ions
   decays with N² under correlated noise.
 - R. Demkowicz-Dobrzański, J. Kołodyński, M. Guţă, Nat. Commun. 3, 1063 (2012).
 - S. Kimmel, G. H. Low, T. J. Yoder, Phys. Rev. A 92, 062315 (2015); erratum Phys. Rev. A 104,
   069901 (2021).
 - A. Cao et al., Nature 634, 315 (2024); R. Finkelstein et al., Nature 634, 321 (2024).
-- T. Ruster et al., Phys. Rev. X 7, 031050 (2017): a Bell pair of two ions 6.2 mm apart
+- T. Ruster et al., Phys. Rev. X 7, 031050 (2017): a Bell pair of two ions up to 6.2 mm apart
   measures a field difference and rejects common magnetic noise.
 - IonQ, Simulation with noise models, docs.ionq.com (read 2026-10-10).
 - USGS Geomagnetism Program web service, geomag.usgs.gov/ws (read 2026-10-10).

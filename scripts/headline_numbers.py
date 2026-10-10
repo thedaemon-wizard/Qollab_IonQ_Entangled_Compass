@@ -84,6 +84,11 @@ def main() -> None:
             "cascade_slips_max": int(replay.metrics(f, noisy["CASC"], S, 1)["slips"].max()),
             "ind8_slips_max": int(replay.metrics(f, noisy["IND8"], S, 1)["slips"].max()),
         },
+        "two_observatories": {
+            k: v
+            for k, v in json.loads(api.twin_replay_json("{}")).items()
+            if k in ("rmse", "gain", "steps", "sql_difference_nt")
+        },
         "challenge_fixed_strategies": {c: v["mean_score"] for c, v in setup["always"].items()},
         "challenge_rounds_with_a_step_beyond_ghz4_range": [
             k + 1 for k in range(challenge.ROUNDS) if challenge.largest_step(k) > math.pi / (4 * S)

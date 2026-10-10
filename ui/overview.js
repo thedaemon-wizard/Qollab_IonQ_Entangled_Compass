@@ -10,9 +10,9 @@ export function overviewView(answers, goTracker, goChallenge) {
   const status = el('p', { role: 'status', class: 'status' }, 'Computing the answers (model replay of the quiet day and the storm)…');
   function fill(a) {
     tiles.replaceChildren(
-      tile('Ideal sensors', `${fmt.n(a.ideal.mean)}×`, `GHZ-4 against 8 independent qubits on the quiet day: ${fmt.pm(a.ideal)}. The textbook √4 = 2 holds.`),
-      tile('IonQ Aria 1 gate noise (documented)', `${fmt.n(a.aria1.mean)}×`, `Depolarizing after every gate costs little: ${fmt.pm(a.aria1)}, model ${fmt.n(a.aria1.theory)}.`),
-      tile('Dephasing γ = 0.2 per qubit', `${fmt.n(a.dephasing_0_2.mean)}×`, `Almost all of the advantage is gone: ${fmt.pm(a.dephasing_0_2)}, model 2e^(−3γ) = ${fmt.n(a.dephasing_0_2.theory)}.`),
+      tile('Ideal sensors', `${fmt.n(a.ideal.mean)}×`, `GHZ-4 against 8 independent qubits on the quiet day: ${fmt.pm(a.ideal)}. The textbook √4 = 2 holds. Against the standard quantum limit for the same qubits (the best any unentangled sensor could do): ${fmt.pm(a.ideal.over_sql)}, ideal √2.`),
+      tile('IonQ Aria 1 gate noise (documented)', `${fmt.n(a.aria1.mean)}×`, `Depolarizing after every gate costs little: ${fmt.pm(a.aria1)}, model ${fmt.n(a.aria1.theory)}; over the standard quantum limit ${fmt.pm(a.aria1.over_sql)}.`),
+      tile('Dephasing γ = 0.2 per qubit', `${fmt.n(a.dephasing_0_2.mean)}×`, `At a fixed interrogation time almost all of the advantage is gone: ${fmt.pm(a.dephasing_0_2)}, model 2e^(−3γ) = ${fmt.n(a.dephasing_0_2.theory)}; against the standard quantum limit GHZ-4 now loses (${fmt.pm(a.dephasing_0_2.over_sql)}).`),
       tile('The May 2024 storm', `${fmt.n(a.storm.ghz4_slips.mean, 0)} jumps`, `GHZ-4 alone jumps to a wrong fringe about ${fmt.n(a.storm.ghz4_slips.mean, 0)} times and is wrong for ${fmt.n(a.storm.ghz4_wrong_minutes.mean, 0)} minutes; the 1-2-4 cascade jumps ${fmt.n(a.storm.cascade_slips.mean, 0)} times (${a.storm.shots} shots, ${a.storm.scale} rad/nT).`),
     );
     status.textContent = `Computed in ${a.seconds} s from the replay model; open the Field tracker to change the settings or run the circuit.`;

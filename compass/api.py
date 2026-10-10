@@ -395,7 +395,12 @@ def _gain_quiet(vis: dict, scale: float = 0.02, shots: int = 1000) -> dict:
     est = replay.track(f, scale, shots, vis, arms=("IND8", "GHZ4"), replicates=16, seed=1)
     i8 = replay.metrics(f, est["IND8"], scale, 1)["rmse"]
     g4 = replay.metrics(f, est["GHZ4"], scale, 4)["rmse"]
-    return {**replay.mean_2se(i8 / g4), "theory": 2 * vis[("ghz", 4)] / vis[("ghz", 1)]}
+    sql = 1 / (scale * vis[("ghz", 1)] * math.sqrt(8 * shots))
+    return {
+        **replay.mean_2se(i8 / g4),
+        "theory": 2 * vis[("ghz", 4)] / vis[("ghz", 1)],
+        "over_sql": {**replay.mean_2se(sql / g4), "theory": math.sqrt(2) * vis[("ghz", 4)] / vis[("ghz", 1)]},
+    }
 
 
 def overview_json() -> str:

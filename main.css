@@ -4,7 +4,7 @@
   --bg: #0f1420; --surface: #171e2e; --border: #34405a; --control: #7a88a6;
   --text: #eef2f8; --muted: #b3bdd0; --accent: #7cc0ff; --accent-ink: #08111f; --focus: #ffd166;
   --s1: #56b4e9; --s2: #ff9a5c; --s3: #3ccf9e; --s4: #c0c8d8; --s5: #e79cc8;
-  --band: rgba(86, 180, 233, 0.18); --bad: #ff8a8a;
+  --band: rgba(86, 180, 233, 0.18); --bad: #ff8a8a; --ok: #6fdcaa;
   color-scheme: dark;
 }
 @media (prefers-color-scheme: light) {
@@ -12,7 +12,7 @@
     --bg: #f7f8fb; --surface: #ffffff; --border: #c9d0dd; --control: #6b778c;
     --text: #141a24; --muted: #4a5568; --accent: #0b5cc2; --accent-ink: #ffffff; --focus: #8a4b00;
     --s1: #0072b2; --s2: #b84400; --s3: #007a5a; --s4: #4a5568; --s5: #a3407a;
-    --band: rgba(0, 114, 178, 0.14); --bad: #b42318;
+    --band: rgba(0, 114, 178, 0.14); --bad: #b42318; --ok: #11784a;
     color-scheme: light;
   }
 }
@@ -84,6 +84,16 @@ details { margin-top: 0.4rem; }
 summary { cursor: pointer; color: var(--muted); }
 pre.circuit { overflow-x: auto; max-width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 0.6rem; font-size: 11px; line-height: 1.25; }
 .refs li { margin-bottom: 0.3rem; }
+.dials { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 0.6rem; margin: 0.4rem 0; }
+.dial { margin: 0; text-align: center; font-size: 0.86rem; }
+.dial-svg { width: 100%; max-width: 150px; height: auto; display: block; margin: 0 auto; }
+.dial-ring { fill: none; stroke: var(--control); stroke-dasharray: 3 3; }
+.dial-axis { stroke: var(--border); }
+.dial-tick { fill: var(--muted); font-size: 9px; }
+.dial-true { stroke: var(--text); stroke-width: 2; }
+.dials-panel h4 { margin: 0.6rem 0 0.2rem; font-size: 1rem; }
+.ok { color: var(--ok); font-weight: 650; }
+.bad { color: var(--bad); font-weight: 650; }
 .card p, .card li, .tile p, .ec-footer p { overflow-wrap: anywhere; }
 .ec-footer { margin-top: 1.4rem; border-top: 1px solid var(--border); padding-top: 0.6rem; }
 

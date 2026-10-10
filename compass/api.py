@@ -15,7 +15,7 @@ from qiskit import transpile
 
 from compass import circuits, data, model, replay
 from compass.decode import decode
-from compass.estimators import cascade, theta, var_theta, visibility
+from compass.estimators import cascade, theta, var_theta, visibility, wrap
 
 SCALES = [0.01, 0.02, 0.05]
 SHOTS = [100, 200, 500, 1000, 2000]
@@ -203,6 +203,40 @@ def _transpiled(qc, backend, kind):
     return transpile(qc, backend=backend, optimization_level=0)
 
 
+def _dials(thetas: dict, vis: dict, delta: float) -> list[dict]:
+    """Compass needles: angle = the measured phase atan2(<Y>, <X>) = m*delta mod 2 pi,
+    length = the measured visibility; `true_deg` is where an ideal needle would point."""
+    out = []
+    for label, name in [("1", "1 qubit"), ("2", "GHZ-2"), ("4", "GHZ-4"), ("MP4", "1 qubit, 4 passes")]:
+        if label not in thetas:
+            continue
+        angle, var, m = thetas[label]
+        true = float(wrap(m * delta))
+        out.append(
+            {
+                "label": name,
+                "m": m,
+                "angle_deg": math.degrees(angle),
+                "true_deg": math.degrees(true),
+                "length": vis[label]["hat"],
+                "se_deg": math.degrees(math.sqrt(var)) if math.isfinite(var) else None,
+                "wrapped": abs(m * delta) > math.pi,
+            }
+        )
+    return out
+
+
+def _fringes(scale: float, d_f: float, span_nt: float = 160.0, points: int = 321) -> dict:
+    """Ideal X parity cos(m s dF) against the field step, for m = 1, 2, 4 (model curves)."""
+    xs = np.linspace(-span_nt, span_nt, points)
+    return {
+        "dF": [round(float(x), 3) for x in xs],
+        "curves": {str(m): [round(float(np.cos(m * scale * x)), 5) for x in xs] for m in (1, 2, 4)},
+        "half_range_nT": {str(m): math.pi / (m * scale) for m in (1, 2, 4)},
+        "this_minute_dF": d_f,
+    }
+
+
 def run_json(backend, params_json: str) -> str:
     p = json.loads(params_json)
     kind = _backend_kind(backend)
@@ -314,6 +348,8 @@ def run_json(backend, params_json: str) -> str:
                 for k, v in arms.items()
             },
             "gain_from_visibility": 2 * v4 / v1 if v1 > 0 else None,
+            "dials": _dials(thetas, vis, delta),
+            "fringes": _fringes(scale, d_f),
             "ops": {k: int(v) for k, v in compiled.count_ops().items()},
             "depth": compiled.depth(),
             "ionq_jobs_used": _jobs["ionq"],

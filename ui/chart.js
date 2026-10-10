@@ -40,9 +40,9 @@ export function timeChart(spec) {
     grid.append(svg('line', { x1: PAD.l, x2: PAD.l + iw, y1: sy(v), y2: sy(v) }),
       svg('text', { x: PAD.l - 6, y: sy(v) + 4, 'text-anchor': 'end', class: 'tick', text: String(v) }));
   }
-  const every = Math.max(1, Math.round(n / 6));
+  const every = spec.xEvery || Math.max(1, Math.round(n / 6));
   for (let i = 0; i < n; i += every) {
-    grid.append(svg('text', { x: sx(i), y: PAD.t + ih + 16, 'text-anchor': 'middle', class: 'tick', text: spec.xLabels[i].replace('T', ' ') }));
+    grid.append(svg('text', { x: sx(i), y: PAD.t + ih + 16, 'text-anchor': 'middle', class: 'tick', text: spec.xLabels[i].replace(/^(\d{4}-\d{2}-\d{2})T/, '$1 ') }));
   }
   grid.append(svg('text', { x: PAD.l + iw / 2, y: H - 4, 'text-anchor': 'middle', class: 'axis', text: spec.xLabel }),
     svg('text', { x: 14, y: PAD.t + ih / 2, 'text-anchor': 'middle', class: 'axis', transform: `rotate(-90 14 ${PAD.t + ih / 2})`, text: spec.yLabel }));

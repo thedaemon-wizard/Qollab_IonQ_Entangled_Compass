@@ -1,6 +1,7 @@
 // Field tracker: replay a field record with every sensor arm (numpy, in Python) and run the
 // packed sensor circuit for one minute on the backend Qollab injected (one job).
 import { dataTable, timeChart } from './chart.js';
+import { dialsPanel } from './dials.js';
 import { announce, el, fmt, nextPaint } from './dom.js';
 import { py } from './py.js';
 
@@ -173,9 +174,27 @@ function runCard(r) {
     fmt.n(a.estimate_nT), fmt.signed(a.error_nT), fmt.n(a.se_nT)]);
   return el('div', null,
     el('p', null, `Field step at ${r.minute.replace('T', ' ')} UTC: ${fmt.signed(r.dF_nT)} nT, so every register sees ${fmt.n(r.delta_rad, 4)} rad per qubit. Canary read correctly in ${fmt.n(100 * r.canary, 1)}% of shots.`),
+    dialsPanel(r),
+    fringeChart(r),
     dataTable({ caption: 'What each sensor reads from this one job', columns: ['Sensor', 'Estimate (nT)', 'Error (nT)', '± 1 SE (nT)'], rows: arms }),
     el('p', { class: 'small' }, `Visibility measured: GHZ-1 ${fmt.n(r.visibility['1'].hat, 3)}, GHZ-2 ${fmt.n(r.visibility['2'].hat, 3)}, GHZ-4 ${fmt.n(r.visibility['4'].hat, 3)}${r.visibility.MP4 ? `, 4-pass ${fmt.n(r.visibility.MP4.hat, 3)}` : ''}. Gain implied by them, 2·V₄/V₁ = ${fmt.n(r.gain_from_visibility)} (ideal 2).`),
     dataTable({ caption: 'Register parities (mean of ±1 over shots) against the ideal-gate model', columns: ['Register', 'Qubits', 'Measured', '± SE', 'Model', 'z'],
       rows: r.registers.map((g) => [g.name, g.qubits.join(' '), fmt.n(g.mean, 3), fmt.n(g.se, 3), fmt.n(g.ideal_model, 3), fmt.n(g.z, 1)]) }, 'Register parities'),
     el('p', { class: 'small muted' }, `Compiled circuit: ${Object.entries(r.ops).map(([k, v]) => `${k} ${v}`).join(', ')}; depth ${r.depth}. Job wall time ${r.wall_s} s (measured).`));
+}
+
+function fringeChart(r) {
+  const fr = r.fringes;
+  const idx = fr.dF.reduce((best, x, i) => (Math.abs(x - fr.this_minute_dF) < Math.abs(fr.dF[best] - fr.this_minute_dF) ? i : best), 0);
+  const names = { 1: '1 qubit', 2: 'GHZ-2', 4: 'GHZ-4' };
+  const colors = { 1: 'var(--s1)', 2: 'var(--s3)', 4: 'var(--s2)' };
+  const dashes = { 1: null, 2: '7 4', 4: null };
+  return timeChart({
+    title: 'Fringes: X parity against the field step in one minute (ideal model)',
+    desc: `cos(m·s·ΔF) for m = 1, 2 and 4 at s = ${r.scale} rad/nT. GHZ-4 oscillates four times as fast, so it is four times as steep, but it repeats every ${fmt.n(2 * fr.half_range_nT['4'], 1)} nT. This minute's step, ${fmt.signed(fr.this_minute_dF, 1)} nT, is marked.`,
+    width: 640, height: 220,
+    xLabels: fr.dF.map((x) => String(Math.round(x))), xEvery: 40, xLabel: 'Field step in one minute (nT)', yLabel: 'X parity', yMin: -1.05, yMax: 1.05,
+    series: ['1', '2', '4'].map((m) => ({ name: names[m], values: fr.curves[m], color: colors[m], dash: dashes[m] })),
+    marker: { index: idx, label: 'this minute' },
+  });
 }

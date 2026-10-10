@@ -203,9 +203,10 @@ page scroll at 320 px.
   author's *Bell-Test Lab* (Quantum Unlocked); no code is shared between the two.
 - The USGS records were downloaded on 2026-10-10 by `scripts/fetch_usgs.py` (Boulder at
   12:23 UTC, Tucson at 13:05 UTC).
-- Use of AI: generative-AI coding assistance was used for code, documents and research drafts,
-  including independent checks of the physics and the test vectors; the author checked the
-  results.
+- Use of AI: generative-AI coding assistants drafted most of the code, documentation and research
+  notes under the author's direction, and were also used for independent checks of the physics
+  and the test vectors; the author set the design, reviewed the changes, ran the tests and
+  checked the cited sources.
 
 ## References
 

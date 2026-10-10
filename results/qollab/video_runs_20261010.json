@@ -1,0 +1,17 @@
+{
+  "note": "Run shown in the demo video (https://youtu.be/fM3w3j7oYEE), recorded on Qollab on 2026-10-10 at about 23:21 UTC. Values were read off the screen; the counts were not exported.",
+  "backend": "ionq_simulator (noise model aria-1), chosen in Qollab's Run dialog (free simulator)",
+  "circuit": "layout A, 17 qubits, one job",
+  "minute": "2024-05-10T21:47 UTC (field step +44.59 nT)",
+  "shots": 200,
+  "wall_time_s": 11.931,
+  "canary_correct": 1.0,
+  "cascade_error_nT": -1.99,
+  "ghz4_alone_error_nT": -80.53,
+  "dials": {
+    "1 qubit": {"phase_deg": 50, "ideal_deg": 51, "reads_nT": 43.4, "fringe": "right"},
+    "GHZ-2": {"phase_deg": 104, "ideal_deg": 102, "reads_nT": 45.5, "fringe": "right"},
+    "GHZ-4": {"phase_deg": -165, "ideal_deg": -156, "reads_nT": -35.9, "fringe": "wrong"},
+    "1 qubit, 4 passes": {"phase_deg": -152, "ideal_deg": -156, "reads_nT": -33.1, "fringe": "wrong"}
+  }
+}

@@ -21,10 +21,21 @@ LOCAL_IMAGE = r"!\[([^\]]*)\]\((?![a-z][a-z0-9+.-]*:|//)([^)]+)\)"
 LOCAL_LINK = r"(?<!!)\[([^\]]+)\]\((?![a-z][a-z0-9+.-]*:|//|#)([^)]+)\)"
 
 
+def _qollab_math(text: str) -> str:
+    """GitHub reads ```math fences and $`...`$ (both keep backslashes and * intact); Qollab's
+    KaTeX reads $$...$$ and $...$. An inline formula never spans a line."""
+    text = re.sub(r"```math\n(.*?)\n```", lambda m: "$$" + m.group(1) + "$$", text, flags=re.S)
+    text = re.sub(r"\$`([^`\n]+?)`\$", lambda m: "$" + m.group(1) + "$", text)
+    bad = [i for i, ln in enumerate(text.split("\n"), 1) if "$`" in ln or "`$" in ln or ln.count("$") % 2]
+    if bad:
+        raise ValueError(f"math left unconverted or unpaired on lines {bad}")
+    return text
+
+
 def convert(text: str, ref: str, interim: bool) -> str:
     blob = f"https://github.com/{REPO}/blob/{ref}/"
     raw = f"https://raw.githubusercontent.com/{REPO}/{ref}/"
-    text = text.replace("\r\n", "\n")
+    text = _qollab_math(text.replace("\r\n", "\n"))
     if interim:
         text = re.sub(LOCAL_IMAGE, lambda m: f"*Figure (shown in the app): {m.group(1)}*", text)
     else:

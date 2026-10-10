@@ -17,16 +17,16 @@ behind it, and what would make us revisit it.
 
 - **Decision.** Besides the matched unentangled sensor (same 8 qubits, same X/Y split), every
   replay reports GHZ-4 against the standard quantum limit for the same qubits and shots.
-- **Evidence.** The matched sensor is √2 above the SQL because its X quadrature carries little
-  information near δ = 0; beating it by 2 would overstate the advantage. Against the SQL (one
-  interrogation of the same length per qubit) the X/Y GHZ-4 readout gains √2 ideally, 1.36
-  under IonQ's documented Aria 1 gate noise, and nothing from γ = ln 2 / 6 ≈ 0.116 on (tests
+- **Evidence.** The matched sensor is $`\sqrt{2}`$ above the SQL because its X quadrature carries little
+  information near $`\delta = 0`$; beating it by 2 would overstate the advantage. Against the SQL (one
+  interrogation of the same length per qubit) the X/Y GHZ-4 readout gains $`\sqrt{2}`$ ideally, 1.36
+  under IonQ's documented Aria 1 gate noise, and nothing from $`\gamma = (\ln 2)/6 \approx 0.116`$ on (tests
   check all three). The twin view applies the same baseline to the difference (1.58 nT).
 
 ## E3 — Phase per nT fixed at 0.02 rad
 
-- **Decision.** No selector for s.
-- **Evidence.** The slip counts depend on s: at 0.05 rad/nT even the cascade and the independent
+- **Decision.** No selector for $`s`$.
+- **Evidence.** The slip counts depend on $`s`$: at 0.05 rad/nT even the cascade and the independent
   qubits jump fringes in the storm, so each headline would need its own conditions. 0.02 rad/nT
   is an electron spin with a 113.6 µs Ramsey time and is printed next to every number.
 
@@ -49,10 +49,10 @@ behind it, and what would make us revisit it.
 
 ## E6 — Dephasing by one ancilla per register
 
-- **Decision.** Independent dephasing γ is added with one ancilla per register (CX·Rz(b)·CX, ancilla
-  in |+⟩, cos b = e^{−mγ}) rather than one per qubit.
-- **Evidence.** On a GHZ register, independent dephasing of the m qubits only matters through the
-  parity of the flips, so its coherence decays as e^{−mγ} (Huelga et al. 1997); one ancilla
+- **Decision.** Independent dephasing $`\gamma`$ is added with one ancilla per register ($`\mathrm{CX}\cdot R_z(b)\cdot\mathrm{CX}`$, ancilla
+  in $`\lvert +\rangle`$, $`\cos b = e^{-m\gamma}`$) rather than one per qubit.
+- **Evidence.** On a GHZ register, independent dephasing of the $`m`$ qubits only matters through the
+  parity of the flips, so its coherence decays as $`e^{-m\gamma}`$ (Huelga et al. 1997); one ancilla
   reproduces that exactly (tests compare with the closed form) and keeps the circuit at 21 qubits.
 
 ## E7 — No common-mode noise layout
@@ -67,7 +67,7 @@ behind it, and what would make us revisit it.
   labelled as a what-if.
 - **Evidence.** Sharing entanglement between observatories needs a quantum network that does not
   exist. The data show the storm is not common across the about 1,000 km between them (one-minute
-  changes correlate r = 0.33), so the cancelling trick does not apply; the √2 gain for measuring
+  changes correlate $`r = 0.33`$), so the cancelling trick does not apply; the $`\sqrt{2}`$ gain for measuring
   a difference directly does.
 
 ## E9 — Data as served, from one source

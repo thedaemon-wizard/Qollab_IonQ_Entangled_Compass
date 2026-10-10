@@ -155,8 +155,12 @@ difference the app reports, with its model value, for every setting.
 | Backend | What | Result |
 |---|---|---|
 | Local Qiskit BasicSimulator (tests and harness) | layout A, 2024-05-10 21:47 UTC, 1000–2000 shots | canary 1.000; cascade within ±1 nT, GHZ-4 alone one fringe off (−78 nT), as the model says |
-| Qollab built-in simulator | *to be run on the published project* | |
-| Qollab IonQ noise-model simulator | *to be run (one job)* | |
+| Qollab built-in simulator (2026-10-10 13:52 UTC) | layout A, 2024-05-10 21:47 UTC, 1000 shots, one job, 0.10 s | canary 1.000; cascade +0.29 nT, GHZ-4 alone −78.25 nT (one fringe off); visibilities GHZ-1/2/4 = 0.996 / 0.996 / 1.018 |
+| Qollab IonQ Aria 1 noise-model simulator (13:57 UTC) | the same, 200 shots, one job, 12.5 s | canary 1.000; cascade +0.29 nT, GHZ-4 alone −78.25 nT; measured visibilities GHZ-1/2/4 = 1.00 / 0.97 / 0.92 (documented-rate estimate 0.999 / 0.985 / 0.958; with 200 shots the standard error of each is about 0.06), so 2·V₄/V₁ = 1.83 |
+
+The two runs give the same GHZ-4 and cascade readings to 0.01 nT because the estimate depends only
+on the ratio of the GHZ-4 Y and X parities (here −0.400 / −0.830 on IonQ), which happened to
+agree; the other registers differ. All values are in `results/qollab/compass_runs_20261010.json`.
 
 ## The original part
 

@@ -43,9 +43,10 @@ nothing ran on a magnetometer or on quantum hardware.
   that minute's field step turned it, $`m\,s\,\Delta F`$, which can be more than half a turn.
   While GHZ-4 alone sits on a wrong fringe its tube and hub are red, and its count of fringe
   changes goes up each time it leaves or regains the right one; the cascade's register turns
-  just as far, but its 1-qubit and GHZ-2 registers tell it which turn it is on. Play, pause, step a minute, scrub, or turn the view
-  with the mouse or buttons; a text panel gives the same numbers for every minute. The needles
-  come from one replay, the one closest to the average of 32 (20 fringe jumps, 1,115 minutes on
+  just as far, but its 1-qubit and GHZ-2 registers tell it which turn it is on. Play, pause,
+  step a minute, jump to the first fringe change, scrub, or turn the view with the mouse or
+  buttons; a text panel gives the same numbers for every minute. The needles come from one
+  replay, the one closest to the average of 32 (20 fringe changes, 1,115 minutes on
   a wrong fringe, against averages of 20.2 and 988); every angle is computed in Python.
 - **Two observatories** (a what-if). One qubit at Boulder and one at Tucson, about 1,000 km apart,
   entangled as $`(\lvert 01\rangle + \lvert 10\rangle)/\sqrt{2}`$, pick up only the *difference* of the two fields, so anything

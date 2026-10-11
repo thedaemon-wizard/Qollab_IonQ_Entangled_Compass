@@ -287,6 +287,7 @@ export function compass3dView(init) {
   const play = el('button', { type: 'button', class: 'primary', id: 'ec3-play' }, 'Play');
   const back = el('button', { type: 'button' }, '− 1 minute');
   const fwd = el('button', { type: 'button' }, '+ 1 minute');
+  const toFirst = el('button', { type: 'button', id: 'ec3-first' }, 'Go to the first fringe change');
   const slider = el('input', { type: 'range', id: 'ec3-minute', min: '0', max: '0', step: '1', value: '0' });
   const sliderLabel = el('label', { for: 'ec3-minute' }, 'Minute');
   const status = el('p', { role: 'status', class: 'status', id: 'ec3-status' }, 'Open this tab to load the replay.');
@@ -430,6 +431,11 @@ export function compass3dView(init) {
   };
   back.addEventListener('click', () => step(-1));
   fwd.addEventListener('click', () => step(1));
+  toFirst.addEventListener('click', () => {
+    if (!data) return;
+    const first = data.arms.GHZ4.fringe.findIndex((x) => x !== 0);
+    if (first > 0) step(first - Math.round(t));
+  });
   slider.addEventListener('input', () => {
     if (playing) stop();
     t = Math.max(1, Number(slider.value));
@@ -460,7 +466,7 @@ export function compass3dView(init) {
     const tot = data.totals;
     status.textContent = `Replay ${data.replay.shown} of ${data.replay.of}, the one closest to their average: GHZ-4 alone changes fringe ${tot.GHZ4.slips} times and is on a wrong fringe for ${tot.GHZ4.wrong_minutes} minutes (averages over all ${data.replay.of}: ${fmt.n(data.replay.mean_slips, 1)} and ${fmt.n(data.replay.mean_wrong, 0)}); the cascade changes fringe ${tot.CASC.slips} times and 8 independent qubits ${tot.IND8.slips}.`;
     summary.replaceChildren(rich(first > 0
-      ? `First GHZ-4 fringe change: ${utc(data.times[first])}, when the field stepped ${fmt.signed(data.dF_nT[first], 1)} nT and turned the GHZ-4 register ${deg(data.arms.GHZ4.turn[first])}, more than half a turn. Use “+ 1 minute” around it to watch the reading land on the wrong fringe. A later step can knock it back onto the right fringe; that counts as a change too.`
+      ? `First GHZ-4 fringe change: ${utc(data.times[first])}, when the field stepped ${fmt.signed(data.dF_nT[first], 1)} nT and turned the GHZ-4 register ${deg(data.arms.GHZ4.turn[first])}, more than half a turn. Use “Go to the first fringe change” and “− 1 minute” / “+ 1 minute” around it to watch the reading land on the wrong fringe. A later step can knock it back onto the right fringe; that counts as a change too.`
       : 'GHZ-4 never leaves its fringe in this record: every minute’s step turns it less than half a turn.'));
     reserveHud();
     settle(1);
@@ -494,7 +500,7 @@ export function compass3dView(init) {
     el('div', { class: 'controls c3d-controls' },
       el('div', { class: 'field' }, dataLabel, dataset),
       el('div', { class: 'field' }, speedLabel, speed),
-      el('div', { class: 'toolbar' }, play, back, fwd)),
+      el('div', { class: 'toolbar' }, play, back, fwd, toFirst)),
     el('div', { class: 'field' }, sliderLabel, slider),
     status,
     stage,

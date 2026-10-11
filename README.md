@@ -2,7 +2,7 @@
 
 > **Theme: Quantum Playground** · Qollab × IonQ Global Quantum Hackathon 2026 · team Quantum Daemons
 > Repository: https://github.com/thedaemon-wizard/Qollab_IonQ_Entangled_Compass
-> Demo video (2:56, YouTube, synthetic narration, English captions): https://youtu.be/fM3w3j7oYEE
+> Demo video (2:59, YouTube, synthetic narration, English captions): https://youtu.be/easdOjNDF_k
 
 Qollab's own example project *Scaled Entanglement* says that an $`N`$-qubit GHZ sensor is $`\sqrt{N}`$ times
 more precise than $`N`$ independent sensors. That is true in the ideal case: the same qubits, the
@@ -51,13 +51,16 @@ nothing ran on a magnetometer or on quantum hardware.
 **On Qollab:** open the project and press **Run** (the free built-in simulator is fine). Start
 with the Storm challenge, then open the Field tracker and press **Run the sensor circuit (one
 job)**. To use IonQ's noise-model simulator, pick it in the Run dialog: the app submits exactly
-one job per Run and refuses a second one.
+one job per Run and refuses a second one. Qollab's run console gets one line per result (the
+overview gains at start-up, then each replay and circuit run), for example `[Entangled Compass]
+One-minute circuit on basic_simulator (17 qubits, 1000 shots, …): canary 100.0%, field step
++44.59 nT; cascade error +0.12 nT, GHZ-4 alone -78.42 nT, one qubit +1.52 nT.`
 
 **Locally** (Python 3.14):
 
 ```
 python -m venv .venv && .venv/bin/pip install -r requirements-dev.txt
-.venv/bin/pytest -q                                   # 100 tests
+.venv/bin/pytest -q                                   # 102 tests
 .venv/bin/python tools/devserver/server.py            # http://127.0.0.1:8770/tools/devserver/dev.html
 PYTHONPATH=. .venv/bin/python scripts/headline_numbers.py   # every number in this README
 ```

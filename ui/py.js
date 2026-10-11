@@ -18,7 +18,10 @@ function lastLine(err) {
 function call(name, ...args) {
   const job = chain.then(async () => {
     try {
-      return JSON.parse(await mod[name].callPromising(...args));
+      const out = JSON.parse(await mod[name].callPromising(...args));
+      // Qollab shows console.log in its run console, the first place judges look for results.
+      if (out && typeof out.console_line === 'string') console.log(out.console_line);
+      return out;
     } catch (err) {
       throw new Error(lastLine(err));
     }

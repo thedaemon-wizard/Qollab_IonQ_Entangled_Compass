@@ -32,3 +32,28 @@ MEDIUM = misleading or fragile, LOW = polish.
 
 Not yet done at the time of writing: runs on Qollab's built-in and IonQ simulators ("Where it
 ran" in the README).
+
+## Second review (2026-10-11): figures, formulas and the demo video
+
+An independent review of the figures, the typeset formulas, the documents and the demo video;
+each finding was checked again by a second reviewer before it was fixed.
+
+| # | Severity | Finding | Fix |
+|---|---|---|---|
+| 1 | MEDIUM | "No code is shared" with Bell-Test Lab no longer held: both entries use the same small Temml helper and font declaration | Disclosed in the README and the Method view |
+| 2 | MEDIUM | "The two runs give the same readings" became ambiguous after the video run was added to "Where it ran" | The runs are named; the video run (23:21 UTC) is in time order and said to read differently |
+| 3 | MEDIUM | Write-up formulas had no recorded check on Qollab | Pasted write-up checked in Qollab's preview: 59 KaTeX formulas, no error (decision E11) |
+| 4 | LOW | "The dashed box" did not say which of two dashed boxes | "The grey dashed box (and the dashed ancilla wire)" in the README and the figure |
+| 5 | LOW | Accessibility sentence gave explanatory figures a data table | Charts have data tables; figures have a description in words |
+| 6 | LOW | Decision dates and "the same figures" in decisions.md | Dates of E10 and E11; "the first three" |
+| 7 | LOW | Unicode fallback wrote "Δ F"; a render that throws would stop the views | "ΔF"; render wrapped so it falls back to Unicode |
+| 8 | LOW | Video: "more than a thousand minutes" against a table showing just under 1,000 | "About a thousand minutes" |
+| 9 | LOW | Video: the root-two gain was not said to be over one qubit per site | Narration names both baselines |
+| 10 | LOW | Video: gate-noise sentence over a dephasing-only screen; storm chart under a quiet-day label | Aria 1 gate noise is selected and replayed on screen, quiet day replayed before the shot |
+| 11 | LOW | Video: the cascade result scrolled away during "gets it right"; a band under the Qollab capture | Last frame held with the cascade line framed; capture flush with the frame bottom |
+
+The video was also re-recorded in one colour scheme (light); long still stretches were removed
+(the pointer follows the narration, and frames added in editing follow it on the Qollab footage).
+Checks of the finished file: no decode errors, constant 30 fps, no black frames, no still longer
+than 3.7 s apart from the end card, and real-time playback in Chrome with no stall and no dropped
+frame.

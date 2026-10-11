@@ -13,7 +13,7 @@ import time
 import numpy as np
 from qiskit import transpile
 
-from compass import circuits, data, model, replay, twin
+from compass import circuits, console, data, model, replay, twin
 from compass.decode import BitOrderError, decode
 from compass.estimators import cascade, theta, var_theta, visibility, wrap
 
@@ -100,15 +100,15 @@ def _noise_model_name(backend):
 
 def backend_info_json(backend) -> str:
     kind = _backend_kind(backend)
-    return json.dumps(
-        {
-            "name": getattr(backend, "name", None) or type(backend).__name__,
-            "kind": kind,
-            "noise_model": _noise_model_name(backend),
-            "default_shots": 200 if kind in ("ionq", "ibm_fake", "unknown") else 1000,
-            "guarded_jobs_used": _jobs["guarded"],
-        }
-    )
+    info = {
+        "name": getattr(backend, "name", None) or type(backend).__name__,
+        "kind": kind,
+        "noise_model": _noise_model_name(backend),
+        "default_shots": 200 if kind in ("ionq", "ibm_fake", "unknown") else 1000,
+        "guarded_jobs_used": _jobs["guarded"],
+    }
+    info["console_line"] = console.started(info)
+    return json.dumps(info)
 
 
 def _minute_index(times, minute):
@@ -225,7 +225,7 @@ def replay_json(params_json: str) -> str:
     # reach (each qubit read at its most sensitive point, same visibility as a single qubit here).
     sql_nt = 1 / (scale * vis[("ghz", 1)] * math.sqrt(8 * shots))
     ghz_ok = np.sqrt(np.nanmean((g4["err"] * ok) ** 2, axis=1))
-    return json.dumps(
+    result = (
         {
             "times": times,
             "F": [round(float(x), 3) for x in f],
@@ -248,6 +248,8 @@ def replay_json(params_json: str) -> str:
             "seconds": round(time.time() - t0, 3),
         }
     )
+    result["console_line"] = console.replay(p, result)
+    return json.dumps(result)
 
 
 def _transpiled(qc, backend, kind):
@@ -366,7 +368,7 @@ def run_json(backend, params_json: str) -> str:
     if "MP4" in thetas:
         se["MP4"] = math.sqrt(thetas["MP4"][1]) / 4
     v1, v4 = vis["1"]["hat"], vis["4"]["hat"]
-    return json.dumps(
+    result = (
         _finite(
             {
                 "backend": {
@@ -406,6 +408,8 @@ def run_json(backend, params_json: str) -> str:
             }
         )
     )
+    result["console_line"] = console.run(result)
+    return json.dumps(result)
 
 
 def circuit_text_json(layout_name: str) -> str:
@@ -458,7 +462,7 @@ def overview_json() -> str:
     )
     g4 = replay.metrics(f, est["GHZ4"], 0.02, 4)
     casc = replay.metrics(f, est["CASC"], 0.02, 1)
-    return json.dumps(
+    result = (
         {
             "ideal": ideal,
             "aria1": aria,
@@ -473,6 +477,8 @@ def overview_json() -> str:
             "seconds": round(time.time() - t0, 2),
         }
     )
+    result["console_line"] = console.overview(result)
+    return json.dumps(result)
 
 
 def challenge_json(params_json: str) -> str:
@@ -598,7 +604,7 @@ def twin_run_json(backend, params_json: str) -> str:
         "boulder": (float(theta(m["AX"], m["AY"])) / SCALE, d_a),
         "tucson": (float(theta(m["BX"], m["BY"])) / SCALE, d_b),
     }
-    return json.dumps(
+    result = (
         _finite(
             {
                 "backend": {"name": getattr(backend, "name", None) or type(backend).__name__, "kind": kind},
@@ -617,3 +623,5 @@ def twin_run_json(backend, params_json: str) -> str:
             }
         )
     )
+    result["console_line"] = console.twin_run(result)
+    return json.dumps(result)

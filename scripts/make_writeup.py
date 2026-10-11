@@ -3,7 +3,8 @@
 Usage: python scripts/make_writeup.py [git-ref] [--interim] [--check]   (default ref: v1.0-submission)
 
 Relative links point at the public repository at the given ref, and relative images at its raw
-files (Qollab shows images from raw.githubusercontent.com). The README's video line
+files (Qollab shows images from raw.githubusercontent.com). The README title is dropped, because
+Qollab shows the project title above the write-up. The README's video line
 ("Demo video (m:ss): <YouTube URL>", optionally in bold) becomes image syntax, which Qollab's
 write-up renders as an embedded player; GitHub keeps the plain link. With --interim, a note says
 that the repository goes public with the final version, and each image line becomes its alt text
@@ -49,6 +50,8 @@ def convert(text: str, ref: str, interim: bool) -> str:
     blob = f"https://github.com/{REPO}/blob/{ref}/"
     raw = f"https://raw.githubusercontent.com/{REPO}/{ref}/"
     text = _qollab_math(text.replace("\r\n", "\n"))
+    # Qollab shows the project title above the write-up, so the README's own title would repeat.
+    text = re.sub(r"\A# [^\n]*\n+", "", text)
     if interim:
         text = re.sub(LOCAL_IMAGE, lambda m: f"*Figure (shown in the app): {m.group(1)}*", text)
     else:

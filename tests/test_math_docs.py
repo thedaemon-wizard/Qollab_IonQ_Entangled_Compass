@@ -41,6 +41,16 @@ def test_writeup_has_only_qollab_math():
     readme = (ROOT / "README.md").read_text(encoding="utf-8")
     for out in (mw.convert(readme, "v1.0-submission", False), mw.convert(readme, "main", True)):
         assert "$`" not in out and "`$" not in out and "```math" not in out
-        assert len(re.findall(r"(?<!\$)\$(?!\$)[^$\n]+?\$", out)) == len(INLINE.findall(readme))
+        body = readme.split("\n", 1)[1]  # the title line is dropped (Qollab shows the project title)
+        assert not out.startswith("# ")
+        assert len(re.findall(r"(?<!\$)\$(?!\$)[^$\n]+?\$", out)) == len(INLINE.findall(body))
     with pytest.raises(ValueError):
         mw.convert(readme + "\nbroken $`x\n", "main", False)
+
+
+def test_markdown_math_uses_github_safe_macros():
+    # GitHub's math renderer rejects \\operatorname ("The following macros are not allowed").
+    docs = sorted((ROOT / "docs").glob("*.md"))
+    paths = [ROOT / "README.md", *docs, ROOT / "results" / "a11y" / "README.md"]
+    for path in paths:
+        assert "\\operatorname" not in path.read_text(encoding="utf-8"), path.name

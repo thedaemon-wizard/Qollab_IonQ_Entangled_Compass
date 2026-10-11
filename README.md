@@ -1,6 +1,7 @@
 # Entangled Compass: is a GHZ sensor really $`\sqrt{N}`$ better?
 
 > **Theme: Quantum Playground** · Qollab × IonQ Global Quantum Hackathon 2026 · team Quantum Daemons
+>
 > Repository: https://github.com/thedaemon-wizard/Qollab_IonQ_Entangled_Compass
 
 **Demo video (2:54):** https://youtu.be/IomHduFJqyc
@@ -92,7 +93,7 @@ with range, and compare against the SQL, not only against a matched sensor read 
   GHZ-2, GHZ-4 read in X and in Y, a single qubit that passes the field four times, and a
   canary qubit) and is run as **one job** on the backend chosen in Qollab's Run dialog. The
   result is shown as **compass dials**: the needle angle is the phase the sensor measured,
-  $`\operatorname{atan2}(\langle Y\rangle, \langle X\rangle)`$; its length is the measured visibility. A GHZ-4 needle turns four times as
+  $`\mathrm{atan2}(\langle Y\rangle, \langle X\rangle)`$; its length is the measured visibility. A GHZ-4 needle turns four times as
   far as a single qubit's; past half a turn it still points the right way, but reading it back
   gives the wrong field. Next to the dials, the fringes $`\cos(m\,s\,\Delta F)`$ show why. This
   button (in the Field tracker) and the Two observatories tab are where circuits run; the other
@@ -163,7 +164,7 @@ magnetometer or on quantum hardware.*
   what is left, and the estimate moves by $`\hat{\delta}/s`$. Nothing else is fitted.
 - **Sensors.** A GHZ register of $`m`$ qubits after $`R_z(\delta)`$ on every qubit is
   $`(\lvert 0\dots 0\rangle + e^{im\delta}\lvert 1\dots 1\rangle)/\sqrt{2}`$. Read with H on every qubit, its parity has mean $`V\cos(m\delta)`$; with
-  Sdg on the first qubit first, $`V\sin(m\delta)`$. The angle $`\operatorname{atan2}(Y, X)/m`$ estimates $`\delta`$, but only
+  Sdg on the first qubit first, $`V\sin(m\delta)`$. The angle $`\mathrm{atan2}(Y, X)/m`$ estimates $`\delta`$, but only
   modulo $`2\pi/m`$. $`V`$ is the visibility.
 
 ![One sensor register (GHZ-4 read in Y) as a circuit, with the dephasing ancilla of layout B, and the 17-qubit map of the packed circuit.](docs/figures/circuit.png)
@@ -175,7 +176,7 @@ runs as one job.*
 - **Fair comparison.** GHZ-4 read in X and in Y uses 8 qubits per shot; the baseline is a
   *matched unentangled sensor* with the same 8 qubits (4 read X, 4 read Y) and the same shots.
   Ideal standard deviations: $`1/(4s\sqrt{S})`$ against $`1/(2s\sqrt{S})`$ per minute, a factor $`2 = \sqrt{4}`$. (This
-  baseline is $`\sqrt{2}`$ above the standard quantum limit: near $`\delta = 0`$ the $`\operatorname{atan2}(Y, X)`$ estimate draws
+  baseline is $`\sqrt{2}`$ above the standard quantum limit: near $`\delta = 0`$ the $`\mathrm{atan2}(Y, X)`$ estimate draws
   its information from the Y readings only. GHZ-4 read the same way loses the same factor, so
   the ratio is still 2.)
 - **Cascade.** The single qubit fixes the coarse value; GHZ-2 and GHZ-4 refine it, so the
@@ -285,7 +286,7 @@ difference the app reports, with its model value, for every setting.
 
 The built-in (13:52 UTC) and IonQ Aria 1 (13:57 UTC) rows show the same GHZ-4 and cascade
 readings to 0.01 nT. Both readings depend only on the angle of the GHZ-4 register,
-$`\theta_4 = \operatorname{atan2}(Y, X)`$ of its parities (−0.400 and −0.830 in the 13:57 run), so equal
+$`\theta_4 = \mathrm{atan2}(Y, X)`$ of its parities (−0.400 and −0.830 in the 13:57 run), so equal
 angles give equal readings, while the other registers differ. Two independent samples agreeing
 this closely is unlikely, and the 13:52 row was read off the screen with no
 counts kept, so a copying error in that row cannot be ruled out; treat its GHZ-4 and cascade

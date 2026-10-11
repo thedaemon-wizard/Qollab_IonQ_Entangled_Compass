@@ -126,3 +126,6 @@ checked by a second reviewer. The document fixes:
 - **Write-up.** Decision E11 gives the final write-up's length and formula count.
 - **Phone selects.** "Field record" and "Added noise" cut their chosen option at 375 and 320 px;
   below 480 px a line under each now repeats it in full (`results/a11y/README.md`).
+- **Two observatories wording.** The app's what-if note and Figure 4 now say what the README says:
+  a network sharing entangled sensor qubits between observatories does not exist yet (entangled
+  photons have been shared over 1,200 km by satellite).

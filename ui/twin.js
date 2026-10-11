@@ -101,7 +101,7 @@ export function twinView(info, init) {
   return el('div', { class: 'view' },
     el('section', { class: 'card' }, el('h2', null, 'Two observatories: can entanglement cancel the storm?'),
       el('p', null, rich(String.raw`Put one qubit at Boulder and one at Tucson, about 1,000 km apart, and entangle them as $(\lvert 01\rangle + \lvert 10\rangle)/\sqrt{2}$. The pair then picks up only the difference of the two fields: anything both sites feel cancels. Trapped-ion experiments use exactly this to ignore magnetic noise shared by two ions a few millimetres apart (Ruster et al. 2017). Does it cancel a geomagnetic storm across a continent?`)),
-      el('p', { class: 'small muted' }, 'A what-if: sharing entanglement between observatories needs a quantum network that does not exist. The field records are real (USGS, quasi-definitive); the sensors are simulated.'),
+      el('p', { class: 'small muted' }, 'A what-if: sharing entangled sensor qubits between observatories would need a quantum network that does not exist yet (entangled photons, not sensor qubits, have been shared over 1,200 km by satellite). The field records are real (USGS, quasi-definitive); the sensors are simulated.'),
       twinFigure(),
       el('div', { class: 'row' }, replayBtn), status, out),
     el('section', { class: 'card', 'aria-labelledby': 'ec-twin-run-h' }, el('h2', { id: 'ec-twin-run-h' }, 'One minute with the twin circuit'),

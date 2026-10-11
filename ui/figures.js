@@ -204,8 +204,8 @@ export function twinFigure() {
     text(352, y + 18, note));
   return figure({
     w: 720, h: 256, min: 560, title: 'Two observatories, one entangled pair: a what-if',
-    desc: 'A what-if. A simulated qubit at the USGS Boulder observatory picks up the phase δA from the real one-minute field step there. A simulated qubit at the Tucson observatory, about 1,000 km away, picks up δB. A dashed line marks the what-if: the two qubits share one entangled pair, which would need a quantum network that does not exist. Prepared as (|01⟩ + |10⟩)/√2, the pair reads only the difference δA − δB, so a field change both sites share cancels. Prepared as (|00⟩ + |11⟩)/√2, it reads the sum δA + δB. The field records are real; the qubits and the link are simulated.',
-    caption: 'Figure 4. The two-observatory what-if. The field records at both sites are real (USGS); the qubits and the link are simulated: sharing entanglement between observatories needs a quantum network that does not exist. Two trapped ions up to 6.2 mm apart have done this (Ruster et al. 2017).',
+    desc: 'A what-if. A simulated qubit at the USGS Boulder observatory picks up the phase δA from the real one-minute field step there. A simulated qubit at the Tucson observatory, about 1,000 km away, picks up δB. A dashed line marks the what-if: the two qubits share one entangled pair, which would need a quantum network for sensor qubits that does not exist yet. Prepared as (|01⟩ + |10⟩)/√2, the pair reads only the difference δA − δB, so a field change both sites share cancels. Prepared as (|00⟩ + |11⟩)/√2, it reads the sum δA + δB. The field records are real; the qubits and the link are simulated.',
+    caption: 'Figure 4. The two-observatory what-if. The field records at both sites are real (USGS); the qubits and the link are simulated: sharing entangled sensor qubits between observatories would need a quantum network that does not exist yet. Two trapped ions up to 6.2 mm apart have done this (Ruster et al. 2017).',
   },
   node(16, 28, 236, 120, 'Boulder, Colorado (BOU)', ['real one-minute field steps'], REAL, 'REAL DATA'),
   node(468, 28, 236, 120, 'Tucson, Arizona (TUC)', ['real one-minute field steps'], REAL, 'REAL DATA'),
@@ -216,7 +216,7 @@ export function twinFigure() {
   text(360, 98, 'about 1,000 km', { anchor: 'middle' }),
   svg('rect', { x: 278, y: 107, width: 164, height: 18, rx: 9, style: 'fill:var(--bg);stroke:var(--s5);stroke-width:1.4' }),
   text(360, 120, 'WHAT-IF: SHARED PAIR', { cls: 'sk-label', anchor: 'middle' }),
-  text(360, 166, 'would need a quantum network that does not exist', { anchor: 'middle' }),
+  text(360, 166, 'would need a network for entangled sensor qubits: none exists yet', { anchor: 'middle' }),
   row(182, '$(|01⟩ + |10⟩)/√2$', 'reads $δ_A − δ_B$', 'difference: a change both sites share cancels'),
   arrow([[180, 195], [212, 195]], LINK),
   row(216, '$(|00⟩ + |11⟩)/√2$', 'reads $δ_A + δ_B$', 'sum: a change both sites share adds up'),

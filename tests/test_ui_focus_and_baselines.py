@@ -100,3 +100,15 @@ def test_selects_that_cut_text_repeat_the_choice_on_narrow_screens():
     css = (ROOT / "main.css").read_text(encoding="utf-8")
     assert ".full-choice { display: none;" in css
     assert "@media (max-width: 480px) { .full-choice { display: block; } }" in css
+
+
+def test_twin_what_if_wording_matches_the_readme():
+    """Entangled photons have been shared over 1,200 km; what does not exist is a network that
+    shares entangled sensor qubits between observatories (README, decision E-twin)."""
+    for name in ("twin.js", "figures.js"):
+        assert "needs a quantum network that does not exist" not in UI[name]
+    assert "sharing entangled sensor qubits between observatories would need" in UI["twin.js"]
+    assert "network for entangled sensor qubits: none exists yet" in UI["figures.js"]
+    assert "would need a quantum network that does not exist yet" in (ROOT / "README.md").read_text(
+        encoding="utf-8"
+    )

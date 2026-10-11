@@ -15,7 +15,7 @@ export function overviewView(init, goTracker, goChallenge) {
       tile('Ideal sensors', `${fmt.n(a.ideal.mean)}×`, String.raw`GHZ-4 against 8 independent qubits on the quiet day: ${fmt.pm(a.ideal)}. The textbook $\sqrt{4} = 2$ holds. Against the standard quantum limit for the same qubits (the best single-pass unentangled sensor): ${fmt.pm(a.ideal.over_sql)}, ideal $\sqrt{2}$ for this X/Y readout.`),
       tile('IonQ Aria 1 gate noise (documented)', `${fmt.n(a.aria1.mean)}×`, `Depolarizing after every gate costs little: ${fmt.pm(a.aria1)}, model ${fmt.n(a.aria1.theory)}; over the standard quantum limit ${fmt.pm(a.aria1.over_sql)}.`),
       tile(String.raw`Dephasing $\gamma = 0.2$ per qubit`, `${fmt.n(a.dephasing_0_2.mean)}×`, String.raw`At a fixed interrogation time almost all of the advantage is gone: ${fmt.pm(a.dephasing_0_2)}, model $2e^{-3\gamma}$ = ${fmt.n(a.dephasing_0_2.theory)}; against the standard quantum limit GHZ-4 now loses (${fmt.pm(a.dephasing_0_2.over_sql)}).`),
-      tile('The May 2024 storm', `${fmt.n(a.storm.ghz4_slips.mean, 0)} fringe changes`, `GHZ-4 alone changes fringe about ${fmt.n(a.storm.ghz4_slips.mean, 0)} times and is on a wrong fringe for about ${fmt.n(a.storm.ghz4_wrong_minutes.mean, 0)} minutes; the 1-2-4 cascade changes fringe ${fmt.n(a.storm.cascade_slips.mean, 0)} times (${a.storm.shots} shots, ${a.storm.scale} rad/nT).`),
+      tile('The May 2024 storm', `${fmt.n(a.storm.ghz4_slips.mean, 0)} fringe changes`, `GHZ-4 alone changes fringe about ${fmt.n(a.storm.ghz4_slips.mean, 0)} times and is on a wrong fringe for about ${fmt.n(a.storm.ghz4_wrong_minutes.mean, 0)} minutes; the 1-2-4 cascade changes fringe ${fmt.n(a.storm.cascade_slips.mean, 0)} times (quick estimate from 8 replays, ${a.storm.shots} shots, ${a.storm.scale} rad/nT; the Field tracker averages 32).`),
     );
     status.textContent = `Computed in ${a.seconds} s from the replay model; open the Field tracker to change the settings or run the circuit.`;
   }
@@ -37,7 +37,7 @@ export function overviewView(init, goTracker, goChallenge) {
       el('ol', null,
         el('li', null, rich(String.raw`Open the Field tracker and press “Update replay”: the quiet day shows the $\sqrt{N}$ gain.`)),
         el('li', null, 'Switch to the storm: GHZ-4 alone loses track whenever the field moves more than its fringe allows in one minute.'),
-        el('li', null, 'Watch it happen on the 3D compass: play the storm and see the GHZ-4 needle turn past half a turn and slip, while the cascade keeps its place.'),
+        el('li', null, 'Watch it happen on the 3D compass: play the storm and see the GHZ-4 needle turn past half a turn and land on the wrong fringe, while the cascade keeps its place.'),
         el('li', null, rich(String.raw`Add dephasing: above $\gamma \approx 0.23$ per qubit the gain falls below 1. Then run one minute on the quantum simulator.`))),
       el('div', { class: 'row' },
         el('button', { type: 'button', class: 'primary', on: { click: goChallenge } }, 'Play the Storm challenge'),

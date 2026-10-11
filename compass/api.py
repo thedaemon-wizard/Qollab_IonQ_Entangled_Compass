@@ -262,10 +262,13 @@ STORM3D_ARMS = (  # arm, needle register m, fringe range m (the cascade reads wi
 def storm3d_json(params_json: str) -> str:
     """Minute by minute, what each sensor's needle shows, for the 3D compass (one model replay).
 
-    `true_phase` is the phase the field step turns the needle register by, m s (F_t - previous
-    estimate), not wrapped: it can exceed half a turn. `reading` is the angle the register can
-    read back, that phase wrapped to [-pi, pi) plus shot noise (recovered from the replay's own
-    estimate). `fringe` is how many fringe spacings the estimate is off; a change is a slip.
+    `turn` is how far this minute's field step turns the needle register, m s (F_t - F_{t-1}).
+    `true_phase` is the phase the register meets, measured from the tracker's prediction:
+    m s (F_t - previous estimate), not wrapped. It equals `turn` while the estimate is on the right
+    fringe and carries the whole turns it is off by otherwise. `reading` is the angle the register
+    can read back, that phase wrapped to [-pi, pi) plus shot noise (recovered from the replay's own
+    estimate). `fringe` is how many fringe spacings the estimate is off; `slips_so_far` counts its
+    changes (onto a wrong fringe and back).
     """
     p = json.loads(params_json)
     dataset, shots, seed = p.get("dataset", "storm"), int(p.get("shots", 1000)), int(p.get("seed", 0))
@@ -283,6 +286,7 @@ def storm3d_json(params_json: str) -> str:
     arms, totals = {}, {}
     for name, m, m_range in STORM3D_ARMS:
         e = est[name][k]
+        turn = np.concatenate([[0.0], m * SCALE * np.diff(f)])
         true_phase = np.concatenate([[0.0], m * SCALE * (f[1:] - e[:-1])])
         reading = np.concatenate([[0.0], wrap(m * SCALE * np.diff(e))])
         mt = replay.metrics(f, est[name][k : k + 1], SCALE, m_range)
@@ -291,6 +295,7 @@ def storm3d_json(params_json: str) -> str:
         arms[name] = {
             "label": replay.ARMS[name]["label"],
             "m": m,
+            "turn": [round(float(x), 3) for x in turn],
             "true_phase": [round(float(x), 3) for x in true_phase],
             "reading": [round(float(x), 3) for x in reading],
             "fringe": [int(x) for x in fringe],
@@ -565,7 +570,7 @@ def challenge_json(params_json: str) -> str:
 
     results = {c: challenge.play(k, c, start(c), vis, SCALE, shots, seed) for c in challenge.CHOICES}
     times, _ = challenge._window(k)
-    return json.dumps(
+    out = (
         {
             "round": k,
             "rounds": challenge.ROUNDS,
@@ -584,6 +589,8 @@ def challenge_json(params_json: str) -> str:
             "choices": challenge.CHOICES,
         }
     )
+    out["console_line"] = console.challenge_round(out)
+    return json.dumps(out)
 
 
 def challenge_setup_json(params_json: str) -> str:
@@ -621,7 +628,7 @@ def twin_replay_json(params_json: str) -> str:
     )
     g = f_a - f_b
     rmse = {k: np.sqrt(((v[:, 1:] - g[1:]) ** 2).mean(axis=1)) for k, v in est.items()}
-    return json.dumps(
+    out = (
         {
             "times": times,
             "gradient": [round(float(x - g[0]), 3) for x in g],
@@ -637,6 +644,8 @@ def twin_replay_json(params_json: str) -> str:
             "shots": shots,
         }
     )
+    out["console_line"] = console.twin_replay(out, int(p.get("replicates", 32)))
+    return json.dumps(out)
 
 
 def twin_run_json(backend, params_json: str) -> str:

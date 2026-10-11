@@ -19,7 +19,7 @@ def test_shape_and_shown_replay(storm):
     assert n == 2880 and len(storm["dF_nT"]) == n
     for arm in ("IND8", "GHZ4", "CASC"):
         a = storm["arms"][arm]
-        assert all(len(a[k]) == n for k in ("true_phase", "reading", "fringe", "slips_so_far"))
+        assert all(len(a[k]) == n for k in ("turn", "true_phase", "reading", "fringe", "slips_so_far"))
     rp = storm["replay"]
     assert 1 <= rp["shown"] <= rp["of"] == 32
 
@@ -54,3 +54,19 @@ def test_first_ghz4_slip_turns_past_half_a_turn(storm):
 
 def test_console_line(storm):
     assert storm["console_line"].startswith("[Entangled Compass] 3D compass, replay")
+
+
+def test_turn_is_the_field_step_and_true_phase_adds_the_whole_turns_off(storm):
+    # the arc is drawn from `turn` = m s dF; `true_phase` (against the prediction) matches it only
+    # while the previous estimate was on the right fringe, and is off by whole turns otherwise
+    df = np.array(storm["dF_nT"])
+    for arm in ("IND8", "GHZ4", "CASC"):
+        a = storm["arms"][arm]
+        turn, tp, fr = np.array(a["turn"]), np.array(a["true_phase"]), np.array(a["fringe"])
+        assert np.allclose(turn, a["m"] * storm["scale"] * df, atol=2e-3 * a["m"])
+        prev_ok = np.concatenate([[True], fr[:-1] == 0])
+        assert np.abs(tp - turn)[prev_ok].max() < 0.3
+    g = storm["arms"]["GHZ4"]
+    wrong = np.array(g["fringe"][:-1]) != 0
+    extra = (np.array(g["true_phase"]) - np.array(g["turn"]))[1:][wrong]
+    assert np.median(np.abs(extra)) > np.pi  # about a whole turn on the wrong-fringe minutes

@@ -117,7 +117,7 @@ export function trackerView(init, info, state) {
       columns: ['Sensor arm', 'Qubits per shot', 'RMS error (nT)', 'RMS error on the right fringe (nT)', 'Minutes on a wrong fringe', 'Fringe jumps'],
       rows: Object.entries(r.arms).map(([a, x]) => [ARM_STYLE[a].name, String(x.qubits), fmt.pm(x.rmse), fmt.pm(x.rmse_ok), fmt.pm(x.wrong_minutes, 1), fmt.pm(x.slips, 1)]),
     }), el('p', { class: 'small' },
-      `Gain of GHZ-4 over 8 independent qubits (same 8 qubits per shot): ${fmt.pm(r.gain_ghz4)}; model at zero field step ${fmt.n(r.gain_ghz4.theory)}. `,
+      `Gain of GHZ-4 over 8 independent qubits (same 8 qubits per shot), on the minutes GHZ-4 stays on the right fringe: ${fmt.pm(r.gain_ghz4)}; model at zero field step ${fmt.n(r.gain_ghz4.theory)}. Over the whole record compare the RMS errors in the table. `,
       `Gain of the cascade over 14 independent qubits: ${fmt.pm(r.gain_cascade)}; ideal ${fmt.n(r.gain_cascade.theory_ideal)}.`),
     el('p', { class: 'small' }, el('strong', null, 'Strong baseline: '),
       rich(String.raw`the standard quantum limit for the same 8 qubits and shots, the best any unentangled sensor could reach with one interrogation of the same length per qubit (every qubit read at its most sensitive point), is ${fmt.n(r.sql.nt, 3)} nT per minute. This X/Y GHZ-4 readout beats it by ${fmt.pm(r.sql.gain_ghz4)}× on the right fringe (model ${fmt.n(r.sql.gain_ghz4.theory)}; ideal $\sqrt{2}$). Below 1, this readout no longer beats the best single-pass unentangled sensor. (An optimally read GHZ-4 would gain 2 ideally and keep a gain until $\gamma \approx 0.23$, but it would need the working point to be known even more closely. The 4-pass qubit beats the limit by spending four times the interrogation time.)`)));

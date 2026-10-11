@@ -1,25 +1,34 @@
 // The storm in 3D: a compass whose three needles follow a model replay of the real field record
 // minute by minute (every number comes from Python, compass/api.py storm3d_json). A needle shows
-// the angle its register reads back; the arc beneath it shows how far the field step really
-// turned that register. Past half a turn the reading lands on the wrong fringe: the arc turns red
-// and the slip counter goes up. three.js comes from Qollab's import map (three@0.186.1); without
-// WebGL the controls and the text panel below still show every number.
-import { announce, el, fmt, uid } from './dom.js';
+// the angle its register reads back; the arc beneath it shows how far that minute's field step
+// turned the register (m s dF). While a sensor's estimate sits on a wrong fringe its arc and hub
+// are red; the counter counts its fringe changes, onto a wrong fringe and back. three.js comes
+// from Qollab's import map (three@0.186.1); without WebGL the controls and the text panel below
+// still show every number.
+import { announce, el, fmt, nextPaint, uid } from './dom.js';
 import { py } from './py.js';
 import { rich } from './tex.js';
 
 const ARMS = [
-  { key: 'IND8', name: '8 independent qubits', short: '1 qubit', colorVar: '--s1', y: 0.08, radius: 1.05 },
+  { key: 'IND8', name: '8 independent qubits', short: '8 indep.', colorVar: '--s1', y: 0.08, radius: 1.05 },
   { key: 'GHZ4', name: 'GHZ-4 alone', short: 'GHZ-4', colorVar: '--s2', y: 0.3, radius: 1.25 },
   { key: 'CASC', name: 'Cascade 1-2-4 (its GHZ-4 needle)', short: 'cascade', colorVar: '--s3', y: 0.52, radius: 1.45 },
 ];
 const SPEEDS = [[30, '30 minutes per second'], [120, '2 hours per second'], [480, '8 hours per second']];
 const DEG = 180 / Math.PI;
 const DIAL_R = 1.6;
+const FOV = 38; // vertical field of view (degrees) on a wide stage
+const FIT = 2.05; // half-width (scene units) kept in view at the home distance: the dial and its tags
+const HOME = { radius: 4.6, theta: -0.5, phi: 1.02 };
+const TAG_GAP = 3; // px between two needle tags, and between a tag and the HUD
+const TAG_EDGE = 3; // px between a tag and the edge of the stage
 
 // The theme's colours live on the app root (.ec-root), so read them from the element drawn into.
 const cssVar = (node, name) => getComputedStyle(node).getPropertyValue(name).trim() || '#888888';
-const deg = (rad) => `${rad >= 0 ? '+' : '−'}${Math.abs(rad * DEG).toFixed(0)}°`;
+const deg = (rad) => { const d = Math.round(rad * DEG); return `${d > 0 ? '+' : d < 0 ? '−' : ''}${Math.abs(d)}°`; };
+const changes = (n) => `${n} fringe change${n === 1 ? '' : 's'}`;
+const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+const THREE_TIMEOUT_MS = 8000; // a slow CDN must not hold up the text panel
 const utc = (iso) => `${iso.replace('T', ' ')} UTC`;
 
 /** A point on the dial at angle a (rad, counter-clockwise from +X seen from above) and height y. */
@@ -27,13 +36,14 @@ function onDial(THREE, r, a, y) {
   return new THREE.Vector3(r * Math.cos(a), y, -r * Math.sin(a));
 }
 
-async function makeScene(host, onChange) {
-  const THREE = await import('three');
-  const { OrbitControls } = await import('three/addons/controls/OrbitControls.js');
-  const { CSS2DRenderer, CSS2DObject } = await import('three/addons/renderers/CSS2DRenderer.js');
+async function makeScene(host, onChange, onResize) {
+  const timeout = new Promise((_, reject) => { setTimeout(() => reject(new Error('three.js did not load in time')), THREE_TIMEOUT_MS); });
+  const [THREE, { OrbitControls }, { CSS2DRenderer, CSS2DObject }] = await Promise.race([Promise.all([
+    import('three'), import('three/addons/controls/OrbitControls.js'), import('three/addons/renderers/CSS2DRenderer.js'),
+  ]), timeout]);
   const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
-  host.append(renderer.domElement);
+  host.prepend(renderer.domElement); // before the HUD, which flows below the picture on a narrow stage
   renderer.domElement.setAttribute('aria-hidden', 'true');
   const labels = new CSS2DRenderer();
   labels.domElement.className = 'c3d-labels';
@@ -41,8 +51,8 @@ async function makeScene(host, onChange) {
   host.append(labels.domElement);
 
   const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(38, 16 / 9, 0.1, 50);
-  const view = { radius: 4.6, theta: -0.5, phi: 1.02 };
+  const camera = new THREE.PerspectiveCamera(FOV, 16 / 9, 0.1, 50);
+  const view = { ...HOME };
   scene.add(new THREE.AmbientLight(0xffffff, 0.75));
   const sun = new THREE.DirectionalLight(0xffffff, 0.9);
   sun.position.set(2.5, 5, 3);
@@ -80,6 +90,7 @@ async function makeScene(host, onChange) {
 
   // needles (shaft + tip + hub) and their arcs
   const parts = {};
+  const tags = [];
   for (const arm of ARMS) {
     const g = new THREE.Group();
     const m = mat(arm.colorVar);
@@ -93,6 +104,7 @@ async function makeScene(host, onChange) {
     tag.style.borderColor = `var(${arm.colorVar})`;
     const label = new CSS2DObject(tag);
     label.position.set(arm.radius + 0.12, 0.06, 0);
+    tags.push({ tag, label });
     g.add(shaft, tip, label);
     g.position.y = arm.y;
     scene.add(g);
@@ -110,9 +122,9 @@ async function makeScene(host, onChange) {
 
   const controls = new OrbitControls(camera, renderer.domElement);
   controls.enablePan = false;
-  controls.minDistance = 2.6;
-  controls.maxDistance = 8;
+  controls.enableZoom = false; // the wheel scrolls the page; the view only turns
   controls.addEventListener('change', onChange);
+  renderer.domElement.style.touchAction = 'pan-y'; // a vertical swipe scrolls the page, a sideways drag turns
 
   function placeCamera() {
     camera.position.set(
@@ -136,14 +148,82 @@ async function makeScene(host, onChange) {
   const scheme = window.matchMedia('(prefers-color-scheme: light)');
   if (scheme.addEventListener) scheme.addEventListener('change', recolor);
 
+  const size = { w: 0, h: 0, rem: 0 };
   function resize() {
     const w = host.clientWidth || 640;
     const h = Math.round(Math.min(Math.max(w * 0.56, 260), 520));
+    // on a narrow stage the HUD would cover a quarter of the picture: it goes below it instead
+    const rem = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
+    const changed = w !== size.w || rem !== size.rem;
+    host.classList.toggle('c3d-narrow', w < 36 * rem);
+    Object.assign(size, { w, h, rem });
     renderer.setSize(w, h, true);
     labels.setSize(w, h);
     camera.aspect = w / h;
+    // a stage narrower than about 1.3:1 would cut off the sides of the dial: widen the view to keep FIT
+    camera.fov = Math.max(FOV, 2 * Math.atan(FIT / (HOME.radius * camera.aspect)) * DEG);
     camera.updateProjectionMatrix();
+    if (changed) onResize();
     onChange();
+  }
+
+  // The tags are fixed-size HTML at the needle tips, which are only 0.2 apart: when needles point
+  // the same way, or the stage is small, they would land on each other, on the HUD or past the
+  // edge. After each render, move them apart and back into the picture, as little as needed.
+  const anchor = new THREE.Vector3();
+  function placeTags() {
+    const { w, h } = size;
+    const boxes = [];
+    for (const { tag, label } of tags) {
+      if (tag.style.display === 'none') continue; // behind the camera
+      anchor.setFromMatrixPosition(label.matrixWorld).project(camera);
+      const r = tag.getBoundingClientRect();
+      boxes.push({ tag, x: ((anchor.x + 1) / 2) * w, y: ((1 - anchor.y) / 2) * h, hw: r.width / 2, hh: r.height / 2 });
+    }
+    const hud = host.querySelector('.c3d-hud');
+    // the HUD sits at the top-left over the picture (unless it flows below it): keep tags off it
+    const hudBox = hud && hud.offsetTop < h && hud.offsetWidth
+      ? { x1: hud.offsetLeft + hud.offsetWidth + TAG_GAP, y1: hud.offsetTop + hud.offsetHeight + TAG_GAP } : null;
+    for (let pass = 0; pass < 40; pass += 1) {
+      let moved = false;
+      for (let i = 0; i < boxes.length; i += 1) {
+        for (let j = i + 1; j < boxes.length; j += 1) {
+          const a = boxes[i];
+          const b = boxes[j];
+          const ox = a.hw + b.hw + TAG_GAP - Math.abs(a.x - b.x);
+          const oy = a.hh + b.hh + TAG_GAP - Math.abs(a.y - b.y);
+          if (ox <= 0.01 || oy <= 0.01) continue;
+          moved = true;
+          // split the shorter way out between the two
+          if (oy <= ox) {
+            const s = a.y <= b.y ? -oy / 2 : oy / 2;
+            a.y += s;
+            b.y -= s;
+          } else {
+            const s = a.x <= b.x ? -ox / 2 : ox / 2;
+            a.x += s;
+            b.x -= s;
+          }
+        }
+      }
+      for (const a of boxes) {
+        if (hudBox) {
+          const dx = hudBox.x1 - (a.x - a.hw);
+          const dy = hudBox.y1 - (a.y - a.hh);
+          if (dx > 0.01 && dy > 0.01) {
+            if (dx < dy) a.x += dx; else a.y += dy;
+            moved = true;
+          }
+        }
+        const x = Math.min(Math.max(a.x, a.hw + TAG_EDGE), w - a.hw - TAG_EDGE);
+        const y = Math.min(Math.max(a.y, a.hh + TAG_EDGE), h - a.hh - TAG_EDGE);
+        if (Math.abs(x - a.x) > 0.01 || Math.abs(y - a.y) > 0.01) moved = true;
+        a.x = x;
+        a.y = y;
+      }
+      if (!moved) break;
+    }
+    for (const a of boxes) a.tag.style.transform = `translate(-50%, -50%) translate(${a.x.toFixed(1)}px, ${a.y.toFixed(1)}px)`;
   }
   new ResizeObserver(resize).observe(host);
   resize();
@@ -154,7 +234,7 @@ async function makeScene(host, onChange) {
       const a = arms[arm.key];
       const p = parts[arm.key];
       p.needle.rotation.y = a.reading[t];
-      const turn = a.true_phase[t];
+      const turn = a.turn[t];
       // red only when the sensor's estimate is on a wrong fringe: the cascade's GHZ-4 register
       // also turns past half a turn, but its 1-qubit and GHZ-2 registers say which turn it is on
       const bad = a.fringe[t] !== 0;
@@ -165,8 +245,9 @@ async function makeScene(host, onChange) {
         pts.push(onDial(THREE, arm.radius * 0.7, u, arm.y - 0.05 + (0.06 * Math.abs(u)) / Math.PI));
       }
       const old = p.arc.geometry;
+      // a wrong fringe is shown by a thicker tube as well as by colour
       p.arc.geometry = Math.abs(turn) < 1e-3 ? new THREE.BufferGeometry()
-        : new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), n * 2, 0.022, 8, false);
+        : new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), n * 2, bad ? 0.04 : 0.022, 8, false);
       old.dispose();
       p.arc.material = bad ? p.arcMatBad : p.arcMatOk;
       p.hub.material.emissive.set(bad ? cssVar(host, '--bad') : '#000000');
@@ -178,6 +259,7 @@ async function makeScene(host, onChange) {
     render: () => {
       renderer.render(scene, camera);
       labels.render(scene, camera);
+      placeTags();
     },
     turn: (dTheta, dPhi) => {
       const off = camera.position.clone();
@@ -187,7 +269,7 @@ async function makeScene(host, onChange) {
       placeCamera();
     },
     reset: () => {
-      Object.assign(view, { radius: 4.6, theta: -0.5, phi: 1.02 });
+      Object.assign(view, HOME);
       placeCamera();
     },
   };
@@ -209,7 +291,7 @@ export function compass3dView(init) {
   const sliderLabel = el('label', { for: 'ec3-minute' }, 'Minute');
   const status = el('p', { role: 'status', class: 'status', id: 'ec3-status' }, 'Open this tab to load the replay.');
   const stage = el('div', { class: 'c3d', role: 'img', id: 'ec3-stage', 'aria-label': 'The 3D compass (loading).' });
-  // the same time and slip counts as the text panel, over the picture (hidden from screen readers)
+  // the same time and fringe-change counts as the text panel, over the picture (hidden from screen readers)
   const hud = el('div', { class: 'c3d-hud', 'aria-hidden': 'true' });
   stage.append(hud);
   const camButtons = [
@@ -236,7 +318,7 @@ export function compass3dView(init) {
     const parts = ARMS.map((arm) => {
       const a = data.arms[arm.key];
       const wrong = a.fringe[minute] !== 0;
-      return `${arm.name} reads ${deg(a.reading[minute])}; the field turned it ${deg(a.true_phase[minute])}: ${wrong ? 'wrong fringe' : 'right fringe'}, ${a.slips_so_far[minute]} slip${a.slips_so_far[minute] === 1 ? '' : 's'} so far.`;
+      return `${arm.name} reads ${deg(a.reading[minute])}; the field step turned it ${deg(a.turn[minute])}: ${wrong ? 'wrong fringe' : 'right fringe'}, ${changes(a.slips_so_far[minute])} so far.`;
     });
     return `${utc(data.times[minute])}, field step ${fmt.signed(data.dF_nT[minute], 1)} nT. ${parts.join(' ')}`;
   }
@@ -248,11 +330,37 @@ export function compass3dView(init) {
       const a = data.arms[arm.key];
       const wrong = a.fringe[minute] !== 0;
       rows.push(el('dt', null, el('span', { class: 'swatch', style: `background:var(${arm.colorVar})` }), arm.name),
-        el('dd', null, `reads ${deg(a.reading[minute])}, turned ${deg(a.true_phase[minute])}: `,
+        el('dd', null, `reads ${deg(a.reading[minute])}, field step turned it ${deg(a.turn[minute])}: `,
           el('span', { class: wrong ? 'bad' : 'ok' }, wrong ? 'wrong fringe' : 'right fringe'),
-          `; slips so far ${a.slips_so_far[minute]}`));
+          `; ${changes(a.slips_so_far[minute])} so far`));
     }
     readout.replaceChildren(...rows);
+  }
+
+  function fillHud(time, step, rows) {
+    hud.replaceChildren(el('div', null, utc(time)), el('div', null, `field step ${fmt.signed(step, 1)} nT`),
+      ...ARMS.map((arm, i) => {
+        const [slips, wrong] = rows[i];
+        return el('div', { class: wrong ? 'bad' : '' },
+          el('span', { class: 'swatch', style: `background:var(${arm.colorVar})` }),
+          `${arm.short}: ${changes(slips)}${wrong ? ', wrong fringe' : ''}`);
+      }));
+  }
+
+  // Below the picture (narrow stage) the HUD would grow by a line whenever a reading turns
+  // "wrong fringe" and wraps, moving the page under it: hold the height of its longest lines.
+  function reserveHud() {
+    hud.style.minHeight = '';
+    if (data && stage.classList.contains('c3d-narrow')) {
+      const n = data.times.length - 1;
+      const longest = data.dF_nT.reduce((a, v) => (fmt.signed(v, 1).length > fmt.signed(a, 1).length ? v : a), 0);
+      fillHud(data.times[n], longest, ARMS.map((arm) => {
+        const a = data.arms[arm.key];
+        return [a.slips_so_far[n], a.fringe.some((x) => x !== 0)];
+      }));
+      hud.style.minHeight = `${hud.getBoundingClientRect().height}px`;
+    }
+    draw();
   }
 
   function draw() {
@@ -261,14 +369,10 @@ export function compass3dView(init) {
     slider.value = String(minute);
     slider.setAttribute('aria-valuetext', `${utc(data.times[minute])}, minute ${minute} of ${data.times.length - 1}`);
     fillReadout(minute);
-    hud.replaceChildren(el('div', null, utc(data.times[minute])),
-      el('div', null, `field step ${fmt.signed(data.dF_nT[minute], 1)} nT`),
-      ...ARMS.map((arm) => {
-        const a = data.arms[arm.key];
-        return el('div', { class: a.fringe[minute] !== 0 ? 'bad' : '' },
-          el('span', { class: 'swatch', style: `background:var(${arm.colorVar})` }),
-          `${arm.short}: ${a.slips_so_far[minute]} slip${a.slips_so_far[minute] === 1 ? '' : 's'}${a.fringe[minute] !== 0 ? ', wrong fringe' : ''}`);
-      }));
+    fillHud(data.times[minute], data.dF_nT[minute], ARMS.map((arm) => {
+      const a = data.arms[arm.key];
+      return [a.slips_so_far[minute], a.fringe[minute] !== 0];
+    }));
     if (scene) {
       scene.show(data.arms, minute);
       scene.render();
@@ -279,15 +383,18 @@ export function compass3dView(init) {
     stage.setAttribute('aria-label', `3D compass. ${describe(minute)}`);
   }
 
+  let lastDraw = 0;
   function frame(now) {
     pending = false;
+    if (playing && stage.offsetParent === null) { stop(true); return; } // the tab was left: pause
     if (playing) {
       const dt = last ? Math.min(0.1, (now - last) / 1000) : 0;
       last = now;
       t = Math.min(data.times.length - 1, t + dt * Number(speed.value));
       if (t >= data.times.length - 1) stop();
     }
-    draw();
+    // with reduced motion, playback moves in one-second steps instead of a continuous turn
+    if (!playing || !reduceMotion.matches || now - lastDraw >= 1000) { lastDraw = now; draw(); }
     if (playing) request();
   }
   function request() {
@@ -296,12 +403,13 @@ export function compass3dView(init) {
       requestAnimationFrame(frame);
     }
   }
-  function stop() {
+  function stop(quiet = false) {
     playing = false;
     last = 0;
     play.textContent = 'Play';
     settle(Math.round(t));
-    announce(`Paused at ${utc(data.times[Math.round(t)])}.`);
+    if (!quiet) announce(`Paused at ${utc(data.times[Math.round(t)])}.`);
+    draw();
   }
 
   play.addEventListener('click', () => {
@@ -333,41 +441,56 @@ export function compass3dView(init) {
   async function load() {
     if (playing) stop();
     status.textContent = 'Replaying the record (32 replays, 1000 shots per register per minute)…';
+    dataset.disabled = true;
+    play.disabled = true;
+    await nextPaint(); // the call blocks the page on Qollab: show the status first
     try {
       data = await py.storm3d({ dataset: dataset.value });
     } catch (err) {
       status.textContent = `The replay failed: ${err.message}`;
       return;
+    } finally {
+      dataset.disabled = false;
+      play.disabled = false;
     }
     const n = data.times.length - 1;
     slider.max = String(n);
     const first = data.arms.GHZ4.fringe.findIndex((x) => x !== 0);
     t = 1;
     const tot = data.totals;
-    status.textContent = `Replay ${data.replay.shown} of ${data.replay.of}, the one closest to their average: GHZ-4 alone slips ${tot.GHZ4.slips} times and is on a wrong fringe for ${tot.GHZ4.wrong_minutes} minutes; the cascade slips ${tot.CASC.slips} times and 8 independent qubits ${tot.IND8.slips}.`;
+    status.textContent = `Replay ${data.replay.shown} of ${data.replay.of}, the one closest to their average: GHZ-4 alone changes fringe ${tot.GHZ4.slips} times and is on a wrong fringe for ${tot.GHZ4.wrong_minutes} minutes (averages over all ${data.replay.of}: ${fmt.n(data.replay.mean_slips, 1)} and ${fmt.n(data.replay.mean_wrong, 0)}); the cascade changes fringe ${tot.CASC.slips} times and 8 independent qubits ${tot.IND8.slips}.`;
     summary.replaceChildren(rich(first > 0
-      ? `First GHZ-4 slip: ${utc(data.times[first])}, when the field stepped ${fmt.signed(data.dF_nT[first], 1)} nT and turned the GHZ-4 register ${deg(data.arms.GHZ4.true_phase[first])}, more than half a turn. Use “+ 1 minute” around it to watch the reading land on the wrong fringe.`
+      ? `First GHZ-4 fringe change: ${utc(data.times[first])}, when the field stepped ${fmt.signed(data.dF_nT[first], 1)} nT and turned the GHZ-4 register ${deg(data.arms.GHZ4.turn[first])}, more than half a turn. Use “+ 1 minute” around it to watch the reading land on the wrong fringe. A later step can knock it back onto the right fringe; that counts as a change too.`
       : 'GHZ-4 never leaves its fringe in this record: every minute’s step turns it less than half a turn.'));
-    draw();
+    reserveHud();
     settle(1);
   }
 
+  let starting = null; // one start at a time, however often the tab is shown
   async function start() {
-    if (!scene) {
-      try {
-        scene = await makeScene(stage, () => { if (!playing) request(); });
-      } catch (err) {
-        hud.style.position = 'static'; // no picture to lay it over
-        stage.replaceChildren(el('p', { class: 'note' }, `The 3D view is not available here (${err && err.message ? err.message : 'no WebGL'}). The panel below shows the same numbers minute by minute.`), hud);
+    starting ??= (async () => {
+      const loading = data ? null : load(); // the replay runs while three.js loads
+      if (!scene) {
+        try {
+          scene = await makeScene(stage, () => { if (!playing) request(); }, reserveHud);
+        } catch (err) {
+          hud.style.position = 'static'; // no picture to lay it over
+          stage.removeAttribute('role'); // the note must be read as text, not hidden inside an image
+          stage.removeAttribute('aria-label');
+          stage.replaceChildren(el('p', { class: 'note' }, `The 3D view is not available here (${err && err.message ? err.message : 'no WebGL'}). The panel below shows the same numbers minute by minute.`), hud);
+        }
       }
-    }
-    if (!data) await load();
+      await loading;
+      if (data) reserveHud();
+    })();
+    await starting;
+    if (!scene || !data) starting = null; // try again on the next visit
   }
   dataset.addEventListener('change', load);
 
   const element = el('section', { class: 'card', 'aria-labelledby': 'ec3-h', 'aria-describedby': descId },
     el('h2', { id: 'ec3-h' }, 'The storm on a 3D compass'),
-    el('p', { id: descId }, rich(String.raw`Three needles follow the real field record minute by minute in one model replay: 8 independent qubits, GHZ-4 alone, and the cascade’s GHZ-4 register. Each needle points where its register reads back; the arc under it shows how far that minute’s field step really turned it ($m\,s\,\Delta F$, with $s = 0.02$ rad per nT). Past half a turn (the red line) GHZ-4 alone reads back the wrong fringe: its arc and hub turn red and its slip counter goes up. The cascade’s GHZ-4 register turns just as far, but its 1-qubit and GHZ-2 registers tell it which turn it is on, so it stays right. Drag to turn the view, or use the buttons.`)),
+    el('p', { id: descId }, rich(String.raw`Three needles follow the real field record minute by minute in one model replay: 8 independent qubits, GHZ-4 alone, and the cascade’s GHZ-4 register. Each needle points where its register reads back; the arc under it shows how far that minute’s field step turned it ($m\,s\,\Delta F$, with $s = 0.02$ rad per nT). Past half a turn (the red line) GHZ-4 alone reads back the wrong fringe: while it is on one, its arc is red and thicker and its hub red, and its count of fringe changes goes up each time it leaves or regains the right fringe. The cascade’s GHZ-4 register turns just as far, but its 1-qubit and GHZ-2 registers tell it which turn it is on, so it stays right. Drag sideways to turn the view, or use the buttons.`)),
     el('div', { class: 'controls c3d-controls' },
       el('div', { class: 'field' }, dataLabel, dataset),
       el('div', { class: 'field' }, speedLabel, speed),

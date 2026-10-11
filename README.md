@@ -40,10 +40,10 @@ nothing ran on a magnetometer or on quantum hardware.
 - **3D compass.** The storm played back on a three-dimensional compass (three.js), minute by
   minute: three stacked needles for 8 independent qubits, GHZ-4 alone and the cascade's GHZ-4
   register. Each needle points where its register reads back; a tube under it shows how far
-  that minute's field step really turned it, $`m\,s\,\Delta F`$, which can be more than half a
-  turn. When GHZ-4 alone reads back the wrong fringe its tube and hub turn red and its slip
-  counter goes up; the cascade's register turns just as far, but its 1-qubit and GHZ-2
-  registers tell it which turn it is on. Play, pause, step a minute, scrub, or turn the view
+  that minute's field step turned it, $`m\,s\,\Delta F`$, which can be more than half a turn.
+  While GHZ-4 alone sits on a wrong fringe its tube and hub are red, and its count of fringe
+  changes goes up each time it leaves or regains the right one; the cascade's register turns
+  just as far, but its 1-qubit and GHZ-2 registers tell it which turn it is on. Play, pause, step a minute, scrub, or turn the view
   with the mouse or buttons; a text panel gives the same numbers for every minute. The needles
   come from one replay, the one closest to the average of 32 (20 fringe jumps, 1,115 minutes on
   a wrong fringe, against averages of 20.2 and 988); every angle is computed in Python.
@@ -61,10 +61,11 @@ nothing ran on a magnetometer or on quantum hardware.
 **On Qollab:** open the project and press **Run** (the free built-in simulator is fine). Start
 with the Storm challenge, then open the Field tracker and press **Run the sensor circuit (one
 job)**. To use IonQ's noise-model simulator, pick it in the Run dialog: the app submits exactly
-one job per Run and refuses a second one. Qollab's run console gets one line per result (the
-overview gains at start-up, then each replay and circuit run), for example `[Entangled Compass]
-One-minute circuit on basic_simulator (17 qubits, 1000 shots, …): canary 100.0%, field step
-+44.59 nT; cascade error +0.12 nT, GHZ-4 alone -78.42 nT, one qubit +1.52 nT.`
+one job per Run and refuses a second one. Qollab's run console gets one line per result: the
+Overview numbers at start-up, then each replay, each challenge round, the 3D compass and every
+circuit run. For example `[Entangled Compass] One-minute circuit on basic_simulator (17 qubits,
+1000 shots, …): canary 100.0%, field step +44.59 nT; cascade error +0.12 nT, GHZ-4 alone
+-78.42 nT, 2 independent qubits +1.52 nT.`
 
 **Locally** (Python 3.14):
 
@@ -196,7 +197,8 @@ The built-in (13:52 UTC) and IonQ Aria 1 (13:57 UTC) runs give the same GHZ-4 an
 to 0.01 nT because the estimate depends only on the ratio of the GHZ-4 Y and X parities (here
 −0.400 / −0.830 in the 13:57 run), which happened to agree; the other registers differ. The
 23:21 UTC run in the demo video is a separate 200-shot sample and reads differently (cascade
-−1.99 nT). The values of the first three runs are in `results/qollab/compass_runs_20261010.json`;
+−1.99 nT). The values of the three Qollab runs of 13:52–14:10 UTC are in
+`results/qollab/compass_runs_20261010.json`;
 the run in the demo video was read off the screen (`results/qollab/video_runs_20261010.json`).
 
 ## The original part
@@ -260,8 +262,10 @@ model and the two-observatory what-if are recorded with their evidence in
 ## Disclosure
 
 - Built during the hackathon window (10–12 October 2026). It is a second entry next to the
-  author's *Bell-Test Lab* (Quantum Unlocked). Apart from a small formula helper for Temml and
-  its font declaration, written for both during the window, no code is shared between the two.
+  author's *Bell-Test Lab* (Quantum Unlocked). The two share no app code; each has its own Temml
+  formula helper. A few small pieces were written for both during the window and are alike: the
+  math font declaration, the local harness's response shim, and the link and math conversion in
+  `scripts/make_writeup.py`.
 - The USGS records were downloaded on 2026-10-10 by `scripts/fetch_usgs.py` (Boulder at
   12:23 UTC, Tucson at 13:05 UTC).
 - Use of AI: generative-AI coding assistants drafted most of the code, documentation and research

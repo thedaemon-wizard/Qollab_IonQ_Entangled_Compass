@@ -114,10 +114,19 @@ behind it, and what would make us revisit it.
 - **Decision** (2026-10-11). A "3D compass" tab plays the storm minute by minute on three
   stacked needles (8 independent qubits, GHZ-4 alone, the cascade's GHZ-4 register), drawn
   with three.js from Qollab's import map. A needle shows the angle its register reads back; a
-  tube shows the turn the field step really gave it, so a slip is visible as a red tube that
-  goes past half a turn. `compass/api.py` `storm3d_json` computes every angle, fringe index and
-  slip count; the page only draws. The needles come from the one replay (of 32) closest to
-  the average slip count and wrong-minute count of GHZ-4, and the page says so.
+  tube shows the turn that minute's field step gave it, $`m\,s\,\Delta F`$, so the first slip is
+  visible as a tube past half a turn. While a sensor sits on a wrong fringe its tube is red and
+  thicker; the counter counts fringe changes, onto a wrong fringe and back. `compass/api.py`
+  `storm3d_json` computes every angle, fringe index and count; the page only draws. The needles
+  come from the one replay (of 32) closest to the average fringe-change count and wrong-minute
+  count of GHZ-4, and the page gives both averages.
+- **Correction** (2026-10-11, review round 3). The first version drew the phase against the
+  tracker's prediction, $`m\,s\,(F_t - \hat{F}_{t-1})`$, while the text said $`m\,s\,\Delta F`$. On
+  a wrong fringe that phase carries the whole turns the estimate is off by, so a 2 nT step showed
+  as an almost full red ring. The tube now draws $`m\,s\,\Delta F`$ (tests pin both quantities), the
+  counter is called "fringe changes" (it also counts the step back), the wheel scrolls the page
+  instead of zooming, playback pauses when the tab is left and moves in one-second steps under
+  reduced motion, and the three.js import gives up after 8 s.
 - **Evidence.** The fringe slip was shown only as a jump in an error chart and as a static dial
   for one minute. Lines in WebGL are one pixel wide, so the turns are tubes. The colours are read
   from the theme on the app root, and the text panel and the canvas label give the same numbers

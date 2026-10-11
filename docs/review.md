@@ -57,3 +57,20 @@ The video was also re-recorded in one colour scheme (light); long still stretche
 Checks of the finished file: no decode errors, constant 30 fps, no black frames, no still longer
 than 3.7 s apart from the end card, and real-time playback in Chrome with no stall and no dropped
 frame.
+
+## Round 3 (2026-10-11 afternoon): 3D compass, run console, figure text
+
+| # | Severity | Finding | Resolution |
+|---|---|---|---|
+| 1 | HIGH | The 3D tube showed $`m\,s\,(F_t - \hat{F}_{t-1})`$ while the text said $`m\,s\,\Delta F`$; on GHZ-4's wrong-fringe minutes a step of a few nT drew an almost full red ring | The tube draws $`m\,s\,\Delta F`$ (`turn` in `storm3d_json`); red and thicker while the sensor is on a wrong fringe; a test pins both quantities (E12) |
+| 2 | MEDIUM | The "slip" counter also counted GHZ-4 regaining the right fringe | Called "fringe changes" in the tab, the console and the README |
+| 3 | MEDIUM | The replay console line gave the GHZ-4 gain without saying it holds only on right-fringe minutes | Says so, adds the whole-record RMS errors, and labels every ± as 2 standard errors with the replay count |
+| 4 | MEDIUM | The console called the two-qubit arm "one qubit"; challenge rounds and the twin replay printed nothing although the start-up line promised every result | "2 independent qubits"; challenge rounds and the twin replay print a line; the start-up line lists what is printed |
+| 5 | MEDIUM | 3D tab: a second visit during loading could start a second renderer; the three.js import had no timeout; the wheel over the canvas zoomed instead of scrolling | One start at a time, the replay loads while three.js loads, the import gives up after 8 s, wheel zoom off |
+| 6 | LOW | Playback went on with the tab hidden; reduced motion was not applied to the WebGL view; no paint before the blocking replay; "−0°"; the fallback note sat inside an image role | Pauses when the tab is left; one-second steps under reduced motion; status painted first; rounding fixed; the note is read as text |
+| 7 | LOW | The 8-qubit arm was tagged "1 qubit" | "8 indep." |
+| 8 | LOW | Needle tags could overlap each other or the counters; at narrow widths the counters covered the picture | Tags are moved apart and kept inside the picture; below 36 rem the counters sit under it |
+| 9 | LOW | Overview storm tile (8 replays) next to the tracker's 32-replay averages | The tile says it is a quick 8-replay estimate; the 3D status gives the 32-replay averages |
+| 10 | LOW | Qiskit's text drawing misaligned on systems whose monospace falls back to a CJK font | Monospace stack with DejaVu Sans Mono and Liberation Mono first |
+
+axe-core: 0 violations in all 12 view and scheme combinations (`results/a11y/axe_20261011_review3.json`); 113 tests.

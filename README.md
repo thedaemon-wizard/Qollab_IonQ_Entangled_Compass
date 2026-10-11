@@ -2,7 +2,7 @@
 
 > **Theme: Quantum Playground** · Qollab × IonQ Global Quantum Hackathon 2026 · team Quantum Daemons
 > Repository: https://github.com/thedaemon-wizard/Qollab_IonQ_Entangled_Compass
-> Demo video (2:59, YouTube, synthetic narration, English captions): https://youtu.be/easdOjNDF_k
+> Demo video (2:59, YouTube, synthetic narration, English captions): https://youtu.be/0l9qR3MO0_c
 
 Qollab's own example project *Scaled Entanglement* says that an $`N`$-qubit GHZ sensor is $`\sqrt{N}`$ times
 more precise than $`N`$ independent sensors. That is true in the ideal case: the same qubits, the

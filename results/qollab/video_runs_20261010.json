@@ -1,5 +1,5 @@
 {
-  "note": "Run shown in the demo video (https://youtu.be/easdOjNDF_k), recorded on Qollab on 2026-10-10 at about 23:21 UTC. Values were read off the screen; the counts were not exported.",
+  "note": "Run shown in the demo video (https://youtu.be/0l9qR3MO0_c), recorded on Qollab on 2026-10-10 at about 23:21 UTC. Values were read off the screen; the counts were not exported.",
   "backend": "ionq_simulator (noise model aria-1), chosen in Qollab's Run dialog (free simulator)",
   "circuit": "layout A, 17 qubits, one job",
   "minute": "2024-05-10T21:47 UTC (field step +44.59 nT)",

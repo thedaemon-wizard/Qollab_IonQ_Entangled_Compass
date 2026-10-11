@@ -42,7 +42,7 @@ each finding was checked again by a second reviewer before it was fixed.
 |---|---|---|---|
 | 1 | MEDIUM | "No code is shared" with Bell-Test Lab no longer held: both entries use the same small Temml helper and font declaration | Disclosed in the README and the Method view |
 | 2 | MEDIUM | "The two runs give the same readings" became ambiguous after the video run was added to "Where it ran" | The runs are named; the video run (23:21 UTC) is in time order and said to read differently |
-| 3 | MEDIUM | Write-up formulas had no recorded check on Qollab | Pasted write-up checked in Qollab's preview: 59 KaTeX formulas, no error (decision E11) |
+| 3 | MEDIUM | Write-up formulas had no recorded check on Qollab | Pasted write-up checked in Qollab's preview: 59 KaTeX formulas, no error; 60 after the review fixes (2026-10-11 evening), no error (decision E11) |
 | 4 | LOW | "The dashed box" did not say which of two dashed boxes | "The grey dashed box (and the dashed ancilla wire)" in the README and the figure |
 | 5 | LOW | Accessibility sentence gave explanatory figures a data table | Charts have data tables; figures have a description in words |
 | 6 | LOW | Decision dates and "the same figures" in decisions.md | Dates of E10 and E11; "the first three" |

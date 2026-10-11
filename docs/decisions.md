@@ -106,7 +106,8 @@ behind it, and what would make us revisit it.
   exposed to screen readers; if the import fails, the same strings appear as Unicode text
   (tested with jsDelivr blocked). On Qollab (2026-10-11), the in-app formulas rendered with the
   built-in simulator, and the pasted write-up (20,453 characters) showed 59 KaTeX formulas in
-  Qollab's write-up preview with no KaTeX error.
+  Qollab's write-up preview with no KaTeX error; after the review fixes the pasted write-up
+  (22,843 characters, 2026-10-11 evening) shows 60, again with no KaTeX error.
 - **Revisit if** the app must work offline (vendor Temml and the font with their licences).
 
 ## E12 — The storm on a 3D compass, drawn from one typical replay

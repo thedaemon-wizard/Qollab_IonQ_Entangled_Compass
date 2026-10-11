@@ -1,7 +1,7 @@
 """Bundle the files Qollab needs into dist/qollab_upload.zip (tests, scripts and docs stay in
 the repository only).
 
-Usage: python scripts/build_upload.py
+Usage: python scripts/build_upload.py [--card dist/writeup.md]
 """
 
 from __future__ import annotations
@@ -11,7 +11,9 @@ import zipfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-INCLUDE = ["index.html", "main.js", "main.css", "README.md", "LICENSE", "requirements.txt"]
+# README.md is not shipped as it is: Qollab shows it as the Project Card, so --card puts the converted
+# write-up there instead (GitHub math and relative links do not render on Qollab).
+INCLUDE = ["index.html", "main.js", "main.css", "LICENSE", "requirements.txt"]
 GLOBS = ["compass/*.py", "ui/*.js", "data/*.csv"]
 MAX_FILES, MAX_BYTES, MAX_README = 100, 2_000_000, 65_000
 
@@ -24,6 +26,7 @@ def files() -> list[Path]:
 
 
 def main() -> int:
+    card = Path(sys.argv[sys.argv.index("--card") + 1]) if "--card" in sys.argv else None
     paths = files()
     if len(paths) > MAX_FILES:
         print(f"{len(paths)} files, over the limit of {MAX_FILES}", file=sys.stderr)
@@ -32,15 +35,18 @@ def main() -> int:
         if p.stat().st_size > MAX_BYTES:
             print(f"{p.name} is over {MAX_BYTES} bytes", file=sys.stderr)
             return 1
-    if len((ROOT / "README.md").read_text(encoding="utf-8")) > MAX_README:
-        print("README.md is over the 65,000 character limit", file=sys.stderr)
+    if card and len(card.read_text(encoding="utf-8")) > MAX_README:
+        print(f"{card} is over the 65,000 character limit", file=sys.stderr)
         return 1
     dest = ROOT / "dist" / "qollab_upload.zip"
     dest.parent.mkdir(exist_ok=True)
     with zipfile.ZipFile(dest, "w", zipfile.ZIP_DEFLATED) as z:
         for p in paths:
             z.write(p, p.relative_to(ROOT).as_posix())
-    print(f"{len(paths)} files, {sum(p.stat().st_size for p in paths)} bytes -> dist/qollab_upload.zip")
+        if card:
+            z.write(card, "README.md")
+    note = f", {card} as README.md" if card else ", no README.md"
+    print(f"{len(paths)} files, {sum(p.stat().st_size for p in paths)} bytes{note} -> dist/qollab_upload.zip")
     return 0
 
 

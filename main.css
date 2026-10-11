@@ -111,6 +111,9 @@ pre.circuit { font-family: ui-monospace, 'SF Mono', Menlo, Consolas, 'DejaVu San
 @media (max-width: 760px) {
   .ec-root { padding: 0.6rem 0.6rem 1.5rem; }
 }
+/* the chosen option in full under a select that cuts it short (narrow screens only) */
+.full-choice { display: none; margin: 0.2rem 0 0; }
+@media (max-width: 480px) { .full-choice { display: block; } }
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; animation: none !important; }
 }

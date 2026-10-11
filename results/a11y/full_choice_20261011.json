@@ -1,0 +1,206 @@
+{
+ "tool": "axe-core 4.14.0 + layout probe (local harness, BasicSimulator)",
+ "date": "2026-10-11T17:15Z",
+ "runs": [
+  {
+   "width": 1280,
+   "scheme": "light",
+   "view": "tracker",
+   "axe_violations": [],
+   "page_scrolls_sideways": false,
+   "full_choice_lines": []
+  },
+  {
+   "width": 1280,
+   "scheme": "light",
+   "view": "compass3d",
+   "axe_violations": [],
+   "page_scrolls_sideways": false,
+   "full_choice_lines": []
+  },
+  {
+   "width": 1280,
+   "scheme": "dark",
+   "view": "tracker",
+   "axe_violations": [],
+   "page_scrolls_sideways": false,
+   "full_choice_lines": []
+  },
+  {
+   "width": 1280,
+   "scheme": "dark",
+   "view": "compass3d",
+   "axe_violations": [],
+   "page_scrolls_sideways": false,
+   "full_choice_lines": []
+  },
+  {
+   "width": 375,
+   "scheme": "light",
+   "view": "tracker",
+   "axe_violations": [],
+   "page_scrolls_sideways": false,
+   "full_choice_lines": [
+    {
+     "text": "Quiet day, 2026-10-01 (adjusted data): 1440 min",
+     "shown": true
+    },
+    {
+     "text": "Off (only the backend’s own gate noise)",
+     "shown": true
+    },
+    {
+     "text": "G5 storm, 2024-05-10 to 05-11 (quasi-definitive data): 2880 min",
+     "shown": false
+    }
+   ]
+  },
+  {
+   "width": 375,
+   "scheme": "light",
+   "view": "compass3d",
+   "axe_violations": [],
+   "page_scrolls_sideways": false,
+   "full_choice_lines": [
+    {
+     "text": "Quiet day, 2026-10-01 (adjusted data): 1440 min",
+     "shown": false
+    },
+    {
+     "text": "Off (only the backend’s own gate noise)",
+     "shown": false
+    },
+    {
+     "text": "G5 storm, 2024-05-10 to 05-11 (quasi-definitive data): 2880 min",
+     "shown": true
+    }
+   ]
+  },
+  {
+   "width": 375,
+   "scheme": "dark",
+   "view": "tracker",
+   "axe_violations": [],
+   "page_scrolls_sideways": false,
+   "full_choice_lines": [
+    {
+     "text": "Quiet day, 2026-10-01 (adjusted data): 1440 min",
+     "shown": true
+    },
+    {
+     "text": "Off (only the backend’s own gate noise)",
+     "shown": true
+    },
+    {
+     "text": "G5 storm, 2024-05-10 to 05-11 (quasi-definitive data): 2880 min",
+     "shown": false
+    }
+   ]
+  },
+  {
+   "width": 375,
+   "scheme": "dark",
+   "view": "compass3d",
+   "axe_violations": [],
+   "page_scrolls_sideways": false,
+   "full_choice_lines": [
+    {
+     "text": "Quiet day, 2026-10-01 (adjusted data): 1440 min",
+     "shown": false
+    },
+    {
+     "text": "Off (only the backend’s own gate noise)",
+     "shown": false
+    },
+    {
+     "text": "G5 storm, 2024-05-10 to 05-11 (quasi-definitive data): 2880 min",
+     "shown": true
+    }
+   ]
+  },
+  {
+   "width": 320,
+   "scheme": "light",
+   "view": "tracker",
+   "axe_violations": [],
+   "page_scrolls_sideways": false,
+   "full_choice_lines": [
+    {
+     "text": "Quiet day, 2026-10-01 (adjusted data): 1440 min",
+     "shown": true
+    },
+    {
+     "text": "Off (only the backend’s own gate noise)",
+     "shown": true
+    },
+    {
+     "text": "G5 storm, 2024-05-10 to 05-11 (quasi-definitive data): 2880 min",
+     "shown": false
+    }
+   ]
+  },
+  {
+   "width": 320,
+   "scheme": "light",
+   "view": "compass3d",
+   "axe_violations": [],
+   "page_scrolls_sideways": false,
+   "full_choice_lines": [
+    {
+     "text": "Quiet day, 2026-10-01 (adjusted data): 1440 min",
+     "shown": false
+    },
+    {
+     "text": "Off (only the backend’s own gate noise)",
+     "shown": false
+    },
+    {
+     "text": "G5 storm, 2024-05-10 to 05-11 (quasi-definitive data): 2880 min",
+     "shown": true
+    }
+   ]
+  },
+  {
+   "width": 320,
+   "scheme": "dark",
+   "view": "tracker",
+   "axe_violations": [],
+   "page_scrolls_sideways": false,
+   "full_choice_lines": [
+    {
+     "text": "Quiet day, 2026-10-01 (adjusted data): 1440 min",
+     "shown": true
+    },
+    {
+     "text": "Off (only the backend’s own gate noise)",
+     "shown": true
+    },
+    {
+     "text": "G5 storm, 2024-05-10 to 05-11 (quasi-definitive data): 2880 min",
+     "shown": false
+    }
+   ]
+  },
+  {
+   "width": 320,
+   "scheme": "dark",
+   "view": "compass3d",
+   "axe_violations": [],
+   "page_scrolls_sideways": false,
+   "full_choice_lines": [
+    {
+     "text": "Quiet day, 2026-10-01 (adjusted data): 1440 min",
+     "shown": false
+    },
+    {
+     "text": "Off (only the backend’s own gate noise)",
+     "shown": false
+    },
+    {
+     "text": "G5 storm, 2024-05-10 to 05-11 (quasi-definitive data): 2880 min",
+     "shown": true
+    }
+   ]
+  }
+ ]
+}

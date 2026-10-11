@@ -179,7 +179,7 @@ export function architectureFigure(init) {
   text(196, 214, 'ONE MINUTE', { cls: 'sk-label' }),
   node(196, 220, 224, 110, 'Packed Qiskit circuit', ['every sensor + canary q0:', `${A} qubits, ${B} with $γ$; the`, `what-if circuit: ${twin} qubits`, 'circuits.py · decode.py'], SIM, 'SIMULATED'),
   node(436, 64, 148, 266, 'Estimators', ['parities → needle', '$θ = atan2(Y, X)$;', 'cascade 1-2-4', 'unwraps GHZ-4', '', '→ estimates, RMS', 'error, minutes on a', 'wrong fringe, dials', '', 'estimators.py'], CLASSICAL, 'CLASSICAL'),
-  node(640, 40, 148, 310, 'Views (JS)', ['main.js, ui/*.js', 'draw what Python', 'returns as JSON', '', 'Overview: replay', 'Storm challenge:', 'replay, 12 rounds', 'Field tracker:', 'replay + one run', '', 'Two observatories', '(what-if): both', '', 'Method: circuit'], INTERFACE, 'INTERFACE'),
+  node(640, 40, 148, 310, 'Views (JS)', ['main.js, ui/*.js', 'draw what Python', 'returns as JSON', '', 'Overview: replay', 'Storm challenge:', `replay, ${init.challenge_rounds} rounds`, 'Field tracker:', 'replay + one run', '', 'Two observatories', '(what-if): both', '', 'Method: circuit'], INTERFACE, 'INTERFACE'),
   node(644, 227, 140, 36, '', [], WHATIF, null),
   node(196, 380, 388, 60, 'Backend chosen in Qollab’s Run dialog', ['built-in or IonQ noise-model simulator; hardware refused'], PLATFORM, 'QOLLAB'),
   arrow([[168, 124], [194, 124]], LINK),

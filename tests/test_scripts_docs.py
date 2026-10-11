@@ -130,3 +130,67 @@ def test_no_untranslated_marker_in_shipped_or_documented_text():
     for p in paths:
         # the Japanese "to be checked" marker, written as escapes so this file stays ASCII
         assert "\u8981\u78ba\u8a8d" not in p.read_text(encoding="utf-8"), p.name
+
+
+def test_csv_headers_state_the_usgs_licence_as_the_fetch_script_writes_it():
+    fetch = _load("fetch_usgs")
+    assert fetch.POLICY in README and fetch.POLICY in fetch.LICENCE
+    flat = " ".join(README.split())
+    quote = "USGS-authored or produced data and information are considered to be in the U.S. Public Domain."
+    assert f'"{quote}"' in flat
+    assert "not covered by this project's MIT licence" in flat
+    names = {name for _, name, *_ in fetch.RECORDS}
+    assert names == {p.name for p in (ROOT / "data").glob("*.csv")}
+    for name in names:
+        lines = (ROOT / "data" / name).read_text(encoding="utf-8").splitlines()
+        header = lines[: lines.index("time_utc,F_nT")]
+        assert f"# Licence: {fetch.LICENCE}" in header, name
+        credit = "# Credit: Geomagnetic data: USGS Geomagnetism Program"
+        assert any(ln.startswith(credit) for ln in header), name
+
+
+def _flat(text: str) -> str:
+    return " ".join(text.replace("\N{RIGHT SINGLE QUOTATION MARK}", "'").split())
+
+
+def test_method_tab_prose_numbers_come_from_python():
+    """ui/method.js explains the model in prose; its numbers must be the ones Python computes."""
+    import math
+
+    from compass import api, model
+
+    method = _flat((ROOT / "ui" / "method.js").read_text(encoding="utf-8"))
+    s = api.SCALE
+    assert f"$s = {s}$ rad per nT" in method
+    assert f"{model.GAMMA_E_HZ_PER_NT:.3f} Hz per nT" in method
+    assert f"Ramsey time of {model.ramsey_time_us(s):.1f} µs" in method
+    step = HEADLINE["storm_exact_means"]["first_step_beyond_ghz4_range"]["step_nt"]
+    alias = step - model.fringe_spacing_nt(4, s)
+    assert f"+{step:.1f} nT from {alias:.1f} nT".replace("-", "\N{MINUS SIGN}") in method
+    assert f"2\\sqrt{{8/14}} \\approx {2 * math.sqrt(8 / 14):.2f}" in method
+    assert f"(\\ln 4)/6 \\approx {model.crossover_gamma(4):.3f}" in method
+    aria = model.IONQ_DOCUMENTED["aria-1"]
+    assert f"visibility {model.gate_visibility(4, aria['r1'], aria['r2']):.3f} for GHZ-4" in method
+
+
+def test_method_tab_and_readme_agree_on_window_sources_and_credits():
+    method = _flat((ROOT / "ui" / "method.js").read_text(encoding="utf-8"))
+    readme = re.sub(r"\[([^\]]*)\]\([^)]*\)", r"\1", _flat(README))
+    for both in (
+        "9 October 19:00 ET to 11 October 19:00 ET 2026",
+        "2026-10-09 23:00 UTC to 2026-10-11 23:00 UTC",
+        "10 October 08:00 to 12 October 08:00 in Japan",
+        "2026-10-10 12:28 UTC",
+        "example project Scaled Entanglement",
+        "no other part of it is used",
+        "Copyrights and Credits",
+        "between 0 and 1.67",
+        "a maximum of 9 on 10\N{EN DASH}11 May 2024",
+        "doi:10.5880/Kp.0001",
+    ):
+        assert both in method.replace("*", "") and both in readme.replace("*", ""), both
+    refs = README.split("## References", 1)[1].split("## Data and licence", 1)[0]
+    firsts = re.findall(r"^- (?:[A-Z]\. )*(?:[A-Z]\. )?([A-Z][\w-]+)", refs, flags=re.M)
+    assert len(firsts) >= 20
+    for name in firsts:
+        assert f"'{name}" in method, name

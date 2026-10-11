@@ -109,3 +109,20 @@ checked by a second reviewer. The document fixes:
 - The build window is given in ET, UTC and Japan time; the Qollab run steps use Qollab's current
   labels; `scripts/build_upload.py` and `scripts/make_writeup.py` gained `--check` and `--help`
   and write nothing with either.
+
+## Final documents check (2026-10-11, late)
+
+- **Data licence.** The README now quotes the USGS policy *Copyrights and Credits* (U.S. Public
+  Domain, credit requested) with its URL and read date, in place of the earlier note on "U.S.
+  Government work"; the CSV headers and `scripts/fetch_usgs.py` say the same, and a test keeps
+  them equal (decision E9).
+- **Quiet day.** It was called quiet from its own record only; GFZ's Kp for 1 October 2026
+  (eight three-hour values between 0 and 1.67, preliminary) is now cited and agrees.
+- **App and README agree.** The Method & sources tab gives the build window in UTC as well, lists
+  the two new sources and states the data licence as the README does; tests now compare the
+  tab's numbers with Python and its window, sources and credits with the README.
+- **Math.** A test rejects TeX macros that GitHub refuses or that define macros, load extensions
+  or emit links or HTML, in every Markdown file and in the write-up; none is used.
+- **Write-up.** Decision E11 gives the final write-up's length and formula count.
+- **Phone selects.** "Field record" and "Added noise" cut their chosen option at 375 and 320 px;
+  below 480 px a line under each now repeats it in full (`results/a11y/README.md`).

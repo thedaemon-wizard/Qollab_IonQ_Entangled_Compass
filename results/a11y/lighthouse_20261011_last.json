@@ -1,0 +1,50 @@
+{
+ "date": "2026-10-11T16:24:52.694Z",
+ "target": "Entangled Compass on the local harness (tools/devserver/dev.html), Lighthouse snapshot mode, accessibility and best practices",
+ "runs": [
+  {
+   "scheme": "dark",
+   "view": "overview",
+   "state": "Overview after the four answers are computed",
+   "width": 1280,
+   "version": "13.5.0",
+   "mode": "snapshot",
+   "accessibility": 100,
+   "best_practices": 100,
+   "failed": []
+  },
+  {
+   "scheme": "dark",
+   "view": "tracker",
+   "state": "Field tracker after one replay and one circuit run (storm, 2024-05-10 21:47 UTC, basic_simulator)",
+   "width": 1280,
+   "version": "13.5.0",
+   "mode": "snapshot",
+   "accessibility": 100,
+   "best_practices": 100,
+   "failed": []
+  },
+  {
+   "scheme": "light",
+   "view": "overview",
+   "state": "Overview after the four answers are computed",
+   "width": 1280,
+   "version": "13.5.0",
+   "mode": "snapshot",
+   "accessibility": 100,
+   "best_practices": 100,
+   "failed": []
+  },
+  {
+   "scheme": "light",
+   "view": "tracker",
+   "state": "Field tracker after one replay and one circuit run (storm, 2024-05-10 21:47 UTC, basic_simulator)",
+   "width": 1280,
+   "version": "13.5.0",
+   "mode": "snapshot",
+   "accessibility": 100,
+   "best_practices": 100,
+   "failed": []
+  }
+ ]
+}

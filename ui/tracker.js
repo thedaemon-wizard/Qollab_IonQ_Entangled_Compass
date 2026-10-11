@@ -2,7 +2,7 @@
 // packed sensor circuit for one minute on the backend Qollab injected (one job).
 import { dataTable, timeChart } from './chart.js';
 import { dialsPanel } from './dials.js';
-import { el, fmt, keepFocus, minus, nextPaint } from './dom.js';
+import { el, fmt, fullChoice, keepFocus, minus, nextPaint } from './dom.js';
 import { py } from './py.js';
 import { rich } from './tex.js';
 
@@ -15,9 +15,12 @@ const ARM_STYLE = {
 };
 const SHOWN = ['IND8', 'GHZ4', 'CASC', 'MP4'];
 
+/** A labelled control; `hint` (text, or a hint element with an id) is read as its description. */
 function field(label, control, hint) {
   const id = control.id;
-  return el('div', { class: 'field' }, el('label', { for: id }, label), control, hint ? el('p', { class: 'hint small muted', id: `${id}-hint` }, hint) : null);
+  const note = hint && typeof hint === 'object' ? hint : hint ? el('p', { class: 'hint small muted', id: `${id}-hint` }, hint) : null;
+  if (note) control.setAttribute('aria-describedby', note.id);
+  return el('div', { class: 'field' }, el('label', { for: id }, label), control, note);
 }
 
 function select(id, options, value) {
@@ -50,13 +53,13 @@ export function trackerView(init, info, state) {
 
   const params = () => ({
     dataset: dataset.value, shots: Number(shots.value), noise: noise.value,
-    gamma: Number(gamma.value), gate_model: gateModel.value, measured: state.measuredVis, replicates: 32, seed: 0,
+    gamma: Number(gamma.value), gate_model: gateModel.value, measured: state.measuredVis, replicates: init.defaults.replicates, seed: init.defaults.seed,
   });
 
   let lastReplay = null;
   async function doReplay() {
     replayBtn.disabled = true;
-    status.textContent = 'Replaying 32 times with every sensor arm…';
+    status.textContent = `Replaying ${init.defaults.replicates} times with every sensor arm…`;
     charts.setAttribute('aria-busy', 'true');
     await nextPaint();
     try {
@@ -115,20 +118,29 @@ export function trackerView(init, info, state) {
     });
     charts.replaceChildren(fieldChart, errChart);
     metrics.replaceChildren(dataTable({
-      caption: `32 replays (mean ± 2 standard errors), ${shots.value} shots per register per minute, ${init.scale.value} rad/nT`,
+      caption: `${init.defaults.replicates} replays (mean ± 2 standard errors), ${shots.value} shots per register per minute, ${init.scale.value} rad/nT`,
       columns: ['Sensor arm', 'Qubits per shot', 'RMS error (nT)', 'RMS error on the right fringe (nT)', 'Minutes on a wrong fringe', 'Fringe changes'],
       rows: Object.entries(r.arms).map(([a, x]) => [ARM_STYLE[a].name, String(x.qubits), fmt.pm(x.rmse), fmt.pm(x.rmse_ok), fmt.pm(x.wrong_minutes, 1), fmt.pm(x.slips, 1)]),
     }), el('p', { class: 'small' },
       `Gain of GHZ-4 over 8 independent qubits (same 8 qubits per shot), on the minutes GHZ-4 stays on the right fringe: ${fmt.pm(r.gain_ghz4)}; model at zero field step ${fmt.n(r.gain_ghz4.theory)}. Over the whole record compare the RMS errors in the table. `,
       `Gain of the cascade over 14 independent qubits: ${fmt.pm(r.gain_cascade)}; ideal ${fmt.n(r.gain_cascade.theory_ideal)}.`),
     el('p', { class: 'small' }, el('strong', null, 'Strong baseline: '),
-      rich(String.raw`the standard quantum limit for the same 8 qubits and shots, the best any unentangled sensor could reach with one interrogation of the same length per qubit (every qubit read at its most sensitive point), is ${fmt.n(r.sql.nt, 3)} nT per minute. This X/Y GHZ-4 readout beats it by ${fmt.pm(r.sql.gain_ghz4)}× on the right fringe (model ${fmt.n(r.sql.gain_ghz4.theory)}; ideal $\sqrt{2}$). Below 1, this readout no longer beats the best single-pass unentangled sensor. (An optimally read GHZ-4 would gain 2 ideally and keep a gain until $\gamma \approx 0.23$, but it would need the working point to be known even more closely. The 4-pass qubit beats the limit by spending four times the interrogation time.)`)));
+      rich(String.raw`the standard quantum limit for the same 8 qubits and shots, the best any unentangled sensor could reach with one interrogation of the same length per qubit (every qubit read at its most sensitive point), is ${fmt.n(r.sql.nt, 3)} nT per minute. This X/Y GHZ-4 readout beats it by ${fmt.pm(r.sql.gain_ghz4)}× on the right fringe (model ${fmt.n(r.sql.gain_ghz4.theory)}; ideal $\sqrt{2}$). Below 1, this readout no longer beats the best single-pass unentangled sensor. (An optimally read GHZ-4 would gain 2 ideally and keep a gain until $\gamma \approx ${fmt.n(init.crossover_gamma['4'])}$, but it would need the working point to be known even more closely. The 4-pass qubit beats the limit by spending four times the interrogation time.)`)));
   }
 
   // ---------- one circuit run ----------
-  const preset = select('ec-minute', init.presets.map((p, i) => [i, `${p.minute.replace('T', ' ')} UTC: ${p.note}`]), 2);
+  // Short option labels (time and field step; the label says UTC) fit the select down to 320 px;
+  // the line under it says what happens in the chosen minute and is the select's description.
+  const preset = select('ec-minute', init.presets.map((p, i) => [i, `${p.minute.replace('T', ' ')} (${fmt.signed(p.step_nt, 1)} nT)`]), 2);
+  const presetHint = el('p', { class: 'hint small muted', id: 'ec-minute-hint' });
+  const syncPreset = () => {
+    const p = init.presets[Number(preset.value)];
+    presetHint.textContent = `${p.note[0].toUpperCase()}${p.note.slice(1)}. Field step in this minute: ${fmt.signed(p.step_nt, 1)} nT.`;
+  };
+  preset.addEventListener('change', syncPreset);
+  syncPreset();
   const runBtn = el('button', { type: 'button', class: 'primary', id: 'ec-run' }, 'Run the sensor circuit (one job)');
-  const runStatus = el('p', { role: 'status', class: 'status', id: 'ec-run-status' }, `Backend: ${info.name}. One packed circuit: 17 qubits, or 21 with dephasing.`);
+  const runStatus = el('p', { role: 'status', class: 'status', id: 'ec-run-status' }, `Backend: ${info.name}. One packed circuit: ${init.qubits.A} qubits, or ${init.qubits.B} with dephasing.`);
   const runOut = el('div');
   runBtn.addEventListener('click', async () => {
     const p = init.presets[Number(preset.value)];
@@ -158,15 +170,15 @@ export function trackerView(init, info, state) {
   });
 
   const controls = el('fieldset', { class: 'card controls' }, el('legend', null, 'Replay settings'),
-    field('Field record', dataset),
+    field('Field record', dataset), fullChoice(dataset),
     el('p', { class: 'small muted' }, `Phase per nT: ${init.scale.value} rad (a model choice: an electron spin with a ${init.scale.ramsey_us} µs Ramsey time). GHZ-4 can then follow at most ±${init.scale.ghz4_range_nt} nT per minute.`),
-    field('Shots per register per minute', shots), field('Added noise', noise),
+    field('Shots per register per minute', shots), field('Added noise', noise), fullChoice(noise),
     el('div', { class: 'field' }, el('label', { for: 'ec-gamma' }, 'Dephasing strength'), gamma, gammaOut),
     field('Gate noise in the replay', gateModel, 'IonQ’s documented depolarizing rates for Aria 1 (now retired), or the visibilities measured in your last circuit run.'),
     el('div', { class: 'row' }, replayBtn), status);
   const runCardEl = el('section', { class: 'card', 'aria-labelledby': 'ec-run-h' }, el('h2', { id: 'ec-run-h' }, 'One minute on the quantum simulator'),
     el('p', { class: 'small muted' }, 'Every sensor below is in ONE circuit and sees the same field step: GHZ-1, GHZ-2 and GHZ-4 registers read in X and Y, a single qubit that passes the field four times, and a canary qubit that checks the bit order.'),
-    field('Minute', preset), el('div', { class: 'row' }, runBtn), runStatus, runOut);
+    field('Minute (UTC)', preset, presetHint), el('div', { class: 'row' }, runBtn), runStatus, runOut);
   return el('div', { class: 'view' }, el('div', { class: 'grid' }, controls, runCardEl), charts, metrics);
 }
 

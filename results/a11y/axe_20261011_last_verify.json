@@ -1,0 +1,567 @@
+{
+ "tool": "axe-core 4.14.0",
+ "date": "2026-10-11T16:33:24.818Z",
+ "tags": [
+  "wcag2a",
+  "wcag2aa",
+  "wcag21a",
+  "wcag21aa",
+  "wcag22aa",
+  "best-practice"
+ ],
+ "note": "Local harness with Qiskit BasicSimulator; 7 states x dark and light x 1280, 1014, 375 and 320 px; hscroll = the page scrolls sideways.",
+ "runs": [
+  {
+   "width": 1280,
+   "scheme": "dark",
+   "view": "overview",
+   "violations": [],
+   "incomplete": [
+    "color-contrast"
+   ],
+   "hscroll": false
+  },
+  {
+   "width": 1280,
+   "scheme": "dark",
+   "view": "challenge-round2",
+   "violations": [],
+   "incomplete": [
+    "color-contrast"
+   ],
+   "hscroll": false
+  },
+  {
+   "width": 1280,
+   "scheme": "dark",
+   "view": "challenge-final",
+   "violations": [],
+   "incomplete": [
+    "color-contrast"
+   ],
+   "hscroll": false
+  },
+  {
+   "width": 1280,
+   "scheme": "dark",
+   "view": "tracker",
+   "violations": [],
+   "incomplete": [
+    "color-contrast"
+   ],
+   "hscroll": false
+  },
+  {
+   "width": 1280,
+   "scheme": "dark",
+   "view": "compass3d",
+   "violations": [],
+   "incomplete": [
+    "color-contrast"
+   ],
+   "hscroll": false
+  },
+  {
+   "width": 1280,
+   "scheme": "dark",
+   "view": "twin",
+   "violations": [],
+   "incomplete": [
+    "color-contrast"
+   ],
+   "hscroll": false
+  },
+  {
+   "width": 1280,
+   "scheme": "dark",
+   "view": "method",
+   "violations": [],
+   "incomplete": [
+    "color-contrast"
+   ],
+   "hscroll": false
+  },
+  {
+   "width": 1280,
+   "scheme": "light",
+   "view": "overview",
+   "violations": [],
+   "incomplete": [
+    "color-contrast"
+   ],
+   "hscroll": false
+  },
+  {
+   "width": 1280,
+   "scheme": "light",
+   "view": "challenge-round2",
+   "violations": [],
+   "incomplete": [
+    "color-contrast"
+   ],
+   "hscroll": false
+  },
+  {
+   "width": 1280,
+   "scheme": "light",
+   "view": "challenge-final",
+   "violations": [],
+   "incomplete": [
+    "color-contrast"
+   ],
+   "hscroll": false
+  },
+  {
+   "width": 1280,
+   "scheme": "light",
+   "view": "tracker",
+   "violations": [],
+   "incomplete": [
+    "color-contrast"
+   ],
+   "hscroll": false
+  },
+  {
+   "width": 1280,
+   "scheme": "light",
+   "view": "compass3d",
+   "violations": [],
+   "incomplete": [
+    "color-contrast"
+   ],
+   "hscroll": false
+  },
+  {
+   "width": 1280,
+   "scheme": "light",
+   "view": "twin",
+   "violations": [],
+   "incomplete": [
+    "color-contrast"
+   ],
+   "hscroll": false
+  },
+  {
+   "width": 1280,
+   "scheme": "light",
+   "view": "method",
+   "violations": [],
+   "incomplete": [
+    "color-contrast"
+   ],
+   "hscroll": false
+  },
+  {
+   "width": 1014,
+   "scheme": "dark",
+   "view": "overview",
+   "violations": [],
+   "incomplete": [
+    "color-contrast"
+   ],
+   "hscroll": false
+  },
+  {
+   "width": 1014,
+   "scheme": "dark",
+   "view": "challenge-round2",
+   "violations": [],
+   "incomplete": [
+    "color-contrast"
+   ],
+   "hscroll": false
+  },
+  {
+   "width": 1014,
+   "scheme": "dark",
+   "view": "challenge-final",
+   "violations": [],
+   "incomplete": [
+    "color-contrast"
+   ],
+   "hscroll": false
+  },
+  {
+   "width": 1014,
+   "scheme": "dark",
+   "view": "tracker",
+   "violations": [],
+   "incomplete": [
+    "color-contrast"
+   ],
+   "hscroll": false
+  },
+  {
+   "width": 1014,
+   "scheme": "dark",
+   "view": "compass3d",
+   "violations": [],
+   "incomplete": [
+    "color-contrast"
+   ],
+   "hscroll": false
+  },
+  {
+   "width": 1014,
+   "scheme": "dark",
+   "view": "twin",
+   "violations": [],
+   "incomplete": [
+    "color-contrast"
+   ],
+   "hscroll": false
+  },
+  {
+   "width": 1014,
+   "scheme": "dark",
+   "view": "method",
+   "violations": [],
+   "incomplete": [
+    "color-contrast"
+   ],
+   "hscroll": false
+  },
+  {
+   "width": 1014,
+   "scheme": "light",
+   "view": "overview",
+   "violations": [],
+   "incomplete": [
+    "color-contrast"
+   ],
+   "hscroll": false
+  },
+  {
+   "width": 1014,
+   "scheme": "light",
+   "view": "challenge-round2",
+   "violations": [],
+   "incomplete": [
+    "color-contrast"
+   ],
+   "hscroll": false
+  },
+  {
+   "width": 1014,
+   "scheme": "light",
+   "view": "challenge-final",
+   "violations": [],
+   "incomplete": [
+    "color-contrast"
+   ],
+   "hscroll": false
+  },
+  {
+   "width": 1014,
+   "scheme": "light",
+   "view": "tracker",
+   "violations": [],
+   "incomplete": [
+    "color-contrast"
+   ],
+   "hscroll": false
+  },
+  {
+   "width": 1014,
+   "scheme": "light",
+   "view": "compass3d",
+   "violations": [],
+   "incomplete": [
+    "color-contrast"
+   ],
+   "hscroll": false
+  },
+  {
+   "width": 1014,
+   "scheme": "light",
+   "view": "twin",
+   "violations": [],
+   "incomplete": [
+    "color-contrast"
+   ],
+   "hscroll": false
+  },
+  {
+   "width": 1014,
+   "scheme": "light",
+   "view": "method",
+   "violations": [],
+   "incomplete": [
+    "color-contrast"
+   ],
+   "hscroll": false
+  },
+  {
+   "width": 375,
+   "scheme": "dark",
+   "view": "overview",
+   "violations": [],
+   "incomplete": [
+    "color-contrast"
+   ],
+   "hscroll": false
+  },
+  {
+   "width": 375,
+   "scheme": "dark",
+   "view": "challenge-round2",
+   "violations": [],
+   "incomplete": [
+    "color-contrast"
+   ],
+   "hscroll": false
+  },
+  {
+   "width": 375,
+   "scheme": "dark",
+   "view": "challenge-final",
+   "violations": [],
+   "incomplete": [
+    "color-contrast"
+   ],
+   "hscroll": false
+  },
+  {
+   "width": 375,
+   "scheme": "dark",
+   "view": "tracker",
+   "violations": [],
+   "incomplete": [
+    "color-contrast"
+   ],
+   "hscroll": false
+  },
+  {
+   "width": 375,
+   "scheme": "dark",
+   "view": "compass3d",
+   "violations": [],
+   "incomplete": [],
+   "hscroll": false
+  },
+  {
+   "width": 375,
+   "scheme": "dark",
+   "view": "twin",
+   "violations": [],
+   "incomplete": [
+    "color-contrast"
+   ],
+   "hscroll": false
+  },
+  {
+   "width": 375,
+   "scheme": "dark",
+   "view": "method",
+   "violations": [],
+   "incomplete": [
+    "color-contrast"
+   ],
+   "hscroll": false
+  },
+  {
+   "width": 375,
+   "scheme": "light",
+   "view": "overview",
+   "violations": [],
+   "incomplete": [
+    "color-contrast"
+   ],
+   "hscroll": false
+  },
+  {
+   "width": 375,
+   "scheme": "light",
+   "view": "challenge-round2",
+   "violations": [],
+   "incomplete": [
+    "color-contrast"
+   ],
+   "hscroll": false
+  },
+  {
+   "width": 375,
+   "scheme": "light",
+   "view": "challenge-final",
+   "violations": [],
+   "incomplete": [
+    "color-contrast"
+   ],
+   "hscroll": false
+  },
+  {
+   "width": 375,
+   "scheme": "light",
+   "view": "tracker",
+   "violations": [],
+   "incomplete": [
+    "color-contrast"
+   ],
+   "hscroll": false
+  },
+  {
+   "width": 375,
+   "scheme": "light",
+   "view": "compass3d",
+   "violations": [],
+   "incomplete": [],
+   "hscroll": false
+  },
+  {
+   "width": 375,
+   "scheme": "light",
+   "view": "twin",
+   "violations": [],
+   "incomplete": [
+    "color-contrast"
+   ],
+   "hscroll": false
+  },
+  {
+   "width": 375,
+   "scheme": "light",
+   "view": "method",
+   "violations": [],
+   "incomplete": [
+    "color-contrast"
+   ],
+   "hscroll": false
+  },
+  {
+   "width": 320,
+   "scheme": "dark",
+   "view": "overview",
+   "violations": [],
+   "incomplete": [
+    "color-contrast"
+   ],
+   "hscroll": false
+  },
+  {
+   "width": 320,
+   "scheme": "dark",
+   "view": "challenge-round2",
+   "violations": [],
+   "incomplete": [
+    "color-contrast"
+   ],
+   "hscroll": false
+  },
+  {
+   "width": 320,
+   "scheme": "dark",
+   "view": "challenge-final",
+   "violations": [],
+   "incomplete": [
+    "color-contrast"
+   ],
+   "hscroll": false
+  },
+  {
+   "width": 320,
+   "scheme": "dark",
+   "view": "tracker",
+   "violations": [],
+   "incomplete": [
+    "color-contrast"
+   ],
+   "hscroll": false
+  },
+  {
+   "width": 320,
+   "scheme": "dark",
+   "view": "compass3d",
+   "violations": [],
+   "incomplete": [],
+   "hscroll": false
+  },
+  {
+   "width": 320,
+   "scheme": "dark",
+   "view": "twin",
+   "violations": [],
+   "incomplete": [
+    "color-contrast"
+   ],
+   "hscroll": false
+  },
+  {
+   "width": 320,
+   "scheme": "dark",
+   "view": "method",
+   "violations": [],
+   "incomplete": [
+    "color-contrast"
+   ],
+   "hscroll": false
+  },
+  {
+   "width": 320,
+   "scheme": "light",
+   "view": "overview",
+   "violations": [],
+   "incomplete": [
+    "color-contrast"
+   ],
+   "hscroll": false
+  },
+  {
+   "width": 320,
+   "scheme": "light",
+   "view": "challenge-round2",
+   "violations": [],
+   "incomplete": [
+    "color-contrast"
+   ],
+   "hscroll": false
+  },
+  {
+   "width": 320,
+   "scheme": "light",
+   "view": "challenge-final",
+   "violations": [],
+   "incomplete": [
+    "color-contrast"
+   ],
+   "hscroll": false
+  },
+  {
+   "width": 320,
+   "scheme": "light",
+   "view": "tracker",
+   "violations": [],
+   "incomplete": [
+    "color-contrast"
+   ],
+   "hscroll": false
+  },
+  {
+   "width": 320,
+   "scheme": "light",
+   "view": "compass3d",
+   "violations": [],
+   "incomplete": [],
+   "hscroll": false
+  },
+  {
+   "width": 320,
+   "scheme": "light",
+   "view": "twin",
+   "violations": [],
+   "incomplete": [
+    "color-contrast"
+   ],
+   "hscroll": false
+  },
+  {
+   "width": 320,
+   "scheme": "light",
+   "view": "method",
+   "violations": [],
+   "incomplete": [
+    "color-contrast"
+   ],
+   "hscroll": false
+  }
+ ]
+}

@@ -5,7 +5,7 @@
 // are red; the counter counts its fringe changes, onto a wrong fringe and back. three.js comes
 // from Qollab's import map (three@0.186.1); without WebGL the controls and the text panel below
 // still show every number.
-import { announce, el, fmt, nextPaint, uid } from './dom.js';
+import { announce, el, fmt, fullChoice, nextPaint, uid } from './dom.js';
 import { py } from './py.js';
 import { rich } from './tex.js';
 
@@ -454,13 +454,13 @@ export function compass3dView(init) {
     if (loadingRecord !== null) return;
     if (playing) stop();
     loadingRecord = dataset.value;
-    status.textContent = 'Replaying the record (32 replays, 1000 shots per register per minute)…';
+    status.textContent = `Replaying the record (${init.defaults.replicates} replays, ${init.defaults.shots} shots per register per minute)…`;
     play.disabled = true;
     toFirst.disabled = true;
     await nextPaint(); // the call blocks the page on Qollab: show the status first
     let failed = false;
     try {
-      data = await py.storm3d({ dataset: loadingRecord });
+      data = await py.storm3d({ dataset: loadingRecord, shots: init.defaults.shots, replicates: init.defaults.replicates, seed: init.defaults.seed });
     } catch (err) {
       status.textContent = `The replay failed: ${err.message}`;
       failed = true;
@@ -515,9 +515,9 @@ export function compass3dView(init) {
 
   const element = el('section', { class: 'card', 'aria-labelledby': 'ec3-h', 'aria-describedby': descId },
     el('h2', { id: 'ec3-h' }, 'The storm on a 3D compass'),
-    el('p', { id: descId }, rich(String.raw`Three needles follow the real field record minute by minute in one model replay: 8 independent qubits, GHZ-4 alone, and the cascade’s GHZ-4 register. Each needle points where its register reads back; the arc under it shows how far that minute’s field step turned it ($m\,s\,\Delta F$, with $s = 0.02$ rad per nT). Past half a turn (the red line) GHZ-4 alone reads back the wrong fringe: while it is on one, its arc is red and thicker and its hub red, and its count of fringe changes goes up each time it leaves or regains the right fringe. The cascade’s GHZ-4 register turns just as far, but its 1-qubit and GHZ-2 registers tell it which turn it is on, so it stays right. Drag sideways to turn the view, or use the buttons.`)),
+    el('p', { id: descId }, rich(String.raw`Three needles follow the real field record minute by minute in one model replay: 8 independent qubits, GHZ-4 alone, and the cascade’s GHZ-4 register. Each needle points where its register reads back; the arc under it shows how far that minute’s field step turned it ($m\,s\,\Delta F$, with $s = ${init.scale.value}$ rad per nT). Past half a turn (the red line) GHZ-4 alone reads back the wrong fringe: while it is on one, its arc is red and thicker and its hub red, and its count of fringe changes goes up each time it leaves or regains the right fringe. The cascade’s GHZ-4 register turns just as far, but its 1-qubit and GHZ-2 registers tell it which turn it is on, so it stays right. Drag sideways to turn the view, or use the buttons.`)),
     el('div', { class: 'controls c3d-controls' },
-      el('div', { class: 'field' }, dataLabel, dataset),
+      el('div', { class: 'field' }, dataLabel, dataset, fullChoice(dataset)),
       el('div', { class: 'field' }, speedLabel, speed),
       el('div', { class: 'toolbar' }, play, back, fwd, toFirst)),
     el('div', { class: 'field' }, sliderLabel, slider),
@@ -526,7 +526,7 @@ export function compass3dView(init) {
     camGroup,
     readout,
     summary,
-    el('p', { class: 'small muted' }, 'Simulated sensors, real field data (USGS). The needles are drawn from one replay of the model in compass/replay.py, chosen as the replay closest to the average of 32; the tables in the Field tracker give the averages. Nothing ran on a magnetometer or on quantum hardware.'));
+    el('p', { class: 'small muted' }, `Simulated sensors, real field data (USGS). The needles are drawn from one replay of the model in compass/replay.py, chosen as the replay closest to the average of ${init.defaults.replicates}; the tables in the Field tracker give the averages. Nothing ran on a magnetometer or on quantum hardware.`));
 
   return { element, onShow: start };
 }

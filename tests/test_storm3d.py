@@ -26,8 +26,15 @@ def test_shape_and_shown_replay(storm):
 
 def test_slips_match_the_replay_metrics(storm):
     _, f = api.data.load("storm")
-    est = replay.track(f, api.SCALE, 1000, api._visibilities("none", 0.0, None),
-                       arms=("IND8", "GHZ4", "CASC"), replicates=32, seed=0)
+    est = replay.track(
+        f,
+        api.SCALE,
+        1000,
+        api._visibilities("none", 0.0, None),
+        arms=("IND8", "GHZ4", "CASC"),
+        replicates=32,
+        seed=0,
+    )
     k = storm["replay"]["shown"] - 1
     g4 = replay.metrics(f, est["GHZ4"][k : k + 1], api.SCALE, 4)
     slips = storm["arms"]["GHZ4"]["slips_so_far"][-1]

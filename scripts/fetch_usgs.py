@@ -1,4 +1,4 @@
-"""Download the two field records the app replays, from the USGS geomagnetism web service.
+"""Download the three field records the app replays, from the USGS geomagnetism web service.
 
 Usage: python scripts/fetch_usgs.py
 
@@ -29,6 +29,12 @@ CREDIT = (
     "U.S. Geological Survey. Thanks to INTERMAGNET (www.intermagnet.org) for promoting high "
     "standards of magnetic observatory practice."
 )
+POLICY = "https://www.usgs.gov/information-policies-and-instructions/copyrights-and-credits"
+LICENCE = (
+    "USGS-authored or produced data are considered to be in the U.S. Public Domain (USGS policy "
+    f'"Copyrights and Credits", {POLICY}, read 2026-10-11); USGS asks for credit (line above). '
+    "Not covered by this project's MIT licence."
+)
 
 
 def fetch(station: str, start: str, end: str, data_type: str) -> tuple[str, dict]:
@@ -54,7 +60,7 @@ def main() -> int:
             f"# URL: {url}",
             f"# Data type: {data_type}; retrieved {now}; values as served",
             f"# Credit: {CREDIT.format(name=NAMES[station], code=station)}",
-            "# These data are not covered by this project's MIT licence (U.S. Government work, see README).",
+            f"# Licence: {LICENCE}",
             "time_utc,F_nT",
         ]
         lines += [f"{t[:16]},{'' if v is None else v}" for t, v in zip(times, values, strict=True)]

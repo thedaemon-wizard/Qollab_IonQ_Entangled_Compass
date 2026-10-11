@@ -17,8 +17,13 @@ def test_circuit_run_reports_its_readings():
 
 
 def test_replay_reports_the_gain():
-    r = json.loads(api.replay_json(json.dumps({"dataset": "quiet", "shots": 1000, "noise": "off",
-                                               "gate_model": "none", "replicates": 4})))
+    r = json.loads(
+        api.replay_json(
+            json.dumps(
+                {"dataset": "quiet", "shots": 1000, "noise": "off", "gate_model": "none", "replicates": 4}
+            )
+        )
+    )
     line = r["console_line"]
     g, a = r["gain_ghz4"], r["arms"]
     # the gain is measured only on the right-fringe minutes; the line says so and adds whole-record RMS

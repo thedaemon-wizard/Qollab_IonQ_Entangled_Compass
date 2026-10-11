@@ -144,7 +144,7 @@ circuit run. For example `[Entangled Compass] One-minute circuit on basic_simula
 
 ```
 python3.14 -m venv .venv && .venv/bin/pip install -r requirements-dev.txt
-.venv/bin/python -m pytest -q                         # more than 120 tests
+.venv/bin/python -m pytest -q                         # more than 130 tests
 .venv/bin/python tools/devserver/server.py            # http://127.0.0.1:8770/tools/devserver/dev.html
 PYTHONPATH=. .venv/bin/python scripts/headline_numbers.py   # the model-replay numbers in Results
 ```
@@ -369,7 +369,7 @@ horizontal page scroll at 320 px.
 
 ## How it was verified
 
-More than 120 pytest tests (`.venv/bin/python -m pytest -q`), by area:
+More than 130 pytest tests (`.venv/bin/python -m pytest -q`), by area:
 
 - **Physics** (`tests/test_physics.py`, `tests/test_twin.py`): parities of the packed circuits,
   with and without the dephasing ancilla, against exact values; the closed forms, the documented
@@ -383,11 +383,16 @@ More than 120 pytest tests (`.venv/bin/python -m pytest -q`), by area:
   backend used only in the two run functions, no Sampler, no `measure_all`, no dynamic circuits,
   literal data paths, attribution and licence, and every JavaScript file parses.
 - **Review fixes and the interface** (`tests/test_review_fixes.py`,
-  `tests/test_ui_focus_and_baselines.py`, `tests/test_console.py`, `tests/test_figures.py`): each
-  confirmed review finding, the run-console lines, and figures that draw only numbers from Python.
+  `tests/test_ui_focus_and_baselines.py`, `tests/test_console.py`, `tests/test_figures.py`,
+  `tests/test_ui_numbers_from_data.py`): each confirmed review finding, the run-console lines,
+  figures that draw only numbers from Python, and views that read their physics and request
+  settings from Python instead of typing them.
 - **Documents and bundle** (`tests/test_math_docs.py`, `tests/test_scripts_docs.py`): formulas that
-  convert for Qollab, the write-up and bundle under Qollab's limits with the recorded runs inside,
-  and README numbers equal to `results/headline_numbers.json`.
+  convert for Qollab and avoid TeX macros that GitHub refuses or that define macros, load
+  extensions or emit links or HTML; the write-up and bundle under Qollab's limits with the recorded
+  runs inside; README numbers equal to `results/headline_numbers.json`; the numbers, build window,
+  sources and credits of the Method & sources tab equal to Python and the README; and the USGS
+  licence line in every data file.
 
 The independent reviews and how each finding was resolved are in
 [docs/review.md](docs/review.md); accessibility checks are in
@@ -490,18 +495,26 @@ model and the two-observatory what-if are recorded with their evidence in
   2026-10-11): one job per run on IonQ backends; the Aria 1 and Aria 2 hardware is retired and
   their noise models are still offered.
 - USGS Geomagnetism Program web service, geomag.usgs.gov/ws (read 2026-10-10).
+- USGS, *Copyrights and Credits*, usgs.gov/information-policies-and-instructions/copyrights-and-credits
+  (read 2026-10-11): USGS-produced data are in the U.S. public domain; credit is requested.
+- GFZ German Research Centre for Geosciences, Kp index, kp.gfz.de, doi:10.5880/Kp.0001 (CC BY 4.0;
+  read 2026-10-11).
 
 ## Data and licence
 
 Geomagnetic data: USGS Geomagnetism Program, Boulder (BOU) and Tucson (TUC) observatories,
 courtesy of the U.S. Geological Survey; thanks to INTERMAGNET (www.intermagnet.org) for promoting high standards of
 magnetic observatory practice. The storm records are quasi-definitive, the quiet day adjusted;
-values are as served. "U.S. Government work" in the CSV headers means that the records come from
-the U.S. Geological Survey, not from this project: the data in `data/` are not covered by this
-project's licence, and no other licence is given for them here. The quiet day, 1 October 2026,
-is called quiet from its own record: the field there spans 30.2 nT over the day with a largest
-one-minute step of 0.9 nT, against 987.5 nT and 118.8 nT in the storm record; no geomagnetic
-activity index was checked.
+values are as served. The USGS policy
+[*Copyrights and Credits*](https://www.usgs.gov/information-policies-and-instructions/copyrights-and-credits)
+(read 2026-10-11) says: "USGS-authored or produced data and information are considered to be in
+the U.S. Public Domain." It asks that proper credit be given, which the credit above and the CSV
+headers give. The data in `data/` are therefore not covered by this project's MIT licence. The
+quiet day, 1 October 2026, is quiet in its own record: the field there spans 30.2 nT over the
+day with a largest one-minute step of 0.9 nT, against 987.5 nT and 118.8 nT in the storm record.
+The planetary index Kp agrees: its eight three-hour values that day lie between 0 and 1.67
+(preliminary values), against a maximum of 9 on 10–11 May 2024 (GFZ Kp web service,
+kp.gfz.de, read 2026-10-11).
 
 Code and documentation: MIT licence (see LICENSE). The app typesets its formulas with Temml
 (MIT) in the Latin Modern Math font (GUST Font License), both loaded from jsDelivr, and draws

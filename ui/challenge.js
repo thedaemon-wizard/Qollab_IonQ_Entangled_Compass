@@ -9,7 +9,7 @@ import { rich } from './tex.js';
 const ORDER = ['IND8', 'GHZ4', 'CASC'];
 const STYLE = { IND8: 'var(--s1)', GHZ4: 'var(--s2)', CASC: 'var(--s3)' };
 
-export function challengeView(state) {
+export function challengeView(state, init) {
   let setup = null;
   let k = 0;
   let offset = 0;
@@ -23,7 +23,7 @@ export function challengeView(state) {
   const summary = el('div');
   const startBtn = el('button', { type: 'button', class: 'primary' }, 'Start the challenge');
 
-  const settings = () => ({ shots: 1000, gate_model: state.measuredVis ? 'measured' : 'none', measured: state.measuredVis, seed: 7 });
+  const settings = () => ({ shots: init.defaults.shots, gate_model: state.measuredVis ? 'measured' : 'none', measured: state.measuredVis, seed: init.defaults.challenge_seed });
 
   async function start() {
     startBtn.disabled = true;
@@ -131,7 +131,7 @@ export function challengeView(state) {
         : `The best fixed strategy, “always ${bestFixed[0]}”, scores ${fmt.n(bestFixed[1])}. GHZ-4 is the finest sensor in calm hours, but one big jump costs more than it gains.`),
       dataTable({ caption: 'Your rounds', columns: ['Round', 'Your pick', 'Score', 'Fringe changes', 'Best pick this round'],
         rows: history.map((h) => [String(h.round + 1), setup.choices[h.choice].label, fmt.n(h.score), String(h.slips), setup.choices[h.best].label]) }),
-      dataTable({ caption: 'Fixed strategies over all 12 rounds (same random seed)', columns: ['Strategy', 'Mean score'], rows: always.map(([l, s]) => [`always ${l}`, fmt.n(s)]) })));
+      dataTable({ caption: `Fixed strategies over all ${setup.rounds.length} rounds (same random seed)`, columns: ['Strategy', 'Mean score'], rows: always.map(([l, s]) => [`always ${l}`, fmt.n(s)]) })));
     summary.querySelector('h3').focus();
     status.textContent = 'Challenge complete.';
     announce(`Challenge complete. Mean score ${fmt.n(mean)}.`);
@@ -141,7 +141,7 @@ export function challengeView(state) {
   return el('div', { class: 'view' },
     el('section', { class: 'card' }, el('h2', null, 'Storm challenge'),
       el('p', null, 'Track the 10–11 May 2024 G5 storm at the Boulder observatory, two hours at a time. Before each round you see only the past. Pick the sensor for the next two hours: the steady 8 independent qubits, the twice-as-precise but short-ranged GHZ-4, or the 1-2-4 cascade that costs 14 qubits.'),
-      el('p', { class: 'small muted' }, 'Rules: keeping a sensor keeps its estimate (a GHZ-4 that jumped a fringe stays off until another jump brings it back); switching starts the new sensor from a fresh absolute fix. Sensors are simulated (model replay of the same parity measurement the circuit makes); the field is the measured USGS record. 1000 shots per register per minute, 0.02 rad per nT.'),
+      el('p', { class: 'small muted' }, `Rules: keeping a sensor keeps its estimate (a GHZ-4 that jumped a fringe stays off until another jump brings it back); switching starts the new sensor from a fresh absolute fix. Sensors are simulated (model replay of the same parity measurement the circuit makes); the field is the measured USGS record. ${init.defaults.shots} shots per register per minute, ${init.scale.value} rad per nT.`),
       el('div', { class: 'row' }, startBtn), status),
     result, roundBox, summary);
 }

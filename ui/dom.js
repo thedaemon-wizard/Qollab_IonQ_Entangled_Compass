@@ -62,6 +62,19 @@ export function keepFocus(control, fallback) {
 }
 
 /**
+ * On narrow screens a select can cut its chosen option short. This line repeats the chosen
+ * option in full under it, only below 480 px (CSS), and is hidden from screen readers, which read
+ * the option itself.
+ */
+export function fullChoice(select) {
+  const line = el('p', { class: 'full-choice small muted', 'aria-hidden': 'true' });
+  const update = () => { line.textContent = select.selectedOptions[0] ? select.selectedOptions[0].textContent : ''; };
+  select.addEventListener('change', update);
+  update();
+  return line;
+}
+
+/**
  * A sideways scroller for a picture with a minimum width. While the picture is wider than the
  * space it has, the scroller is a focusable, named region (so keyboard users can scroll it) and a
  * hint under it says so; otherwise neither is there.

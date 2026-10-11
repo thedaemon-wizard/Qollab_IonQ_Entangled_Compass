@@ -90,3 +90,13 @@ def test_round_card_running_score_uses_the_fixed_strategies_round_scores():
     src = UI["challenge.js"]
     assert "setup.always[c].scores.slice(0, n)" in src
     assert "Your mean score so far:" in src
+
+
+def test_selects_that_cut_text_repeat_the_choice_on_narrow_screens():
+    dom = UI["dom.js"]
+    assert "export function fullChoice(select)" in dom and "'aria-hidden': 'true'" in dom
+    assert "fullChoice(dataset)" in UI["tracker.js"] and "fullChoice(noise)" in UI["tracker.js"]
+    assert "fullChoice(dataset)" in UI["compass3d.js"]
+    css = (ROOT / "main.css").read_text(encoding="utf-8")
+    assert ".full-choice { display: none;" in css
+    assert "@media (max-width: 480px) { .full-choice { display: block; } }" in css

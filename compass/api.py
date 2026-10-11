@@ -20,22 +20,27 @@ from compass.estimators import cascade, theta, var_theta, visibility, wrap
 SCALE = 0.02  # rad per nT, fixed: the slip counts and ranges quoted in the app depend on it
 SHOTS = [100, 200, 500, 1000, 2000]
 GAMMA_MAX = 0.30
+# Request settings the views use and print; sent to the page in init_json so no view types them.
+DEFAULT_SHOTS = 1000  # shots per register per minute in the replays and the challenge
+REPLICATES = 32  # replays averaged by the Field tracker, the 3D compass and the two observatories
+REPLAY_SEED = 0
+CHALLENGE_SEED = 7
+OVERVIEW_QUIET_REPLICATES = 16
+OVERVIEW_STORM_REPLICATES = 8
+OVERVIEW_GAMMA = 0.2  # the dephasing tile on the Overview
+# Minutes for the one-minute circuit run; init_json adds each minute's field step from the data.
 PRESETS = [
     {
         "dataset": "quiet",
         "minute": "2026-10-01T12:00",
         "note": "quiet field: every sensor is on the right fringe",
     },
-    {"dataset": "storm", "minute": "2024-05-10T17:06", "note": "storm onset (+12.6 nT in one minute)"},
-    {
-        "dataset": "storm",
-        "minute": "2024-05-10T21:47",
-        "note": "first GHZ-4 fringe change (+44.6 nT)",
-    },
+    {"dataset": "storm", "minute": "2024-05-10T17:06", "note": "storm onset"},
+    {"dataset": "storm", "minute": "2024-05-10T21:47", "note": "the first GHZ-4 fringe change"},
     {
         "dataset": "storm",
         "minute": "2024-05-11T02:07",
-        "note": "largest step (+118.8 nT): GHZ-4 alone is off by two fringes",
+        "note": "the largest step: GHZ-4 alone is off by two fringes",
     },
 ]
 # Jobs submitted in this Run to backends that allow only one (IonQ, and anything unrecognised).
@@ -104,7 +109,7 @@ def backend_info_json(backend) -> str:
         "name": getattr(backend, "name", None) or type(backend).__name__,
         "kind": kind,
         "noise_model": _noise_model_name(backend),
-        "default_shots": 200 if kind in ("ionq", "ibm_fake", "unknown") else 1000,
+        "default_shots": 200 if kind in ("ionq", "ibm_fake", "unknown") else DEFAULT_SHOTS,
         "guarded_jobs_used": _jobs["guarded"],
     }
     info["console_line"] = console.started(info)
@@ -120,7 +125,19 @@ def _minute_index(times, minute):
     return i
 
 
+def _presets() -> list[dict]:
+    """The circuit-run minutes, each with its field step (nT, one decimal) from the record."""
+    out = []
+    for p in PRESETS:
+        times, f = data.load(p["dataset"])
+        i = _minute_index(times, p["minute"])
+        out.append({**p, "step_nt": round(float(f[i] - f[i - 1]), 1)})
+    return out
+
+
 def init_json() -> str:
+    from compass import challenge
+
     sets = {}
     for key, spec in data.DATASETS.items():
         times, f = data.load(key)
@@ -136,7 +153,7 @@ def init_json() -> str:
     return json.dumps(
         {
             "datasets": sets,
-            "presets": PRESETS,
+            "presets": _presets(),
             "scale": {
                 "value": SCALE,
                 "ramsey_us": round(model.ramsey_time_us(SCALE), 1),
@@ -153,6 +170,13 @@ def init_json() -> str:
             "gamma_max": GAMMA_MAX,
             "documented_models": {"aria-1": model.IONQ_DOCUMENTED["aria-1"]["label"]},
             "crossover_gamma": {str(n): round(model.crossover_gamma(n), 4) for n in (2, 4, 8)},
+            "challenge_rounds": challenge.ROUNDS,
+            "defaults": {
+                "shots": DEFAULT_SHOTS,
+                "replicates": REPLICATES,
+                "seed": REPLAY_SEED,
+                "challenge_seed": CHALLENGE_SEED,
+            },
         }
     )
 
@@ -193,14 +217,15 @@ def _visibilities(gate_model: str, gamma: float, measured: dict | None) -> dict:
 
 def replay_json(params_json: str) -> str:
     p = json.loads(params_json)
-    scale, shots = SCALE, int(p.get("shots", 1000))
+    scale, shots = SCALE, int(p.get("shots", DEFAULT_SHOTS))
+    replicates = int(p.get("replicates", REPLICATES))
     gamma = float(p.get("gamma", 0.0)) if p.get("noise") == "indep" else 0.0
     vis = _visibilities(p.get("gate_model", "none"), gamma, p.get("measured"))
     times, f = data.load(p.get("dataset", "quiet"))
     arms = ("IND8", "GHZ4", "CASC", "IND14", "MP4")
     t0 = time.time()
     est = replay.track(
-        f, scale, shots, vis, arms=arms, replicates=int(p.get("replicates", 32)), seed=int(p.get("seed", 0))
+        f, scale, shots, vis, arms=arms, replicates=replicates, seed=int(p.get("seed", REPLAY_SEED))
     )
     out = {}
     m_max = {"IND8": 1, "GHZ4": 4, "CASC": 1, "IND14": 1, "MP4": 4}
@@ -225,30 +250,28 @@ def replay_json(params_json: str) -> str:
     # reach (each qubit read at its most sensitive point, same visibility as a single qubit here).
     sql_nt = 1 / (scale * vis[("ghz", 1)] * math.sqrt(8 * shots))
     ghz_ok = np.sqrt(np.nanmean((g4["err"] * ok) ** 2, axis=1))
-    result = (
-        {
-            "times": times,
-            "F": [round(float(x), 3) for x in f],
-            "arms": out,
-            "gain_ghz4": {**replay.mean_2se(gain), "theory": 2 * vis[("ghz", 4)] / vis[("ghz", 1)]},
-            "gain_cascade": {**replay.mean_2se(ic), "theory_ideal": 2 * math.sqrt(8 / 14)},
-            "sql": {
-                "nt": sql_nt,
-                "gain_ghz4": {
-                    **replay.mean_2se(sql_nt / ghz_ok),
-                    "theory": math.sqrt(2) * vis[("ghz", 4)] / vis[("ghz", 1)],
-                },
+    result = {
+        "times": times,
+        "F": [round(float(x), 3) for x in f],
+        "arms": out,
+        "gain_ghz4": {**replay.mean_2se(gain), "theory": 2 * vis[("ghz", 4)] / vis[("ghz", 1)]},
+        "gain_cascade": {**replay.mean_2se(ic), "theory_ideal": 2 * math.sqrt(8 / 14)},
+        "sql": {
+            "nt": sql_nt,
+            "gain_ghz4": {
+                **replay.mean_2se(sql_nt / ghz_ok),
+                "theory": math.sqrt(2) * vis[("ghz", 4)] / vis[("ghz", 1)],
             },
-            "visibility": {f"{k[0]}{k[1]}": v for k, v in vis.items()},
-            "band_nt": {
-                "IND8": 1 / (scale * vis[("ghz", 1)] * math.sqrt(4 * shots)),
-                "GHZ4": 1 / (4 * scale * vis[("ghz", 4)] * math.sqrt(shots)),
-            },
-            "fringe_nt": {"GHZ4": model.fringe_spacing_nt(4, scale)},
-            "seconds": round(time.time() - t0, 3),
-        }
-    )
-    result["console_line"] = console.replay(p, result)
+        },
+        "visibility": {f"{k[0]}{k[1]}": v for k, v in vis.items()},
+        "band_nt": {
+            "IND8": 1 / (scale * vis[("ghz", 1)] * math.sqrt(4 * shots)),
+            "GHZ4": 1 / (4 * scale * vis[("ghz", 4)] * math.sqrt(shots)),
+        },
+        "fringe_nt": {"GHZ4": model.fringe_spacing_nt(4, scale)},
+        "seconds": round(time.time() - t0, 3),
+    }
+    result["console_line"] = console.replay({**p, "shots": shots, "replicates": replicates}, result)
     return json.dumps(result)
 
 
@@ -271,8 +294,8 @@ def storm3d_json(params_json: str) -> str:
     changes (onto a wrong fringe and back).
     """
     p = json.loads(params_json)
-    dataset, shots, seed = p.get("dataset", "storm"), int(p.get("shots", 1000)), int(p.get("seed", 0))
-    replicates = int(p.get("replicates", 32))
+    dataset, shots = p.get("dataset", "storm"), int(p.get("shots", DEFAULT_SHOTS))
+    seed, replicates = int(p.get("seed", REPLAY_SEED)), int(p.get("replicates", REPLICATES))
     times, f = data.load(dataset)
     vis = _visibilities("none", 0.0, None)
     names = tuple(a for a, _, _ in STORM3D_ARMS)
@@ -371,7 +394,7 @@ def run_json(backend, params_json: str) -> str:
     refused = _guard(kind)
     if refused:
         return json.dumps(refused)
-    scale, shots = SCALE, _shots(kind, int(p.get("shots", 1000)))
+    scale, shots = SCALE, _shots(kind, int(p.get("shots", DEFAULT_SHOTS)))
     gamma = float(p.get("gamma", 0.0)) if p.get("noise") == "indep" else 0.0
     times, f = data.load(p.get("dataset", "storm"))
     i = _minute_index(times, p["minute"])
@@ -439,45 +462,43 @@ def run_json(backend, params_json: str) -> str:
     if "MP4" in thetas:
         se["MP4"] = math.sqrt(thetas["MP4"][1]) / 4
     v1, v4 = vis["1"]["hat"], vis["4"]["hat"]
-    result = (
-        _finite(
-            {
-                "backend": {
-                    "name": getattr(backend, "name", None) or type(backend).__name__,
-                    "kind": kind,
-                    "noise_model": _noise_model_name(backend),
-                },
-                "layout": lay.name,
-                "n_qubits": lay.n_qubits,
-                "shots": dec["shots"],
-                "wall_s": round(wall, 3),
-                "minute": p["minute"],
-                "dataset": p.get("dataset", "storm"),
-                "dF_nT": d_f,
-                "delta_rad": delta,
-                "scale": scale,
-                "gamma": gamma,
-                "canary": dec["canary"],
-                "registers": rows,
-                "visibility": vis,
-                "arms": {
-                    k: {
-                        "delta_hat": v,
-                        "se_rad": se[k],
-                        "estimate_nT": v / scale,
-                        "error_nT": v / scale - d_f,
-                        "se_nT": se[k] / scale,
-                    }
-                    for k, v in arms.items()
-                },
-                "gain_from_visibility": 2 * v4 / v1 if v1 > 0 else None,
-                "dials": _dials(thetas, vis, delta),
-                "fringes": _fringes(scale, d_f),
-                "ops": {k: int(v) for k, v in compiled.count_ops().items()},
-                "depth": compiled.depth(),
-                "guarded_jobs_used": _jobs["guarded"],
-            }
-        )
+    result = _finite(
+        {
+            "backend": {
+                "name": getattr(backend, "name", None) or type(backend).__name__,
+                "kind": kind,
+                "noise_model": _noise_model_name(backend),
+            },
+            "layout": lay.name,
+            "n_qubits": lay.n_qubits,
+            "shots": dec["shots"],
+            "wall_s": round(wall, 3),
+            "minute": p["minute"],
+            "dataset": p.get("dataset", "storm"),
+            "dF_nT": d_f,
+            "delta_rad": delta,
+            "scale": scale,
+            "gamma": gamma,
+            "canary": dec["canary"],
+            "registers": rows,
+            "visibility": vis,
+            "arms": {
+                k: {
+                    "delta_hat": v,
+                    "se_rad": se[k],
+                    "estimate_nT": v / scale,
+                    "error_nT": v / scale - d_f,
+                    "se_nT": se[k] / scale,
+                }
+                for k, v in arms.items()
+            },
+            "gain_from_visibility": 2 * v4 / v1 if v1 > 0 else None,
+            "dials": _dials(thetas, vis, delta),
+            "fringes": _fringes(scale, d_f),
+            "ops": {k: int(v) for k, v in compiled.count_ops().items()},
+            "depth": compiled.depth(),
+            "guarded_jobs_used": _jobs["guarded"],
+        }
     )
     result["console_line"] = console.run(result)
     return json.dumps(result)
@@ -508,9 +529,11 @@ def circuit_text_json(layout_name: str) -> str:
     )
 
 
-def _gain_quiet(vis: dict, scale: float = 0.02, shots: int = 1000) -> dict:
+def _gain_quiet(vis: dict, scale: float = SCALE, shots: int = DEFAULT_SHOTS) -> dict:
     _, f = data.load("quiet")
-    est = replay.track(f, scale, shots, vis, arms=("IND8", "GHZ4"), replicates=16, seed=1)
+    est = replay.track(
+        f, scale, shots, vis, arms=("IND8", "GHZ4"), replicates=OVERVIEW_QUIET_REPLICATES, seed=1
+    )
     i8 = replay.metrics(f, est["IND8"], scale, 1)["rmse"]
     g4 = replay.metrics(f, est["GHZ4"], scale, 4)["rmse"]
     sql = 1 / (scale * vis[("ghz", 1)] * math.sqrt(8 * shots))
@@ -526,28 +549,36 @@ def overview_json() -> str:
     t0 = time.time()
     ideal = _gain_quiet(_visibilities("none", 0.0, None))
     aria = _gain_quiet(_visibilities("aria-1", 0.0, None))
-    deph = _gain_quiet(_visibilities("none", 0.2, None))
+    deph = _gain_quiet(_visibilities("none", OVERVIEW_GAMMA, None))
     _, f = data.load("storm")
     est = replay.track(
-        f, 0.02, 1000, _visibilities("none", 0.0, None), arms=("GHZ4", "CASC"), replicates=8, seed=2
+        f,
+        SCALE,
+        DEFAULT_SHOTS,
+        _visibilities("none", 0.0, None),
+        arms=("GHZ4", "CASC"),
+        replicates=OVERVIEW_STORM_REPLICATES,
+        seed=2,
     )
-    g4 = replay.metrics(f, est["GHZ4"], 0.02, 4)
-    casc = replay.metrics(f, est["CASC"], 0.02, 1)
-    result = (
-        {
-            "ideal": ideal,
-            "aria1": aria,
-            "dephasing_0_2": deph,
-            "storm": {
-                "ghz4_slips": replay.mean_2se(g4["slips"]),
-                "ghz4_wrong_minutes": replay.mean_2se(g4["wrong"]),
-                "cascade_slips": replay.mean_2se(casc["slips"]),
-                "scale": 0.02,
-                "shots": 1000,
-            },
-            "seconds": round(time.time() - t0, 2),
-        }
-    )
+    g4 = replay.metrics(f, est["GHZ4"], SCALE, 4)
+    casc = replay.metrics(f, est["CASC"], SCALE, 1)
+    result = {
+        "ideal": ideal,
+        "aria1": aria,
+        "dephasing_0_2": deph,
+        "dephasing_gamma": OVERVIEW_GAMMA,
+        "quiet_replicates": OVERVIEW_QUIET_REPLICATES,
+        "shots": DEFAULT_SHOTS,
+        "storm": {
+            "ghz4_slips": replay.mean_2se(g4["slips"]),
+            "ghz4_wrong_minutes": replay.mean_2se(g4["wrong"]),
+            "cascade_slips": replay.mean_2se(casc["slips"]),
+            "scale": SCALE,
+            "shots": DEFAULT_SHOTS,
+            "replicates": OVERVIEW_STORM_REPLICATES,
+        },
+        "seconds": round(time.time() - t0, 2),
+    }
     result["console_line"] = console.overview(result)
     return json.dumps(result)
 
@@ -559,36 +590,33 @@ def challenge_json(params_json: str) -> str:
 
     p = json.loads(params_json)
     k = int(p["round"])
-    shots = int(p.get("shots", 1000))
+    shots = int(p.get("shots", DEFAULT_SHOTS))
     vis = _visibilities(p.get("gate_model", "none"), 0.0, p.get("measured"))
     offset = float(p.get("offset_nt", 0.0))
     previous = p.get("previous_choice")
-    seed = int(p.get("seed", 7))
+    seed = int(p.get("seed", CHALLENGE_SEED))
 
     def start(c):  # keep the estimate when the sensor stays, a fresh absolute fix when it changes
         return offset if previous in (None, c) else 0.0
 
     results = {c: challenge.play(k, c, start(c), vis, SCALE, shots, seed) for c in challenge.CHOICES}
     times, _ = challenge._window(k)
-    out = (
-        {
-            "round": k,
-            "rounds": challenge.ROUNDS,
-            "start": times[1],
-            "end": times[-1],
-            "choice": p["choice"],
-            "reanchored": previous not in (None, p["choice"]) and offset != 0.0,
-            "start_offset_nt": start(p["choice"]),
-            "result": results[p["choice"]],
-            "others": {
-                c: {kk: v for kk, v in r.items() if kk not in ("times", "error_nt")}
-                for c, r in results.items()
-            },
-            "largest_step_nt": challenge.largest_step(k),
-            "next_round_previous_step_nt": challenge.largest_step(k) if k + 1 < challenge.ROUNDS else None,
-            "choices": challenge.CHOICES,
-        }
-    )
+    out = {
+        "round": k,
+        "rounds": challenge.ROUNDS,
+        "start": times[1],
+        "end": times[-1],
+        "choice": p["choice"],
+        "reanchored": previous not in (None, p["choice"]) and offset != 0.0,
+        "start_offset_nt": start(p["choice"]),
+        "result": results[p["choice"]],
+        "others": {
+            c: {kk: v for kk, v in r.items() if kk not in ("times", "error_nt")} for c, r in results.items()
+        },
+        "largest_step_nt": challenge.largest_step(k),
+        "next_round_previous_step_nt": challenge.largest_step(k) if k + 1 < challenge.ROUNDS else None,
+        "choices": challenge.CHOICES,
+    }
     out["console_line"] = console.challenge_round(out)
     return json.dumps(out)
 
@@ -598,9 +626,9 @@ def challenge_setup_json(params_json: str) -> str:
     from compass import challenge
 
     p = json.loads(params_json)
-    shots = int(p.get("shots", 1000))
+    shots = int(p.get("shots", DEFAULT_SHOTS))
     vis = _visibilities(p.get("gate_model", "none"), 0.0, p.get("measured"))
-    seed = int(p.get("seed", 7))
+    seed = int(p.get("seed", CHALLENGE_SEED))
     rounds = []
     for k in range(challenge.ROUNDS):
         times, _ = challenge._window(k)
@@ -611,6 +639,8 @@ def challenge_setup_json(params_json: str) -> str:
             "choices": challenge.CHOICES,
             "always": {c: challenge.always(c, vis, SCALE, shots, seed) for c in challenge.CHOICES},
             "scale": SCALE,
+            "shots": shots,
+            "seed": seed,
             "ghz4_range_nt": math.pi / (4 * SCALE),
         }
     )
@@ -621,30 +651,28 @@ def twin_replay_json(params_json: str) -> str:
     with one qubit per site (same 4 qubits per shot)."""
 
     p = json.loads(params_json)
-    shots = int(p.get("shots", 1000))
+    shots = int(p.get("shots", DEFAULT_SHOTS))
+    replicates = int(p.get("replicates", REPLICATES))
     times, f_a, f_b = data.load_pair()
-    est = twin.track(
-        f_a, f_b, SCALE, shots, replicates=int(p.get("replicates", 32)), seed=int(p.get("seed", 0))
-    )
+    est = twin.track(f_a, f_b, SCALE, shots, replicates=replicates, seed=int(p.get("seed", REPLAY_SEED)))
     g = f_a - f_b
     rmse = {k: np.sqrt(((v[:, 1:] - g[1:]) ** 2).mean(axis=1)) for k, v in est.items()}
-    out = (
-        {
-            "times": times,
-            "gradient": [round(float(x - g[0]), 3) for x in g],
-            "boulder": [round(float(x - f_a[0]), 3) for x in f_a],
-            "tucson": [round(float(x - f_b[0]), 3) for x in f_b],
-            "traces": {k: [round(float(x - g[0]), 3) for x in v[0]] for k, v in est.items()},
-            "rmse": {k: replay.mean_2se(v) for k, v in rmse.items()},
-            "gain": {**replay.mean_2se(rmse["IND"] / rmse["DIFF"]), "theory": math.sqrt(2)},
-            # best single-pass unentangled estimate of a difference with 4 qubits per shot
-            "sql_difference_nt": 1 / (SCALE * math.sqrt(shots)),
-            "steps": twin.step_statistics(f_a, f_b),
-            "scale": SCALE,
-            "shots": shots,
-        }
-    )
-    out["console_line"] = console.twin_replay(out, int(p.get("replicates", 32)))
+    out = {
+        "times": times,
+        "gradient": [round(float(x - g[0]), 3) for x in g],
+        "boulder": [round(float(x - f_a[0]), 3) for x in f_a],
+        "tucson": [round(float(x - f_b[0]), 3) for x in f_b],
+        "traces": {k: [round(float(x - g[0]), 3) for x in v[0]] for k, v in est.items()},
+        "rmse": {k: replay.mean_2se(v) for k, v in rmse.items()},
+        "gain": {**replay.mean_2se(rmse["IND"] / rmse["DIFF"]), "theory": math.sqrt(2)},
+        # best single-pass unentangled estimate of a difference with 4 qubits per shot
+        "sql_difference_nt": 1 / (SCALE * math.sqrt(shots)),
+        "steps": twin.step_statistics(f_a, f_b),
+        "scale": SCALE,
+        "shots": shots,
+        "replicates": replicates,
+    }
+    out["console_line"] = console.twin_replay(out, replicates)
     return json.dumps(out)
 
 
@@ -656,7 +684,7 @@ def twin_run_json(backend, params_json: str) -> str:
     refused = _guard(kind)
     if refused:
         return json.dumps(refused)
-    shots = _shots(kind, int(p.get("shots", 1000)))
+    shots = _shots(kind, int(p.get("shots", DEFAULT_SHOTS)))
     times, f_a, f_b = data.load_pair()
     i = _minute_index(times, p["minute"])
     d_a, d_b = float(f_a[i] - f_a[i - 1]), float(f_b[i] - f_b[i - 1])
@@ -679,24 +707,20 @@ def twin_run_json(backend, params_json: str) -> str:
         "boulder": (float(theta(m["AX"], m["AY"])) / SCALE, d_a),
         "tucson": (float(theta(m["BX"], m["BY"])) / SCALE, d_b),
     }
-    result = (
-        _finite(
-            {
-                "backend": {"name": getattr(backend, "name", None) or type(backend).__name__, "kind": kind},
-                "minute": p["minute"],
-                "shots": dec["shots"],
-                "wall_s": round(wall, 3),
-                "canary": dec["canary"],
-                "n_qubits": twin.N_QUBITS,
-                "parities": m,
-                "reads": {
-                    k: {"estimate_nT": a, "true_nT": b, "error_nT": a - b} for k, (a, b) in reads.items()
-                },
-                "independent_difference_nT": reads["boulder"][0] - reads["tucson"][0],
-                "ops": {k: int(v) for k, v in compiled.count_ops().items()},
-                "guarded_jobs_used": _jobs["guarded"],
-            }
-        )
+    result = _finite(
+        {
+            "backend": {"name": getattr(backend, "name", None) or type(backend).__name__, "kind": kind},
+            "minute": p["minute"],
+            "shots": dec["shots"],
+            "wall_s": round(wall, 3),
+            "canary": dec["canary"],
+            "n_qubits": twin.N_QUBITS,
+            "parities": m,
+            "reads": {k: {"estimate_nT": a, "true_nT": b, "error_nT": a - b} for k, (a, b) in reads.items()},
+            "independent_difference_nT": reads["boulder"][0] - reads["tucson"][0],
+            "ops": {k: int(v) for k, v in compiled.count_ops().items()},
+            "guarded_jobs_used": _jobs["guarded"],
+        }
     )
     result["console_line"] = console.twin_run(result)
     return json.dumps(result)

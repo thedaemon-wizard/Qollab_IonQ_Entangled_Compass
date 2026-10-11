@@ -2,7 +2,7 @@
 # URL: https://geomag.usgs.gov/ws/data/?id=BOU&starttime=2024-05-10T00:00:00Z&endtime=2024-05-11T23:59:00Z&elements=F&sampling_period=60&type=quasi-definitive&format=json
 # Data type: quasi-definitive; retrieved 2026-10-10T12:23Z; values as served
 # Credit: Geomagnetic data: USGS Geomagnetism Program, Boulder (BOU) observatory, courtesy of the U.S. Geological Survey. Thanks to INTERMAGNET (www.intermagnet.org) for promoting high standards of magnetic observatory practice.
-# These data are not covered by this project's MIT licence (U.S. Government work, see README).
+# Licence: USGS-authored or produced data are considered to be in the U.S. Public Domain (USGS policy "Copyrights and Credits", https://www.usgs.gov/information-policies-and-instructions/copyrights-and-credits, read 2026-10-11); USGS asks for credit (line above). Not covered by this project's MIT licence.
 time_utc,F_nT
 2024-05-10T00:00,51324.01
 2024-05-10T00:01,51323.88

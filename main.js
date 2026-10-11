@@ -62,10 +62,10 @@ async function start() {
   const compass3d = compass3dView(init);
   tabCtl = tabs([
     { id: 'overview', title: 'Overview', element: overview.element },
-    { id: 'challenge', title: 'Storm challenge', element: challengeView(state) },
+    { id: 'challenge', title: 'Storm challenge', element: challengeView(state, init) },
     { id: 'tracker', title: 'Field tracker', element: tracker },
     { id: 'compass3d', title: '3D compass', element: compass3d.element, onShow: compass3d.onShow },
-    { id: 'twin', title: 'Two observatories', element: twinView(info) },
+    { id: 'twin', title: 'Two observatories', element: twinView(info, init) },
     { id: 'method', title: 'Method & sources', element: method.element, onShow: method.onShow },
   ]);
   // The skip link moves focus without changing the URL (the frame's hash belongs to Qollab).

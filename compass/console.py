@@ -30,13 +30,15 @@ def started(info: dict) -> str:
 
 def overview(o: dict) -> str:
     st, i, a, d = o["storm"], o["ideal"], o["aria1"], o["dephasing_0_2"]
+    n = o["quiet_replicates"]
     return say(
-        "Overview (model replay, 1000 shots per register per minute): on the quiet day GHZ-4 is "
-        f"{_gain(i, 16)} as precise as 8 independent qubits read the same way (matched, ideal "
+        f"Overview (model replay, {o['shots']} shots per register per minute): on the quiet day GHZ-4 is "
+        f"{_gain(i, n)} as precise as 8 independent qubits read the same way (matched, ideal "
         f"{i['theory']:.2f}) and {i['over_sql']['mean']:.2f}× the standard quantum limit (ideal "
-        f"{i['over_sql']['theory']:.2f}); with IonQ Aria 1 gate noise {_gain(a, 16)}, "
-        f"{a['over_sql']['mean']:.2f}× the SQL; with dephasing 0.2 {_gain(d, 16)}, "
-        f"{d['over_sql']['mean']:.2f}× the SQL. Storm of May 2024 (quick estimate, 8 replays): GHZ-4 alone "
+        f"{i['over_sql']['theory']:.2f}); with IonQ Aria 1 gate noise {_gain(a, n)}, "
+        f"{a['over_sql']['mean']:.2f}× the SQL; with dephasing {o['dephasing_gamma']} {_gain(d, n)}, "
+        f"{d['over_sql']['mean']:.2f}× the SQL. Storm of May 2024 (quick estimate, "
+        f"{st['replicates']} replays): GHZ-4 alone "
         f"changes fringe {st['ghz4_slips']['mean']:.0f} times, the cascade "
         f"{st['cascade_slips']['mean']:.0f} times."
     )
@@ -44,9 +46,9 @@ def overview(o: dict) -> str:
 
 def replay(params: dict, r: dict) -> str:
     g, s, a = r["gain_ghz4"], r["sql"]["gain_ghz4"], r["arms"]
-    n = int(params.get("replicates", 32))
+    n = int(params["replicates"])
     return say(
-        f"Replay of the {params.get('dataset', 'quiet')} record ({params.get('shots', 1000)} shots, "
+        f"Replay of the {params.get('dataset', 'quiet')} record ({params['shots']} shots, "
         f"gate noise {params.get('gate_model', 'none')}, added dephasing "
         f"{params.get('gamma', 0) if params.get('noise') == 'indep' else 0}). On the minutes GHZ-4 stays on "
         f"the right fringe it is {_gain(g, n)} as precise as 8 independent qubits read the same way "

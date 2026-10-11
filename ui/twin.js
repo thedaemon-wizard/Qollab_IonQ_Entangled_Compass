@@ -13,13 +13,22 @@ const MINUTES = [
   ['2024-05-10T21:47', 'first GHZ-4 fringe change at Boulder'],
 ];
 
-export function twinView(info) {
+export function twinView(info, init) {
   const status = el('p', { role: 'status', class: 'status' }, 'Press “Replay the storm at both sites”.');
   const replayBtn = el('button', { type: 'button', class: 'primary' }, 'Replay the storm at both sites');
   const out = el('div');
-  const minute = el('select', { id: 'ec-twin-minute' }, MINUTES.map(([m, note], i) => el('option', { value: String(i) }, `${m.replace('T', ' ')} UTC: ${note}`)));
+  // Short options (the time; the label says UTC) fit the select down to 320 px; the line under it
+  // says what happens in the chosen minute and is the select's description.
+  const minute = el('select', { id: 'ec-twin-minute', 'aria-describedby': 'ec-twin-minute-hint' }, MINUTES.map(([m], i) => el('option', { value: String(i) }, m.replace('T', ' '))));
+  const minuteHint = el('p', { class: 'hint small muted', id: 'ec-twin-minute-hint' });
+  const syncMinute = () => {
+    const [, note] = MINUTES[Number(minute.value)];
+    minuteHint.textContent = `${note[0].toUpperCase()}${note.slice(1)}.`;
+  };
+  minute.addEventListener('change', syncMinute);
+  syncMinute();
   const runBtn = el('button', { type: 'button', class: 'primary', id: 'ec-twin-run' }, 'Run the twin circuit (one job)');
-  const runStatus = el('p', { role: 'status', class: 'status', id: 'ec-twin-status' }, `Backend: ${info.name}. One circuit, 13 qubits. On IonQ this uses the run’s only job.`);
+  const runStatus = el('p', { role: 'status', class: 'status', id: 'ec-twin-status' }, `Backend: ${info.name}. One circuit, ${init.qubits.twin} qubits. On IonQ this uses the run’s only job.`);
   const runOut = el('div');
 
   replayBtn.addEventListener('click', async () => {
@@ -28,7 +37,7 @@ export function twinView(info) {
     out.setAttribute('aria-busy', 'true');
     await nextPaint();
     try {
-      const r = await py.twinReplay({ shots: 1000 });
+      const r = await py.twinReplay({ shots: init.defaults.shots, replicates: init.defaults.replicates, seed: init.defaults.seed });
       const st = r.steps;
       const maxAbs = Math.max(...r.boulder.map(Math.abs), ...r.tucson.map(Math.abs), ...r.gradient.map(Math.abs));
       out.replaceChildren(
@@ -46,7 +55,7 @@ export function twinView(info) {
             rows: r.times.map((tt, i) => [tt, fmt.n(r.boulder[i]), fmt.n(r.tucson[i]), fmt.n(r.gradient[i])]).filter((_, i) => i % 60 === 0) },
         }),
         dataTable({
-          caption: `Tracking the difference with 4 qubits per shot, ${r.shots} shots per minute, ${r.scale} rad/nT (32 replays, mean ± 2 standard errors)`,
+          caption: `Tracking the difference with 4 qubits per shot, ${r.shots} shots per minute, ${r.scale} rad/nT (${r.replicates} replays, mean ± 2 standard errors)`,
           columns: ['Sensor', 'RMS error of the difference (nT)'],
           rows: [[rich(String.raw`Entangled pair $\lvert 01\rangle + \lvert 10\rangle$, read in X and Y`), fmt.pm(r.rmse.DIFF)], ['One qubit per site, read in X and Y', fmt.pm(r.rmse.IND)],
             ['Standard quantum limit for a difference, 4 qubits (best single-pass unentangled sensor)', fmt.n(r.sql_difference_nt)]],
@@ -97,6 +106,6 @@ export function twinView(info) {
       el('div', { class: 'row' }, replayBtn), status, out),
     el('section', { class: 'card', 'aria-labelledby': 'ec-twin-run-h' }, el('h2', { id: 'ec-twin-run-h' }, 'One minute with the twin circuit'),
       el('p', { class: 'small muted' }, 'One circuit holds both entangled pairs (difference and sum, each read in X and Y), a single qubit per site, and a canary qubit.'),
-      el('div', { class: 'field' }, el('label', { for: 'ec-twin-minute' }, 'Minute'), minute),
+      el('div', { class: 'field' }, el('label', { for: 'ec-twin-minute' }, 'Minute (UTC)'), minute, minuteHint),
       el('div', { class: 'row' }, runBtn), runStatus, runOut));
 }

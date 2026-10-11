@@ -81,6 +81,16 @@ behind it, and what would make us revisit it.
   never mixed within one comparison, and every comparison uses changes from a start value.
 - **Evidence.** Adjusted and quasi-definitive values of the same storm day differed by about 11 nT
   on average in an earlier fetch.
+- **Licence and the quiet day** (added 2026-10-11). The USGS policy *Copyrights and Credits*
+  (https://www.usgs.gov/information-policies-and-instructions/copyrights-and-credits, read
+  2026-10-11) says that USGS-authored or produced data are considered to be in the U.S. Public
+  Domain, and asks for credit; the README and the CSV headers give it, and the data are not under
+  this project's MIT licence. The service's IAGA-2002 output points to INTERMAGNET's conditions of
+  use, whose default licence (CC BY-NC 4.0) is stated for data downloaded through INTERMAGNET
+  (intermagnet.org/data_conditions.html, read 2026-10-11); these records came from the USGS
+  service. The quiet day was picked from its own record; GFZ's Kp for 1 October 2026 (eight
+  three-hour values between 0 and 1.67, preliminary; kp.gfz.de JSON service, read 2026-10-11)
+  agrees.
 
 ## E10 — Figures drawn by the app from its own numbers
 
@@ -111,7 +121,11 @@ behind it, and what would make us revisit it.
   (tested with jsDelivr blocked). On Qollab (2026-10-11), the in-app formulas rendered with the
   built-in simulator, and the pasted write-up (20,453 characters) showed 59 KaTeX formulas in
   Qollab's write-up preview with no KaTeX error; after the review fixes the pasted write-up
-  (22,843 characters, 2026-10-11 evening) shows 60, again with no KaTeX error.
+  (22,843 characters, 2026-10-11 evening) shows 60, again with no KaTeX error. The final
+  write-up, which `scripts/make_writeup.py` makes from the README with links to the tag
+  `v1.0-submission`, has 40,714 characters (Qollab's limit is 65,000) and 77 formulas, all
+  inline `$…$`; the version before the last documents check had 39,685 characters and the same
+  77 formulas. A test keeps these two counts equal to the script's output.
 - **Revisit if** the app must work offline (vendor Temml and the font with their licences).
 
 ## E12 — The storm on a 3D compass, drawn from one typical replay

@@ -6,7 +6,12 @@
 <title>Entangled Compass (local harness)</title>
 <link rel="stylesheet" href="/main.css">
 <style>body { margin: 0; }</style>
-<script type="importmap">{ "imports": { "compass.api": "/tools/devserver/shim.js" } }</script>
+<!-- Same three.js version and names as Qollab's frame import map; compass.api goes to the shim. -->
+<script type="importmap">{ "imports": {
+  "compass.api": "/tools/devserver/shim.js",
+  "three": "https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.186.1/examples/jsm/"
+} }</script>
 </head>
 <body>
 <script type="module">

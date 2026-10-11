@@ -37,6 +37,16 @@ nothing ran on a magnetometer or on quantum hardware.
   $`\operatorname{atan2}(\langle Y\rangle, \langle X\rangle)`$; its length is the measured visibility. A GHZ-4 needle turns four times as
   far as a single qubit's; past half a turn it still points the right way, but reading it back
   gives the wrong field. Next to the dials, the fringes $`\cos(m\,s\,\Delta F)`$ show why.
+- **3D compass.** The storm played back on a three-dimensional compass (three.js), minute by
+  minute: three stacked needles for 8 independent qubits, GHZ-4 alone and the cascade's GHZ-4
+  register. Each needle points where its register reads back; a tube under it shows how far
+  that minute's field step really turned it, $`m\,s\,\Delta F`$, which can be more than half a
+  turn. When GHZ-4 alone reads back the wrong fringe its tube and hub turn red and its slip
+  counter goes up; the cascade's register turns just as far, but its 1-qubit and GHZ-2
+  registers tell it which turn it is on. Play, pause, step a minute, scrub, or turn the view
+  with the mouse or buttons; a text panel gives the same numbers for every minute. The needles
+  come from one replay, the one closest to the average of 32 (20 fringe jumps, 1,115 minutes on
+  a wrong fringe, against averages of 20.2 and 988); every angle is computed in Python.
 - **Two observatories** (a what-if). One qubit at Boulder and one at Tucson, about 1,000 km apart,
   entangled as $`(\lvert 01\rangle + \lvert 10\rangle)/\sqrt{2}`$, pick up only the *difference* of the two fields, so anything
   both sites feel cancels; as $`(\lvert 00\rangle + \lvert 11\rangle)/\sqrt{2}`$ they pick up the sum. Trapped-ion experiments use
@@ -60,7 +70,7 @@ One-minute circuit on basic_simulator (17 qubits, 1000 shots, …): canary 100.0
 
 ```
 python -m venv .venv && .venv/bin/pip install -r requirements-dev.txt
-.venv/bin/pytest -q                                   # 102 tests
+.venv/bin/pytest -q                                   # 110 tests
 .venv/bin/python tools/devserver/server.py            # http://127.0.0.1:8770/tools/devserver/dev.html
 PYTHONPATH=. .venv/bin/python scripts/headline_numbers.py   # every number in this README
 ```
@@ -286,6 +296,7 @@ magnetic observatory practice. The storm records are quasi-definitive, the quiet
 values are as served. The data in `data/` are not covered by this project's licence.
 
 Code and documentation: MIT licence (see LICENSE). The app typesets its formulas with Temml
-(MIT) in the Latin Modern Math font (GUST Font License), both loaded from jsDelivr.
+(MIT) in the Latin Modern Math font (GUST Font License), both loaded from jsDelivr, and draws
+the 3D compass with three.js 0.186.1 (MIT), from Qollab's own import map.
 
 This effort is supported by Qollab & IonQ.

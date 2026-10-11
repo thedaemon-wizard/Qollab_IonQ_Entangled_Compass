@@ -42,4 +42,5 @@ export const py = {
   challenge: (params) => call('challenge_json', JSON.stringify(params)),
   twinReplay: (params) => call('twin_replay_json', JSON.stringify(params)),
   twinRun: (params) => call('twin_run_json', sensorBackend, JSON.stringify(params)),
+  storm3d: (params) => call('storm3d_json', JSON.stringify(params)),
 };

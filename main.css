@@ -146,3 +146,17 @@ pre.circuit { overflow-x: auto; max-width: 100%; background: var(--bg); border: 
 .schematic .sk-key .sk-math { font-weight: 400; }
 .schematic .sk-mi { font-style: italic; }
 .schematic .sk-script { font-size: 0.8em; }
+
+/* 3D compass (ui/compass3d.js) */
+.c3d { position: relative; width: 100%; min-height: 260px; margin: 0.5rem 0; border: 1px solid var(--border);
+  border-radius: 10px; background: radial-gradient(circle at 50% 40%, var(--surface), var(--bg)); overflow: hidden; }
+.c3d canvas { display: block; width: 100%; height: auto; cursor: grab; touch-action: none; }
+.c3d-labels { position: absolute; inset: 0; pointer-events: none; }
+.c3d-tag { font-size: 0.78rem; font-weight: 650; color: var(--text); background: var(--surface); border: 2px solid; border-radius: 6px; padding: 0 0.3rem; white-space: nowrap; }
+.c3d-controls { display: flex; flex-wrap: wrap; gap: 0.4rem 1rem; align-items: end; }
+.c3d-readout { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 0.25rem 0.8rem; margin: 0.6rem 0; }
+.c3d-readout dt { font-weight: 600; }
+.c3d-readout dd { margin: 0; overflow-wrap: anywhere; }
+.swatch { display: inline-block; width: 0.8em; height: 0.8em; margin-right: 0.35em; border-radius: 2px; vertical-align: -0.05em; }
+@media (max-width: 480px) { .c3d-readout { grid-template-columns: minmax(0, 1fr); } }
+.toolbar { display: flex; flex-wrap: wrap; gap: 0.4rem; align-items: center; margin: 0.3rem 0; }

@@ -64,3 +64,14 @@ def twin_run(r: dict) -> str:
         f"{100 * r['canary']:.1f}%; difference pair read {d['estimate_nT']:+.1f} nT "
         f"(true {d['true_nT']:+.1f}), sum pair {s['estimate_nT']:+.1f} nT (true {s['true_nT']:+.1f})."
     )
+
+
+def storm3d(r: dict) -> str:
+    t, rp = r["totals"], r["replay"]
+    return say(
+        f"3D compass, replay {rp['shown']} of {rp['of']} of the {r['dataset']} record ({r['shots']} shots), "
+        f"the one closest to their average: GHZ-4 alone slips a fringe {t['GHZ4']['slips']} times and is "
+        f"wrong for {t['GHZ4']['wrong_minutes']} minutes (average {rp['mean_slips']:.1f} and "
+        f"{rp['mean_wrong']:.0f}); the cascade slips {t['CASC']['slips']} times, 8 independent qubits "
+        f"{t['IND8']['slips']} times."
+    )

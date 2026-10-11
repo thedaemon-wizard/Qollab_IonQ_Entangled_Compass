@@ -1,6 +1,6 @@
 # Decisions
 
-E1–E9 recorded on 2026-10-10 and E10–E11 on 2026-10-11, during the build window. Each states the decision, the evidence
+E1–E9 recorded on 2026-10-10 and E10–E12 on 2026-10-11, during the build window. Each states the decision, the evidence
 behind it, and what would make us revisit it.
 
 ## E1 — Quantum Playground, not Quantum Impact
@@ -108,3 +108,19 @@ behind it, and what would make us revisit it.
   built-in simulator, and the pasted write-up (20,453 characters) showed 59 KaTeX formulas in
   Qollab's write-up preview with no KaTeX error.
 - **Revisit if** the app must work offline (vendor Temml and the font with their licences).
+
+## E12 — The storm on a 3D compass, drawn from one typical replay
+
+- **Decision** (2026-10-11). A "3D compass" tab plays the storm minute by minute on three
+  stacked needles (8 independent qubits, GHZ-4 alone, the cascade's GHZ-4 register), drawn
+  with three.js from Qollab's import map. A needle shows the angle its register reads back; a
+  tube shows the turn the field step really gave it, so a slip is visible as a red tube that
+  goes past half a turn. `compass/api.py` `storm3d_json` computes every angle, fringe index and
+  slip count; the page only draws. The needles come from the one replay (of 32) closest to
+  the average slip count and wrong-minute count of GHZ-4, and the page says so.
+- **Evidence.** The fringe slip was shown only as a jump in an error chart and as a static dial
+  for one minute. Lines in WebGL are one pixel wide, so the turns are tubes. The colours are read
+  from the theme on the app root, and the text panel and the canvas label give the same numbers
+  for screen readers and when WebGL is missing (the canvas itself is hidden from them).
+- **Revisit if** the replay model changes (tests compare the tab's numbers with
+  `replay.metrics`).

@@ -3,6 +3,7 @@
 // this file only builds the interface.
 import * as compassApi from 'compass.api';
 import { challengeView } from './ui/challenge.js';
+import { compass3dView } from './ui/compass3d.js';
 import { el, nextPaint } from './ui/dom.js';
 import { methodView } from './ui/method.js';
 import { overviewView } from './ui/overview.js';
@@ -58,10 +59,12 @@ async function start() {
   const overview = overviewView(init, () => tabCtl.select(2, true), () => tabCtl.select(1, true));
   const tracker = trackerView(init, info, state);
   const method = methodView(init);
+  const compass3d = compass3dView(init);
   tabCtl = tabs([
     { id: 'overview', title: 'Overview', element: overview.element },
     { id: 'challenge', title: 'Storm challenge', element: challengeView(state) },
     { id: 'tracker', title: 'Field tracker', element: tracker },
+    { id: 'compass3d', title: '3D compass', element: compass3d.element, onShow: compass3d.onShow },
     { id: 'twin', title: 'Two observatories', element: twinView(info) },
     { id: 'method', title: 'Method & sources', element: method.element, onShow: method.onShow },
   ]);

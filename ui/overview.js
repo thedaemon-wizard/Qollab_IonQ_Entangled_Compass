@@ -37,6 +37,7 @@ export function overviewView(init, goTracker, goChallenge) {
       el('ol', null,
         el('li', null, rich(String.raw`Open the Field tracker and press “Update replay”: the quiet day shows the $\sqrt{N}$ gain.`)),
         el('li', null, 'Switch to the storm: GHZ-4 alone loses track whenever the field moves more than its fringe allows in one minute.'),
+        el('li', null, 'Watch it happen on the 3D compass: play the storm and see the GHZ-4 needle turn past half a turn and slip, while the cascade keeps its place.'),
         el('li', null, rich(String.raw`Add dephasing: above $\gamma \approx 0.23$ per qubit the gain falls below 1. Then run one minute on the quantum simulator.`))),
       el('div', { class: 'row' },
         el('button', { type: 'button', class: 'primary', on: { click: goChallenge } }, 'Play the Storm challenge'),

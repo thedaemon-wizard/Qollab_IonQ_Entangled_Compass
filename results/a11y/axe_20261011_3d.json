@@ -1,0 +1,98 @@
+{
+ "tool": "axe-core 4.14.0",
+ "date": "2026-10-11T03:44:31.448Z",
+ "runs": [
+  {
+   "scheme": "dark",
+   "view": "overview",
+   "violations": [],
+   "incomplete": [
+    "color-contrast"
+   ]
+  },
+  {
+   "scheme": "dark",
+   "view": "challenge",
+   "violations": [],
+   "incomplete": [
+    "color-contrast"
+   ]
+  },
+  {
+   "scheme": "dark",
+   "view": "tracker",
+   "violations": [],
+   "incomplete": [
+    "color-contrast"
+   ]
+  },
+  {
+   "scheme": "dark",
+   "view": "compass3d",
+   "violations": [],
+   "incomplete": []
+  },
+  {
+   "scheme": "dark",
+   "view": "twin",
+   "violations": [],
+   "incomplete": [
+    "color-contrast"
+   ]
+  },
+  {
+   "scheme": "dark",
+   "view": "method",
+   "violations": [],
+   "incomplete": [
+    "color-contrast"
+   ]
+  },
+  {
+   "scheme": "light",
+   "view": "overview",
+   "violations": [],
+   "incomplete": [
+    "color-contrast"
+   ]
+  },
+  {
+   "scheme": "light",
+   "view": "challenge",
+   "violations": [],
+   "incomplete": [
+    "color-contrast"
+   ]
+  },
+  {
+   "scheme": "light",
+   "view": "tracker",
+   "violations": [],
+   "incomplete": [
+    "color-contrast"
+   ]
+  },
+  {
+   "scheme": "light",
+   "view": "compass3d",
+   "violations": [],
+   "incomplete": []
+  },
+  {
+   "scheme": "light",
+   "view": "twin",
+   "violations": [],
+   "incomplete": [
+    "color-contrast"
+   ]
+  },
+  {
+   "scheme": "light",
+   "view": "method",
+   "violations": [],
+   "incomplete": [
+    "color-contrast"
+   ]
+  }
+ ]
+}

@@ -252,6 +252,72 @@ def replay_json(params_json: str) -> str:
     return json.dumps(result)
 
 
+STORM3D_ARMS = (  # arm, needle register m, fringe range m (the cascade reads with the 1-qubit range)
+    ("IND8", 1, 1),
+    ("GHZ4", 4, 4),
+    ("CASC", 4, 1),
+)
+
+
+def storm3d_json(params_json: str) -> str:
+    """Minute by minute, what each sensor's needle shows, for the 3D compass (one model replay).
+
+    `true_phase` is the phase the field step turns the needle register by, m s (F_t - previous
+    estimate), not wrapped: it can exceed half a turn. `reading` is the angle the register can
+    read back, that phase wrapped to [-pi, pi) plus shot noise (recovered from the replay's own
+    estimate). `fringe` is how many fringe spacings the estimate is off; a change is a slip.
+    """
+    p = json.loads(params_json)
+    dataset, shots, seed = p.get("dataset", "storm"), int(p.get("shots", 1000)), int(p.get("seed", 0))
+    replicates = int(p.get("replicates", 32))
+    times, f = data.load(dataset)
+    vis = _visibilities("none", 0.0, None)
+    names = tuple(a for a, _, _ in STORM3D_ARMS)
+    est = replay.track(f, SCALE, shots, vis, arms=names, replicates=replicates, seed=seed)
+    # Show the replay closest to the average of all of them for GHZ-4 (slips and wrong minutes),
+    # so the one animation is typical rather than lucky or unlucky.
+    g4 = replay.metrics(f, est["GHZ4"], SCALE, 4)
+    sl, wr = g4["slips"].astype(float), g4["wrong"].astype(float)
+    score = ((sl - sl.mean()) / max(sl.std(), 1e-9)) ** 2 + ((wr - wr.mean()) / max(wr.std(), 1e-9)) ** 2
+    k = int(np.argmin(score))
+    arms, totals = {}, {}
+    for name, m, m_range in STORM3D_ARMS:
+        e = est[name][k]
+        true_phase = np.concatenate([[0.0], m * SCALE * (f[1:] - e[:-1])])
+        reading = np.concatenate([[0.0], wrap(m * SCALE * np.diff(e))])
+        mt = replay.metrics(f, est[name][k : k + 1], SCALE, m_range)
+        fringe = np.concatenate([[0], np.round(mt["err"][0] / mt["spacing"]).astype(int)])
+        slips = np.concatenate([[0], np.cumsum(np.diff(fringe) != 0)])
+        arms[name] = {
+            "label": replay.ARMS[name]["label"],
+            "m": m,
+            "true_phase": [round(float(x), 3) for x in true_phase],
+            "reading": [round(float(x), 3) for x in reading],
+            "fringe": [int(x) for x in fringe],
+            "slips_so_far": [int(x) for x in slips],
+        }
+        totals[name] = {"slips": int(slips[-1]), "wrong_minutes": int((fringe != 0).sum())}
+    out = {
+        "dataset": dataset,
+        "label": data.DATASETS[dataset]["label"],
+        "times": times,
+        "dF_nT": [0.0] + [round(float(x), 2) for x in np.diff(f)],
+        "scale": SCALE,
+        "shots": shots,
+        "seed": seed,
+        "replay": {
+            "shown": k + 1,
+            "of": replicates,
+            "mean_slips": float(sl.mean()),
+            "mean_wrong": float(wr.mean()),
+        },
+        "arms": arms,
+        "totals": totals,
+    }
+    out["console_line"] = console.storm3d(out)
+    return json.dumps(out)
+
+
 def _transpiled(qc, backend, kind):
     if kind in ("ionq", "braket", "unknown"):
         return transpile(qc, basis_gates=["rz", "cx", "h", "x", "measure"], optimization_level=0)

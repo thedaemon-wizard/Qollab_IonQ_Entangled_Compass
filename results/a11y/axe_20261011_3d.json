@@ -1,6 +1,6 @@
 {
  "tool": "axe-core 4.14.0",
- "date": "2026-10-11T03:44:31.448Z",
+ "date": "2026-10-11T03:58:16.270Z",
  "runs": [
   {
    "scheme": "dark",
@@ -30,7 +30,9 @@
    "scheme": "dark",
    "view": "compass3d",
    "violations": [],
-   "incomplete": []
+   "incomplete": [
+    "color-contrast"
+   ]
   },
   {
    "scheme": "dark",
@@ -76,7 +78,9 @@
    "scheme": "light",
    "view": "compass3d",
    "violations": [],
-   "incomplete": []
+   "incomplete": [
+    "color-contrast"
+   ]
   },
   {
    "scheme": "light",

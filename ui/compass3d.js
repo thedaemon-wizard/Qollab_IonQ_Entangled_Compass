@@ -209,6 +209,9 @@ export function compass3dView(init) {
   const sliderLabel = el('label', { for: 'ec3-minute' }, 'Minute');
   const status = el('p', { role: 'status', class: 'status', id: 'ec3-status' }, 'Open this tab to load the replay.');
   const stage = el('div', { class: 'c3d', role: 'img', id: 'ec3-stage', 'aria-label': 'The 3D compass (loading).' });
+  // the same time and slip counts as the text panel, over the picture (hidden from screen readers)
+  const hud = el('div', { class: 'c3d-hud', 'aria-hidden': 'true' });
+  stage.append(hud);
   const camButtons = [
     ['Turn left', -0.35, 0], ['Turn right', 0.35, 0], ['Tilt up', 0, -0.2], ['Tilt down', 0, 0.2],
   ].map(([text, dT, dP]) => {
@@ -258,6 +261,14 @@ export function compass3dView(init) {
     slider.value = String(minute);
     slider.setAttribute('aria-valuetext', `${utc(data.times[minute])}, minute ${minute} of ${data.times.length - 1}`);
     fillReadout(minute);
+    hud.replaceChildren(el('div', null, utc(data.times[minute])),
+      el('div', null, `field step ${fmt.signed(data.dF_nT[minute], 1)} nT`),
+      ...ARMS.map((arm) => {
+        const a = data.arms[arm.key];
+        return el('div', { class: a.fringe[minute] !== 0 ? 'bad' : '' },
+          el('span', { class: 'swatch', style: `background:var(${arm.colorVar})` }),
+          `${arm.short}: ${a.slips_so_far[minute]} slip${a.slips_so_far[minute] === 1 ? '' : 's'}${a.fringe[minute] !== 0 ? ', wrong fringe' : ''}`);
+      }));
     if (scene) {
       scene.show(data.arms, minute);
       scene.render();
@@ -346,7 +357,8 @@ export function compass3dView(init) {
       try {
         scene = await makeScene(stage, () => { if (!playing) request(); });
       } catch (err) {
-        stage.replaceChildren(el('p', { class: 'note' }, `The 3D view is not available here (${err && err.message ? err.message : 'no WebGL'}). The panel below shows the same numbers minute by minute.`));
+        hud.style.position = 'static'; // no picture to lay it over
+        stage.replaceChildren(el('p', { class: 'note' }, `The 3D view is not available here (${err && err.message ? err.message : 'no WebGL'}). The panel below shows the same numbers minute by minute.`), hud);
       }
     }
     if (!data) await load();

@@ -74,3 +74,13 @@ frame.
 | 10 | LOW | Qiskit's text drawing misaligned on systems whose monospace falls back to a CJK font | Monospace stack with DejaVu Sans Mono and Liberation Mono first |
 
 axe-core: 0 violations in all 12 view and scheme combinations (`results/a11y/axe_20261011_review3.json`); 113 tests.
+
+### Demo video: one continuous take (2026-10-11)
+
+The video was cut from several recordings, so a judge could not follow every click. It is now
+one unbroken screen recording on Qollab with the real mouse pointer: the project page, Code, Run
+Project, Run with the free Built-in simulator (24q), then every step in the app in order, and the
+run console at the end, which names the simulator and prints a line per result. The narration is
+placed where each step happened in the take; nothing is cut. Checks of the finished file: no
+decode errors, constant 30 fps, loudness about −16.8 LUFS, and real-time playback in Chrome with
+no stall and no dropped frame. The runs it shows are in `results/qollab/video_take_20261011.json`.

@@ -1,0 +1,31 @@
+{
+ "note": "Runs shown in the demo video (one continuous take on Qollab, no cuts). The circuit run was read off the screen; the other values are copied from Qollab's run console as shown at the end of the video. Replays are model replays with fixed seeds, so they equal the local values.",
+ "video": "https://youtu.be/IomHduFJqyc",
+ "recorded_utc": "2026-10-11T07:39:13Z",
+ "qollab_backend_label": "Built-in simulator (24q), ideal",
+ "backend_name": "basic_simulator",
+ "circuit_run": {
+  "layout": "A",
+  "minute": "2024-05-10T21:47",
+  "shots": 1000,
+  "qubits": 17,
+  "seconds": 0.105,
+  "canary": 1.0,
+  "cascade_error_nT": -0.22,
+  "ghz4_alone_error_nT": -78.76,
+  "field_step_nT": 44.59
+ },
+ "replays_shown": {
+  "quiet_gain_ghz4": "2.00 ± 0.02",
+  "storm_gain_ghz4_right_fringe": "2.07 ± 0.01",
+  "quiet_aria1_gain": "1.92 ± 0.02",
+  "quiet_aria1_dephasing_0.20_gain": "1.05 ± 0.01",
+  "twin_gain": "1.42 ± 0.01"
+ },
+ "console_excerpt": [
+  "[Entangled Compass] 3D compass, replay 1 of 32 of the storm record (1000 shots), the one closest to their average: GHZ-4 alone changes fringe 20 times and is wrong for 1115 minutes (averages 20.2 and 988); the cascade changes fringe 0 times, 8 independent qubits 0 times.",
+  "[Entangled Compass] Storm challenge round 1 of 12 (2024-05-10 16:00 to 2024-05-10 17:59 UTC): GHZ-4 (entangled) scores 0.36 (RMS error 0.36 nT × √(q/8), lower is better), 0 fringe changes; from the same start the others score: 8 independent qubits 0.69; Cascade 1-2-4 (entangled) 0.47.",
+  "[Entangled Compass] Storm challenge round 2 of 12 (2024-05-10 18:00 to 2024-05-10 19:59 UTC): GHZ-4 (entangled) scores 0.35 (RMS error 0.35 nT × √(q/8), lower is better), 0 fringe changes; from the same start the others score: 8 independent qubits 0.77; Cascade 1-2-4 (entangled) 0.50.",
+  "[Entangled Compass] Storm challenge round 3 of 12 (2024-05-10 20:00 to 2024-05-10 21:59 UTC): Cascade 1-2-4 (entangled) scores 0.46 (RMS error 0.34 nT × √(q/8), lower is better), 0 fringe changes; from the same start the others score: 8 independent qubits 0.73; GHZ-4 (entangled) 25.91."
+ ]
+}

@@ -1,6 +1,6 @@
 # Decisions
 
-All recorded on 2026-10-10, during the build window. Each states the decision, the evidence
+E1–E9 recorded on 2026-10-10 and E10–E11 on 2026-10-11, during the build window. Each states the decision, the evidence
 behind it, and what would make us revisit it.
 
 ## E1 — Quantum Playground, not Quantum Impact
@@ -84,7 +84,7 @@ behind it, and what would make us revisit it.
   register as a circuit with the map of all qubits in the one job (Method), where each number
   comes from (Method) and the two-observatory what-if (Two observatories). They are SVGs drawn by
   `ui/figures.js` from what Python returns (the scale, the ranges, the qubit counts, the register
-  layout), and the README shows screenshots of the same figures.
+  layout), and the README shows screenshots of the first three.
 - **Evidence.** Before this, the model was only bullet text and Qiskit's 17-wire text drawing,
   and the dials appeared only after a circuit run. A full gate-by-gate drawing of all 17 qubits
   was left out: it reads no better than Qiskit's own drawing, which stays available under a
@@ -104,5 +104,7 @@ behind it, and what would make us revisit it.
   changes formulas. Qollab's write-up renderer understands only `$…$` and `$$…$$`. The project
   frame's CSP allows scripts and fonts from cdn.jsdelivr.net but blocks `data:` fonts. MathML is
   exposed to screen readers; if the import fails, the same strings appear as Unicode text
-  (tested with jsDelivr blocked).
+  (tested with jsDelivr blocked). On Qollab (2026-10-11), the in-app formulas rendered with the
+  built-in simulator, and the pasted write-up (20,453 characters) showed 59 KaTeX formulas in
+  Qollab's write-up preview with no KaTeX error.
 - **Revisit if** the app must work offline (vendor Temml and the font with their licences).

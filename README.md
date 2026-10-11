@@ -82,8 +82,8 @@ magnetometer or on quantum hardware.*
 
 ![One sensor register (GHZ-4 read in Y) as a circuit, with the dephasing ancilla of layout B, and the 17-qubit map of the packed circuit.](docs/figures/circuit.png)
 
-*Figure 2. Top: one of the eight sensor registers as `compass/circuits.py` builds it; the dashed
-box is added only in layout B. Bottom: every sensor and the canary qubit in the one circuit that
+*Figure 2. Top: one of the eight sensor registers as `compass/circuits.py` builds it; the grey
+dashed box (and the dashed ancilla wire) is added only in layout B. Bottom: every sensor and the canary qubit in the one circuit that
 runs as one job.*
 
 - **Fair comparison.** GHZ-4 read in X and in Y uses 8 qubits per shot; the baseline is a
@@ -176,13 +176,15 @@ difference the app reports, with its model value, for every setting.
 | Local Qiskit BasicSimulator (tests and harness) | layout A, 2024-05-10 21:47 UTC, 1000–2000 shots | canary 1.000; cascade within ±1 nT, GHZ-4 alone one fringe off (−78 nT), as the model says |
 | Qollab built-in simulator (2026-10-10 13:52 UTC) | layout A, 2024-05-10 21:47 UTC, 1000 shots, one job, 0.10 s | canary 1.000; cascade +0.29 nT, GHZ-4 alone −78.25 nT (one fringe off); visibilities GHZ-1/2/4 = 0.996 / 0.996 / 1.018 |
 | Qollab IonQ Aria 1 noise-model simulator (13:57 UTC) | the same, 200 shots, one job, 12.5 s | canary 1.000; cascade +0.29 nT, GHZ-4 alone −78.25 nT; measured visibilities GHZ-1/2/4 = 1.00 / 0.97 / 0.92 (documented-rate estimate 0.999 / 0.985 / 0.958; with 200 shots the standard error of each is about 0.06), so $`2V_4/V_1 = 1.83`$ |
-| Qollab IonQ Aria 1 noise-model simulator (23:21 UTC, the run in the demo video) | layout A, 2024-05-10 21:47 UTC, 200 shots, one job, 11.9 s | canary 1.000; cascade −1.99 nT, GHZ-4 alone −80.53 nT (one fringe off) |
 | Qollab IonQ Forte 1 noise-model simulator (14:10 UTC) | twin circuit (13 qubits), 2024-05-10 17:06 UTC, 200 shots, one job, 13.0 s | canary 1.000; difference pair read −3.1 nT (true −9.0), sum pair +33.4 nT (true +34.1), single qubits +9.3 and +20.6 nT (true +12.6 and +21.5); one standard error is about 3.5 nT for a pair at 200 shots |
+| Qollab IonQ Aria 1 noise-model simulator (23:21 UTC, the run in the demo video) | layout A, 2024-05-10 21:47 UTC, 200 shots, one job, 11.9 s | canary 1.000; cascade −1.99 nT, GHZ-4 alone −80.53 nT (one fringe off) |
 
-The two runs give the same GHZ-4 and cascade readings to 0.01 nT because the estimate depends only
-on the ratio of the GHZ-4 Y and X parities (here −0.400 / −0.830 on IonQ), which happened to
-agree; the other registers differ. All values are in `results/qollab/compass_runs_20261010.json`; the run in the
-demo video was read off the screen (`results/qollab/video_runs_20261010.json`).
+The built-in (13:52 UTC) and IonQ Aria 1 (13:57 UTC) runs give the same GHZ-4 and cascade readings
+to 0.01 nT because the estimate depends only on the ratio of the GHZ-4 Y and X parities (here
+−0.400 / −0.830 in the 13:57 run), which happened to agree; the other registers differ. The
+23:21 UTC run in the demo video is a separate 200-shot sample and reads differently (cascade
+−1.99 nT). The values of the first three runs are in `results/qollab/compass_runs_20261010.json`;
+the run in the demo video was read off the screen (`results/qollab/video_runs_20261010.json`).
 
 ## The original part
 
@@ -230,8 +232,9 @@ demo video was read off the screen (`results/qollab/video_runs_20261010.json`).
 
 Keyboard-only use (tabs with arrow keys, Home and End; every control is a native button,
 select or slider with a label), visible focus, live status messages, focus moved to each new
-challenge round, charts and figures as SVG with a title, a description that states the numbers and a data
-table, series that differ by dash as well as colour, formulas as native MathML (read by screen
+challenge round, charts as SVG with a title, a description that states the numbers and a data
+table, explanatory figures as SVG with a title and a description in words, series that differ
+by dash as well as colour, formulas as native MathML (read by screen
 readers; plain Unicode text if the formula library cannot load), dark and light schemes, and no
 horizontal page scroll at 320 px.
 
@@ -244,7 +247,8 @@ model and the two-observatory what-if are recorded with their evidence in
 ## Disclosure
 
 - Built during the hackathon window (10–12 October 2026). It is a second entry next to the
-  author's *Bell-Test Lab* (Quantum Unlocked); no code is shared between the two.
+  author's *Bell-Test Lab* (Quantum Unlocked). Apart from a small formula helper for Temml and
+  its font declaration, written for both during the window, no code is shared between the two.
 - The USGS records were downloaded on 2026-10-10 by `scripts/fetch_usgs.py` (Boulder at
   12:23 UTC, Tucson at 13:05 UTC).
 - Use of AI: generative-AI coding assistants drafted most of the code, documentation and research

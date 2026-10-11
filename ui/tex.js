@@ -38,6 +38,7 @@ export function plain(src) {
     .replace(/([A-Za-z])\\(cos|sin)/g, '$1·$2')
     .replace(/\\([,;!{}%])/g, (_, c) => ({ ',': '\u2009', ';': ' ', '!': '' }[c] ?? c))
     .replace(/\\(lvert|langle) /g, '\\$1') // TeX drops the space after these
+    .replace(/\\([A-Za-z]+) (?=[A-Za-z])/g, (m, w) => (/[\u0370-\u03ff]/.test(WORDS[w] ?? '') ? WORDS[w] : m)) // ΔF, not Δ F
     .replace(/\\([A-Za-z]+)/g, (_, w) => WORDS[w] ?? w)
     .replace(/[{}]/g, '')
     .replace(/-/g, '−');
@@ -47,7 +48,11 @@ export function plain(src) {
 export function tex(src, { display = false } = {}) {
   if (!temml) return document.createTextNode(plain(src));
   const host = document.createElement('span');
-  temml.render(src, host, { displayMode: display, annotate: true, throwOnError: false });
+  try {
+    temml.render(src, host, { displayMode: display, annotate: true, throwOnError: false });
+  } catch {
+    return document.createTextNode(plain(src)); // the views are built synchronously: never let one formula stop them
+  }
   return host.firstElementChild || document.createTextNode(plain(src));
 }
 

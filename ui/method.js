@@ -43,7 +43,7 @@ export function methodView(init) {
         el('li', null, 'Only GHZ-1, GHZ-2, GHZ-4 and the 4-pass qubit are circuits; the replays and the challenge are a model of the same parity measurement (binomial shot noise with the register’s visibility), checked against the circuits by tests.'))),
     el('section', { class: 'card' }, el('h2', null, 'Sources'), el('ul', { class: 'refs' }, REFS.map(([a, b]) => el('li', null, el('strong', null, `${a}. `), rich(b))))),
     el('section', { class: 'card' }, el('h2', null, 'Disclosure and credits'),
-      el('p', null, 'Built during the hackathon window (10–12 October 2026) as a second entry next to the author’s Bell-Test Lab; no code is shared between them. Generative-AI coding assistants drafted most of the code, documentation and research notes under the author’s direction; the author set the design, reviewed the changes, ran the tests and checked the cited sources.'),
+      el('p', null, 'Built during the hackathon window (10–12 October 2026) as a second entry next to the author’s Bell-Test Lab. Apart from a small formula helper for Temml and its font declaration, written for both during the window, no code is shared between them. Generative-AI coding assistants drafted most of the code, documentation and research notes under the author’s direction; the author set the design, reviewed the changes, ran the tests and checked the cited sources.'),
       el('p', null, 'Geomagnetic data: USGS Geomagnetism Program, Boulder (BOU) and Tucson (TUC) observatories, courtesy of the U.S. Geological Survey; thanks to INTERMAGNET (www.intermagnet.org). Code: MIT licence. This effort is supported by Qollab & IonQ.')));
   let loaded = false;
   return {

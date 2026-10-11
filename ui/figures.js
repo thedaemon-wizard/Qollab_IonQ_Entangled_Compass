@@ -113,7 +113,7 @@ export function circuitFigure(a, b) {
     `Top: one of the eight sensor registers of the packed circuit, GHZ-4 read in Y on qubits q${q[0]} to q${q[3]}, in the order compass/circuits.py builds it.`,
     `H on q${q[0]} and a ladder of three CNOTs (q${q[0]} to q${q[1]}, q${q[1]} to q${q[2]}, q${q[2]} to q${q[3]}) prepare a GHZ state.`,
     'Rz(δ) on every qubit stands for the field acting on the qubit, giving (|0000⟩ + e^(i·4δ)|1111⟩)/√2. This is a simulation, not a magnetometer.',
-    `In layout B only (the dashed box), an ancilla q${anc} gets H, then a CNOT from q${anc} to q${q[0]}, Rz(b) on q${q[0]} and the CNOT again. So q${q[0]} sees Rz(+b) or Rz(−b) with equal odds; with cos b = e^(−4γ) this equals independent dephasing γ of each of the four qubits.`,
+    `In layout B only (the grey dashed box and the dashed ancilla wire), an ancilla q${anc} gets H, then a CNOT from q${anc} to q${q[0]}, Rz(b) on q${q[0]} and the CNOT again. So q${q[0]} sees Rz(+b) or Rz(−b) with equal odds; with cos b = e^(−4γ) this equals independent dephasing γ of each of the four qubits.`,
     `S† on q${q[0]} selects the Y reading, then H on all four qubits and measurement; the ancilla is measured and ignored.`,
     'The parity of the four bits has mean V·sin 4δ (V·cos 4δ for register G4X, read in X).',
     `Bottom: the ${a.n_qubits} qubits of layout A, run as one job. q0 is the canary. ${a.registers.map((r) => `${r.name} on q${r.qubits.join(', q')}`).join('; ')}.`,
@@ -121,7 +121,7 @@ export function circuitFigure(a, b) {
   ].join(' ');
   return figure({
     w: 760, h: 452, min: 600, title: 'One sensor register as a circuit, and every sensor in one job', desc,
-    caption: `Figure 2. Top: one of the eight sensor registers (GHZ-4 read in Y, q${q[0]}–q${q[3]}) as compass/circuits.py builds it; the dashed box is added only in layout B, and the construction is ours. Bottom: all ${a.n_qubits} qubits of the packed circuit that runs as one job. Qiskit’s own drawing of the whole circuit is below.`,
+    caption: `Figure 2. Top: one of the eight sensor registers (GHZ-4 read in Y, q${q[0]}–q${q[3]}) as compass/circuits.py builds it; the grey dashed box (and the dashed ancilla wire) is added only in layout B, and the construction is ours. Bottom: all ${a.n_qubits} qubits of the packed circuit that runs as one job. Qiskit’s own drawing of the whole circuit is below.`,
   },
   text(165, 24, 'prepare GHZ-4', { anchor: 'middle' }), text(310, 24, 'field acts (simulated)', { anchor: 'middle' }),
   text(530, 24, '$Y$ only', { anchor: 'middle' }), text(583, 24, 'read', { anchor: 'middle' }),

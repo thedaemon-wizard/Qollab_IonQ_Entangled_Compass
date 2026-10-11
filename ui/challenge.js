@@ -2,7 +2,7 @@
 // sensor; the round is replayed with it (in Python) and compared with what the other two would
 // have done from the same starting point. Turn-based: nothing moves until you choose.
 import { dataTable, timeChart } from './chart.js';
-import { announce, el, fmt, nextPaint } from './dom.js';
+import { announce, el, fmt, keepFocus, nextPaint } from './dom.js';
 import { py } from './py.js';
 import { rich } from './tex.js';
 
@@ -46,6 +46,7 @@ export function challengeView(state) {
     } finally {
       startBtn.disabled = false;
       startBtn.textContent = 'Restart';
+      keepFocus(startBtn, status); // after a start that worked, focus is already on the round heading
     }
   }
 
@@ -58,9 +59,19 @@ export function challengeView(state) {
       el('p', null, lastStep === null
         ? `The storm begins this afternoon. GHZ-4 reads the field four times as finely, but loses its place if the field jumps more than ±${fmt.n(setup.ghz4_range_nt, 1)} nT in one minute.`
         : `Last round, the largest one-minute jump was ${fmt.n(lastStep, 1)} nT. Your estimate is ${fmt.signed(offset, 1)} nT from the true field. Keep the same sensor and it keeps that estimate; switch, and the new sensor starts from a fresh absolute fix.`),
+      runningScore(),
       el('p', { class: 'small muted' }, 'Which sensor tracks the next two hours?'),
       el('div', { class: 'choices', role: 'group', 'aria-label': 'Choose a sensor' }, buttons)));
     roundBox.querySelector('h3').focus();
+  }
+
+  // your mean so far against each fixed strategy over the same rounds (same seed as the final card)
+  function runningScore() {
+    if (!history.length) return null;
+    const mean = (xs) => xs.reduce((t, x) => t + x, 0) / xs.length;
+    const n = history.length;
+    const fixed = ORDER.map((c) => `always ${setup.choices[c].label} ${fmt.n(mean(setup.always[c].scores.slice(0, n)))}`).join(', ');
+    return el('p', { class: 'small' }, `Your mean score so far: ${fmt.n(mean(history.map((h) => h.score)))}. Over the same ${n === 1 ? 'round' : `${n} rounds`}: ${fixed} (lower is better).`);
   }
 
   async function play(choice) {
@@ -90,7 +101,7 @@ export function challengeView(state) {
           table: { caption: 'Error every 10 minutes (nT)', columns: ['Time (UTC)', 'Error (nT)'],
             rows: mine.times.map((tt, i) => [tt, fmt.n(mine.error_nt[i])]).filter((_, i) => i % 10 === 0) },
         }),
-        dataTable({ caption: 'The three sensors from the same start (a switch starts from a fresh fix) and the same random seed', columns: ['Sensor', 'Score', 'RMS error (nT)', 'Fringe jumps'],
+        dataTable({ caption: 'The three sensors from the same start (a switch starts from a fresh fix) and the same random seed', columns: ['Sensor', 'Score', 'RMS error (nT)', 'Fringe changes'],
           rows: ORDER.map((c) => [`${out.choices[c].label}${c === choice ? ' (your pick)' : ''}`, fmt.n(out.others[c].score), fmt.n(out.others[c].rmse_nt), String(out.others[c].slips)]) })));
       announce(`Round ${k + 1}: score ${fmt.n(mine.score)}. ${verdict}`);
       k += 1;
@@ -104,6 +115,7 @@ export function challengeView(state) {
     } catch (err) {
       status.textContent = `The round failed: ${err.message}`;
       roundBox.querySelectorAll('button').forEach((b) => { b.disabled = false; });
+      keepFocus(roundBox.querySelector('button'), status);
     }
   }
 
@@ -117,7 +129,7 @@ export function challengeView(state) {
       el('p', null, mean < bestFixed[1]
         ? `You beat every fixed strategy: the best of them, “always ${bestFixed[0]}”, scores ${fmt.n(bestFixed[1])}. Entanglement pays when you also know when not to trust it.`
         : `The best fixed strategy, “always ${bestFixed[0]}”, scores ${fmt.n(bestFixed[1])}. GHZ-4 is the finest sensor in calm hours, but one big jump costs more than it gains.`),
-      dataTable({ caption: 'Your rounds', columns: ['Round', 'Your pick', 'Score', 'Fringe jumps', 'Best pick this round'],
+      dataTable({ caption: 'Your rounds', columns: ['Round', 'Your pick', 'Score', 'Fringe changes', 'Best pick this round'],
         rows: history.map((h) => [String(h.round + 1), setup.choices[h.choice].label, fmt.n(h.score), String(h.slips), setup.choices[h.best].label]) }),
       dataTable({ caption: 'Fixed strategies over all 12 rounds (same random seed)', columns: ['Strategy', 'Mean score'], rows: always.map(([l, s]) => [`always ${l}`, fmt.n(s)]) })));
     summary.querySelector('h3').focus();

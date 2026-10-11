@@ -2,7 +2,7 @@
 // packed sensor circuit for one minute on the backend Qollab injected (one job).
 import { dataTable, timeChart } from './chart.js';
 import { dialsPanel } from './dials.js';
-import { el, fmt, nextPaint } from './dom.js';
+import { el, fmt, keepFocus, minus, nextPaint } from './dom.js';
 import { py } from './py.js';
 import { rich } from './tex.js';
 
@@ -63,12 +63,14 @@ export function trackerView(init, info, state) {
       lastReplay = await py.replay(params());
       draw(lastReplay);
       const g = lastReplay.gain_ghz4;
-      status.textContent = `Done in ${lastReplay.seconds} s. GHZ-4 is ${fmt.pm(g)}× as precise as 8 independent qubits on the minutes where it stays on the right fringe (model at zero field step: ${fmt.n(g.theory)}).`;
+      const q = lastReplay.sql.gain_ghz4;
+      status.textContent = `Done in ${lastReplay.seconds} s. On the minutes where it stays on the right fringe, GHZ-4 is ${fmt.pm(g)}× as precise as 8 independent qubits read the same way (matched; model at zero field step: ${fmt.n(g.theory)}); against the standard quantum limit: ${fmt.pm(q)}× (model ${fmt.n(q.theory)}).`;
     } catch (err) {
       status.textContent = `The replay failed: ${err.message}`;
     } finally {
       replayBtn.disabled = false;
       charts.removeAttribute('aria-busy');
+      keepFocus(replayBtn, status);
     }
   }
   replayBtn.addEventListener('click', doReplay);
@@ -114,7 +116,7 @@ export function trackerView(init, info, state) {
     charts.replaceChildren(fieldChart, errChart);
     metrics.replaceChildren(dataTable({
       caption: `32 replays (mean ± 2 standard errors), ${shots.value} shots per register per minute, ${init.scale.value} rad/nT`,
-      columns: ['Sensor arm', 'Qubits per shot', 'RMS error (nT)', 'RMS error on the right fringe (nT)', 'Minutes on a wrong fringe', 'Fringe jumps'],
+      columns: ['Sensor arm', 'Qubits per shot', 'RMS error (nT)', 'RMS error on the right fringe (nT)', 'Minutes on a wrong fringe', 'Fringe changes'],
       rows: Object.entries(r.arms).map(([a, x]) => [ARM_STYLE[a].name, String(x.qubits), fmt.pm(x.rmse), fmt.pm(x.rmse_ok), fmt.pm(x.wrong_minutes, 1), fmt.pm(x.slips, 1)]),
     }), el('p', { class: 'small' },
       `Gain of GHZ-4 over 8 independent qubits (same 8 qubits per shot), on the minutes GHZ-4 stays on the right fringe: ${fmt.pm(r.gain_ghz4)}; model at zero field step ${fmt.n(r.gain_ghz4.theory)}. Over the whole record compare the RMS errors in the table. `,
@@ -151,6 +153,7 @@ export function trackerView(init, info, state) {
     } finally {
       runBtn.disabled = ionqUsed(info, state);
       runOut.removeAttribute('aria-busy');
+      keepFocus(runBtn, runStatus); // on IonQ the button stays disabled after the one job
     }
   });
 
@@ -196,10 +199,10 @@ function fringeChart(r) {
     title: 'Fringes: X parity against the field step in one minute (ideal model)',
     desc: `cos(m·s·ΔF) for m = 1, 2 and 4 at s = ${r.scale} rad/nT. GHZ-4 oscillates four times as fast, so it is four times as steep, but it repeats every ${fmt.n(2 * fr.half_range_nT['4'], 1)} nT. This minute's step, ${fmt.signed(fr.this_minute_dF, 1)} nT, is marked.`,
     width: 640, height: 220,
-    xLabels: fr.dF.map((x) => String(Math.round(x))), xEvery: 40, xLabel: 'Field step in one minute (nT)', yLabel: 'X parity', yMin: -1.05, yMax: 1.05,
+    xLabels: fr.dF.map((x) => minus(Math.round(x))), xEvery: 40, xLabel: 'Field step in one minute (nT)', yLabel: 'X parity', yMin: -1.05, yMax: 1.05,
     series: ['1', '2', '4'].map((m) => ({ name: names[m], values: fr.curves[m], color: colors[m], dash: dashes[m] })),
     marker: { index: idx, label: 'this minute' },
     table: { caption: 'X parity every 20 nT', columns: ['Field step (nT)', '1 qubit', 'GHZ-2', 'GHZ-4'],
-      rows: fr.dF.map((x, i) => [String(Math.round(x)), fmt.n(fr.curves['1'][i]), fmt.n(fr.curves['2'][i]), fmt.n(fr.curves['4'][i])]).filter((_, i) => i % 20 === 0) },
+      rows: fr.dF.map((x, i) => [minus(Math.round(x)), fmt.n(fr.curves['1'][i]), fmt.n(fr.curves['2'][i]), fmt.n(fr.curves['4'][i])]).filter((_, i) => i % 20 === 0) },
   });
 }

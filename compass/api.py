@@ -30,7 +30,7 @@ PRESETS = [
     {
         "dataset": "storm",
         "minute": "2024-05-10T21:47",
-        "note": "first minute where GHZ-4 alone jumps a fringe (+44.6 nT)",
+        "note": "first GHZ-4 fringe change (+44.6 nT)",
     },
     {
         "dataset": "storm",

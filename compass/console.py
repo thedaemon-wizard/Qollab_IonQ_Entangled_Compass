@@ -29,12 +29,14 @@ def started(info: dict) -> str:
 
 
 def overview(o: dict) -> str:
-    st = o["storm"]
+    st, i, a, d = o["storm"], o["ideal"], o["aria1"], o["dephasing_0_2"]
     return say(
         "Overview (model replay, 1000 shots per register per minute): on the quiet day GHZ-4 is "
-        f"{_gain(o['ideal'], 16)} as precise as 8 independent qubits (ideal {o['ideal']['theory']:.2f}); "
-        f"with IonQ Aria 1 gate noise {_gain(o['aria1'], 16)}; with dephasing 0.2 "
-        f"{_gain(o['dephasing_0_2'], 16)}. Storm of May 2024 (quick estimate, 8 replays): GHZ-4 alone "
+        f"{_gain(i, 16)} as precise as 8 independent qubits read the same way (matched, ideal "
+        f"{i['theory']:.2f}) and {i['over_sql']['mean']:.2f}× the standard quantum limit (ideal "
+        f"{i['over_sql']['theory']:.2f}); with IonQ Aria 1 gate noise {_gain(a, 16)}, "
+        f"{a['over_sql']['mean']:.2f}× the SQL; with dephasing 0.2 {_gain(d, 16)}, "
+        f"{d['over_sql']['mean']:.2f}× the SQL. Storm of May 2024 (quick estimate, 8 replays): GHZ-4 alone "
         f"changes fringe {st['ghz4_slips']['mean']:.0f} times, the cascade "
         f"{st['cascade_slips']['mean']:.0f} times."
     )
@@ -47,8 +49,9 @@ def replay(params: dict, r: dict) -> str:
         f"Replay of the {params.get('dataset', 'quiet')} record ({params.get('shots', 1000)} shots, "
         f"gate noise {params.get('gate_model', 'none')}, added dephasing "
         f"{params.get('gamma', 0) if params.get('noise') == 'indep' else 0}). On the minutes GHZ-4 stays on "
-        f"the right fringe it is {_gain(g, n)} as precise as 8 independent qubits (model at zero field step "
-        f"{g['theory']:.2f}) and {s['mean']:.2f}× (± {s['two_se']:.2f}) the standard quantum limit. "
+        f"the right fringe it is {_gain(g, n)} as precise as 8 independent qubits read the same way "
+        f"(matched; model at zero field step {g['theory']:.2f}) and {s['mean']:.2f}× (± {s['two_se']:.2f}) "
+        "the standard quantum limit. "
         f"Over the whole record the RMS error is {a['GHZ4']['rmse']['mean']:.2f} nT for GHZ-4 alone, "
         f"{a['IND8']['rmse']['mean']:.2f} nT for 8 independent qubits and {a['CASC']['rmse']['mean']:.2f} nT "
         f"for the cascade; GHZ-4 is on a wrong fringe for {a['GHZ4']['wrong_minutes']['mean']:.0f} minutes, "

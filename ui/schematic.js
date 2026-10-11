@@ -74,15 +74,22 @@ export function figure({ w, h, title, desc, caption, min = 560 }, ...children) {
       svg('path', { d: 'M0,0 L10,5 L0,10 z', class: 'sk-head' }))));
   for (const c of children.flat()) if (c) root.append(typeof c === 'function' ? c(markerId) : c);
   const box = el('div', { class: 'schematic-wrap', tabindex: '0', role: 'region', 'aria-label': title }, root);
-  return el('figure', { class: 'schematic-fig' }, box, caption ? el('figcaption', { class: 'small muted' }, caption) : null);
+  // shown only while the figure is wider than the space it has (phones)
+  const hint = el('p', { class: 'scroll-hint small muted', hidden: true }, 'Scroll sideways to see the whole figure.');
+  if (typeof ResizeObserver === 'function') {
+    new ResizeObserver(() => { hint.hidden = !(box.clientWidth > 0 && box.scrollWidth > box.clientWidth + 1); }).observe(box);
+  }
+  return el('figure', { class: 'schematic-fig' }, box, hint, caption ? el('figcaption', { class: 'small muted' }, caption) : null);
 }
 
-/** A rounded box with a bold title and lines of small text (16 units apart). */
+/** A rounded box with a bold title and lines of small text (16 units apart, 18 with scripts). */
 export function box(x, y, w, h, title, lines = [], { tone = 'var(--border)', dash = null, fill = 'var(--bg)' } = {}) {
   const g = svg('g', null,
     svg('rect', { x, y, width: w, height: h, rx: 10, style: `fill:${fill};stroke:${tone};stroke-width:2`, 'stroke-dasharray': dash }));
   if (title) g.append(text(x + 10, y + 22, title, { cls: 'sk-title' }));
-  lines.forEach((line, i) => { if (line) g.append(text(x + 10, y + 40 + i * 16, line)); });
+  // 18 units between lines when a formula has a sub- or superscript, so scripts do not crowd the next line
+  const step = lines.some((l) => /\$[^$]*[_^]/.test(l || '')) ? 18 : 16;
+  lines.forEach((line, i) => { if (line) g.append(text(x + 10, y + 40 + i * step, line)); });
   return g;
 }
 

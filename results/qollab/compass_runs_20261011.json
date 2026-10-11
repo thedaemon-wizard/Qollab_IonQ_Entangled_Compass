@@ -1,0 +1,49 @@
+{
+  "note": "Two more Qollab runs of the Field tracker's one-job circuit, on the free local simulators a judge may pick in Qollab's Run dialog (an IBM noise model and AWS Braket). Recorded on 2026-10-11 from the project draft (edit mode). The console lines are copied as Qollab printed them; the run-card values were read off the screen and the counts were not exported.",
+  "runs": [
+    {
+      "utc": "2026-10-11T13:27Z",
+      "qollab_backend_label": "IBM: Boston (Heron r3 arch, 156q), noise model, free (console: IBM Boston simulator (Heron r3 arch, 156q))",
+      "backend_name": "fake_boston",
+      "layout": "A",
+      "n_qubits": 17,
+      "shots": 200,
+      "job_wall_time_s": 14.151,
+      "minute": "2024-05-10T21:47",
+      "dF_nT": 44.59,
+      "canary_fraction": 0.99,
+      "errors_nT": {
+        "2 independent qubits": 1.11,
+        "GHZ-4 alone": -78.20,
+        "Cascade 1-2-4": 0.34
+      },
+      "console": [
+        "[Entangled Compass] running on fake_boston (ibm_fake). Printed here: the Overview numbers, each replay, each challenge round, the 3D compass and every circuit run.",
+        "[Entangled Compass] Overview (model replay, 1000 shots per register per minute): on the quiet day GHZ-4 is 2.01× (± 0.02, 2 SE over 16 replays) as precise as 8 independent qubits (ideal 2.00); with IonQ Aria 1 gate noise 1.94× (± 0.03, 2 SE over 16 replays); with dephasing 0.2 1.10× (± 0.01, 2 SE over 16 replays). Storm of May 2024 (quick estimate, 8 replays): GHZ-4 alone changes fringe 20 times, the cascade 0 times.",
+        "[Entangled Compass] One-minute circuit on fake_boston (17 qubits, 200 shots, 14.151 s): canary 99.0%, field step +44.59 nT; cascade error +0.34 nT, GHZ-4 alone -78.20 nT, 2 independent qubits +1.11 nT."
+      ]
+    },
+    {
+      "utc": "2026-10-11T13:33Z",
+      "qollab_backend_label": "AWS Braket local simulator (25q), ideal, free",
+      "backend_name": "default",
+      "layout": "A",
+      "n_qubits": 17,
+      "shots": 1000,
+      "job_wall_time_s": 3.683,
+      "minute": "2024-05-10T21:47",
+      "dF_nT": 44.59,
+      "canary_fraction": 1.0,
+      "errors_nT": {
+        "2 independent qubits": 1.17,
+        "GHZ-4 alone": -78.44,
+        "Cascade 1-2-4": 0.10
+      },
+      "console": [
+        "[Entangled Compass] running on default (braket). Printed here: the Overview numbers, each replay, each challenge round, the 3D compass and every circuit run.",
+        "[Entangled Compass] Overview (model replay, 1000 shots per register per minute): on the quiet day GHZ-4 is 2.01× (± 0.02, 2 SE over 16 replays) as precise as 8 independent qubits (ideal 2.00); with IonQ Aria 1 gate noise 1.94× (± 0.03, 2 SE over 16 replays); with dephasing 0.2 1.10× (± 0.01, 2 SE over 16 replays). Storm of May 2024 (quick estimate, 8 replays): GHZ-4 alone changes fringe 20 times, the cascade 0 times.",
+        "[Entangled Compass] One-minute circuit on default (17 qubits, 1000 shots, 3.683 s): canary 100.0%, field step +44.59 nT; cascade error +0.10 nT, GHZ-4 alone -78.44 nT, 2 independent qubits +1.17 nT."
+      ]
+    }
+  ]
+}

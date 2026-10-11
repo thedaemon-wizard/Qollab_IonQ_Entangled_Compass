@@ -1,6 +1,6 @@
 # Decisions
 
-E1–E9 recorded on 2026-10-10 and E10–E12 on 2026-10-11, during the build window. Each states the decision, the evidence
+E1–E9 recorded on 2026-10-10 and E10–E13 on 2026-10-11, during the build window. Each states the decision, the evidence
 behind it, and what would make us revisit it.
 
 ## E1 — Quantum Playground, not Quantum Impact
@@ -35,8 +35,10 @@ behind it, and what would make us revisit it.
 - **Decision.** Every run submits exactly one circuit (17 qubits, 21 with dephasing, 13 for the
   twin sensors) as one job; a module-level counter refuses a second IonQ job in the same Run, and
   both run functions share it. Names containing "qpu" are refused.
-- **Evidence.** IonQ allows one job per Run on Qollab; another team reported that the IonQ proxy
-  rejects a list of circuits. A canary qubit checks the bit order of the returned keys.
+- **Evidence.** Qollab's hackathon FAQ (qollab.xyz/programs/hackathon/how-it-works#faq, read
+  2026-10-11): "IonQ backends accept one per run, so put everything an IonQ run measures into one
+  circuit." Qollab's docs (*Runtime environment*, read 2026-10-11) say the same for the remote
+  simulators and the quantum computers. A canary qubit checks the bit order of the returned keys.
 
 ## E5 — Replays are a model of the circuits, checked against them
 
@@ -65,8 +67,10 @@ behind it, and what would make us revisit it.
 
 - **Decision.** The twin-sensor view entangles a qubit at Boulder with one at Tucson and is
   labelled as a what-if.
-- **Evidence.** Sharing entanglement between observatories needs a quantum network that does not
-  exist. The data show the storm is not common across the about 1,000 km between them (one-minute
+- **Evidence.** Sharing entangled sensor qubits between observatories would need a quantum network
+  that does not exist yet; entangled photons, not sensor qubits, have been shared between ground
+  stations over 1,200 km apart by satellite (Yin et al., Science 356, 1140 (2017),
+  doi:10.1126/science.aan3211). The data show the storm is not common across the about 1,000 km between them (one-minute
   changes correlate $`r = 0.33`$), so the cancelling trick does not apply; the $`\sqrt{2}`$ gain for measuring
   a difference directly does.
 
@@ -120,7 +124,10 @@ behind it, and what would make us revisit it.
   thicker; the counter counts fringe changes, onto a wrong fringe and back. `compass/api.py`
   `storm3d_json` computes every angle, fringe index and count; the page only draws. The needles
   come from the one replay (of 32) closest to the average fringe-change count and wrong-minute
-  count of GHZ-4, and the page gives both averages.
+  count of GHZ-4, and the page gives both averages. The outcome is close to two-valued (seed 0:
+  26 replays with 20 changes and 1,115 wrong minutes, 6 with 21 and 436), so the replay shown is
+  the most common outcome and the averages (20.2, 988) describe no single replay; both are in
+  `results/headline_numbers.json`.
 - **Correction** (2026-10-11, review round 3). The first version drew the phase against the
   tracker's prediction, $`m\,s\,(F_t - \hat{F}_{t-1})`$, while the text said $`m\,s\,\Delta F`$. On
   a wrong fringe that phase carries the whole turns the estimate is off by, so a 2 nT step showed
@@ -134,3 +141,14 @@ behind it, and what would make us revisit it.
   for screen readers and when WebGL is missing (the canvas itself is hidden from them).
 - **Revisit if** the replay model changes (tests compare the tab's numbers with
   `replay.metrics`).
+
+## E13 — Qollab is the live demo; the 3D compass uses WebGL
+
+- **Decision** (2026-10-11). The judged artefact is the Qollab project; no copy is hosted
+  elsewhere during the window, as in the first entry (*Bell-Test Lab*, its decision D1). The 3D
+  compass uses three.js's `WebGLRenderer` from Qollab's import map; there is no WebGPU path.
+- **Evidence.** The first entry probed Qollab's project frame on 2026-10-10 and found
+  `navigator.gpu` undefined there (its decision D10), so a WebGPU renderer could not start on
+  Qollab. Three needles and their tubes need no more than WebGL, and without WebGL the view falls
+  back to the text panel with the same numbers.
+- **Revisit if** Qollab's project frame exposes WebGPU, or the view needs far more geometry.

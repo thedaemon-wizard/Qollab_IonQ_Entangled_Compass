@@ -39,8 +39,10 @@ def gate_counts(m: int, knob: bool) -> tuple[int, int]:
 
     H on the first qubit, a CX ladder (m - 1), H on every qubit at the end; the dephasing knob
     adds two CX (it is built as CX.Rz.CX with its ancilla). Rz and Sdg are Z rotations and are
-    treated as noise-free (virtual), as in IonQ's description of its compiler (要確認 for the
-    noise-model simulator).
+    treated as noise-free (virtual), as in IonQ's description of its compiler. IonQ compiles
+    abstract gates to its native gates before it simulates a noise model, and whether its
+    noise-model simulator charges noise to Z rotations is not documented, so this count gives an
+    estimate (the visibility measured in a run is reported as measured).
     """
     return m + 1, m - 1 + (2 if knob else 0)
 

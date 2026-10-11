@@ -1,0 +1,380 @@
+{
+ "tool": "axe-core 4.14.0",
+ "date": "2026-10-11T13:41:56.533Z",
+ "runs": [
+  {
+   "width": 1280,
+   "scheme": "dark",
+   "view": "overview",
+   "violations": [],
+   "incomplete": [
+    "color-contrast"
+   ]
+  },
+  {
+   "width": 1280,
+   "scheme": "dark",
+   "view": "challenge",
+   "violations": [],
+   "incomplete": [
+    "color-contrast"
+   ]
+  },
+  {
+   "width": 1280,
+   "scheme": "dark",
+   "view": "challenge-final",
+   "violations": [],
+   "incomplete": [
+    "color-contrast"
+   ]
+  },
+  {
+   "width": 1280,
+   "scheme": "dark",
+   "view": "tracker",
+   "violations": [],
+   "incomplete": [
+    "color-contrast"
+   ]
+  },
+  {
+   "width": 1280,
+   "scheme": "dark",
+   "view": "compass3d",
+   "violations": [],
+   "incomplete": [
+    "color-contrast"
+   ]
+  },
+  {
+   "width": 1280,
+   "scheme": "dark",
+   "view": "twin",
+   "violations": [],
+   "incomplete": [
+    "color-contrast"
+   ]
+  },
+  {
+   "width": 1280,
+   "scheme": "dark",
+   "view": "method",
+   "violations": [],
+   "incomplete": [
+    "color-contrast"
+   ]
+  },
+  {
+   "width": 1280,
+   "scheme": "light",
+   "view": "overview",
+   "violations": [],
+   "incomplete": [
+    "color-contrast"
+   ]
+  },
+  {
+   "width": 1280,
+   "scheme": "light",
+   "view": "challenge",
+   "violations": [],
+   "incomplete": [
+    "color-contrast"
+   ]
+  },
+  {
+   "width": 1280,
+   "scheme": "light",
+   "view": "challenge-final",
+   "violations": [],
+   "incomplete": [
+    "color-contrast"
+   ]
+  },
+  {
+   "width": 1280,
+   "scheme": "light",
+   "view": "tracker",
+   "violations": [],
+   "incomplete": [
+    "color-contrast"
+   ]
+  },
+  {
+   "width": 1280,
+   "scheme": "light",
+   "view": "compass3d",
+   "violations": [],
+   "incomplete": [
+    "color-contrast"
+   ]
+  },
+  {
+   "width": 1280,
+   "scheme": "light",
+   "view": "twin",
+   "violations": [],
+   "incomplete": [
+    "color-contrast"
+   ]
+  },
+  {
+   "width": 1280,
+   "scheme": "light",
+   "view": "method",
+   "violations": [],
+   "incomplete": [
+    "color-contrast"
+   ]
+  },
+  {
+   "width": 1014,
+   "scheme": "dark",
+   "view": "overview",
+   "violations": [],
+   "incomplete": [
+    "color-contrast"
+   ]
+  },
+  {
+   "width": 1014,
+   "scheme": "dark",
+   "view": "challenge",
+   "violations": [],
+   "incomplete": [
+    "color-contrast"
+   ]
+  },
+  {
+   "width": 1014,
+   "scheme": "dark",
+   "view": "challenge-final",
+   "violations": [],
+   "incomplete": [
+    "color-contrast"
+   ]
+  },
+  {
+   "width": 1014,
+   "scheme": "dark",
+   "view": "tracker",
+   "violations": [],
+   "incomplete": [
+    "color-contrast"
+   ]
+  },
+  {
+   "width": 1014,
+   "scheme": "dark",
+   "view": "compass3d",
+   "violations": [],
+   "incomplete": [
+    "color-contrast"
+   ]
+  },
+  {
+   "width": 1014,
+   "scheme": "dark",
+   "view": "twin",
+   "violations": [],
+   "incomplete": [
+    "color-contrast"
+   ]
+  },
+  {
+   "width": 1014,
+   "scheme": "dark",
+   "view": "method",
+   "violations": [],
+   "incomplete": [
+    "color-contrast"
+   ]
+  },
+  {
+   "width": 1014,
+   "scheme": "light",
+   "view": "overview",
+   "violations": [],
+   "incomplete": [
+    "color-contrast"
+   ]
+  },
+  {
+   "width": 1014,
+   "scheme": "light",
+   "view": "challenge",
+   "violations": [],
+   "incomplete": [
+    "color-contrast"
+   ]
+  },
+  {
+   "width": 1014,
+   "scheme": "light",
+   "view": "challenge-final",
+   "violations": [],
+   "incomplete": [
+    "color-contrast"
+   ]
+  },
+  {
+   "width": 1014,
+   "scheme": "light",
+   "view": "tracker",
+   "violations": [],
+   "incomplete": [
+    "color-contrast"
+   ]
+  },
+  {
+   "width": 1014,
+   "scheme": "light",
+   "view": "compass3d",
+   "violations": [],
+   "incomplete": [
+    "color-contrast"
+   ]
+  },
+  {
+   "width": 1014,
+   "scheme": "light",
+   "view": "twin",
+   "violations": [],
+   "incomplete": [
+    "color-contrast"
+   ]
+  },
+  {
+   "width": 1014,
+   "scheme": "light",
+   "view": "method",
+   "violations": [],
+   "incomplete": [
+    "color-contrast"
+   ]
+  },
+  {
+   "width": 375,
+   "scheme": "dark",
+   "view": "overview",
+   "violations": [],
+   "incomplete": [
+    "color-contrast"
+   ]
+  },
+  {
+   "width": 375,
+   "scheme": "dark",
+   "view": "challenge",
+   "violations": [],
+   "incomplete": [
+    "color-contrast"
+   ]
+  },
+  {
+   "width": 375,
+   "scheme": "dark",
+   "view": "challenge-final",
+   "violations": [],
+   "incomplete": [
+    "color-contrast"
+   ]
+  },
+  {
+   "width": 375,
+   "scheme": "dark",
+   "view": "tracker",
+   "violations": [],
+   "incomplete": [
+    "color-contrast"
+   ]
+  },
+  {
+   "width": 375,
+   "scheme": "dark",
+   "view": "compass3d",
+   "violations": [],
+   "incomplete": []
+  },
+  {
+   "width": 375,
+   "scheme": "dark",
+   "view": "twin",
+   "violations": [],
+   "incomplete": [
+    "color-contrast"
+   ]
+  },
+  {
+   "width": 375,
+   "scheme": "dark",
+   "view": "method",
+   "violations": [],
+   "incomplete": [
+    "color-contrast"
+   ]
+  },
+  {
+   "width": 375,
+   "scheme": "light",
+   "view": "overview",
+   "violations": [],
+   "incomplete": [
+    "color-contrast"
+   ]
+  },
+  {
+   "width": 375,
+   "scheme": "light",
+   "view": "challenge",
+   "violations": [],
+   "incomplete": [
+    "color-contrast"
+   ]
+  },
+  {
+   "width": 375,
+   "scheme": "light",
+   "view": "challenge-final",
+   "violations": [],
+   "incomplete": [
+    "color-contrast"
+   ]
+  },
+  {
+   "width": 375,
+   "scheme": "light",
+   "view": "tracker",
+   "violations": [],
+   "incomplete": [
+    "color-contrast"
+   ]
+  },
+  {
+   "width": 375,
+   "scheme": "light",
+   "view": "compass3d",
+   "violations": [],
+   "incomplete": []
+  },
+  {
+   "width": 375,
+   "scheme": "light",
+   "view": "twin",
+   "violations": [],
+   "incomplete": [
+    "color-contrast"
+   ]
+  },
+  {
+   "width": 375,
+   "scheme": "light",
+   "view": "method",
+   "violations": [],
+   "incomplete": [
+    "color-contrast"
+   ]
+  }
+ ]
+}

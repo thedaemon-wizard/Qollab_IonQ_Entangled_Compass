@@ -1,5 +1,5 @@
 {
- "generated_utc": "2026-10-10T13:45:06+00:00",
+ "generated_utc": "2026-10-11T13:42:06+00:00",
  "python": "3.14.7",
  "qiskit": "2.5.2",
  "numpy": "2.4.6",
@@ -102,6 +102,25 @@
     "two_se": 0.005658955693157699,
     "theory": 0.7761368589523399
    }
+  },
+  "ionq_aria1_documented_plus_dephasing_0.20": {
+   "mean": 1.0458285677169932,
+   "two_se": 0.009885185581652807,
+   "theory": 1.0528271757390857,
+   "rmse_ind8": {
+    "mean": 0.9876141330484528,
+    "two_se": 0.006820041766551345
+   },
+   "rmse_ghz4": {
+    "mean": 0.9446279476901432,
+    "two_se": 0.005839889322835392
+   },
+   "sql_nt": 0.7020176866739687,
+   "gain_over_sql": {
+    "mean": 0.7433890060686712,
+    "two_se": 0.004604295423630414,
+    "theory": 0.7444612353825885
+   }
   }
  },
  "crossover_gamma_fixed_interrogation": {
@@ -121,7 +140,56 @@
    "2": 15
   },
   "cascade_max_error_nt": 0.0,
-  "ind8_max_error_nt": 0.0
+  "ind8_max_error_nt": 0.0,
+  "first_step_beyond_ghz4_range": {
+   "utc": "2024-05-10T21:47",
+   "step_nt": 44.59000000000378
+  }
+ },
+ "storm_3d_compass_replays": {
+  "seed": 0,
+  "replays": 32,
+  "shown_replay": 1,
+  "shown_ghz4": {
+   "slips": 20,
+   "wrong_minutes": 1115
+  },
+  "mean_ghz4_slips": 20.1875,
+  "mean_ghz4_wrong_minutes": 987.6875,
+  "ghz4_outcomes": [
+   {
+    "fringe_changes": 20,
+    "wrong_minutes": 1115,
+    "replays": 26
+   },
+   {
+    "fringe_changes": 21,
+    "wrong_minutes": 436,
+    "replays": 6
+   }
+  ]
+ },
+ "overview_tiles": {
+  "quiet_gain_ideal_16_replays": {
+   "mean": 2.0082278119412047,
+   "two_se": 0.01773307020245302
+  },
+  "quiet_gain_aria1_16_replays": {
+   "mean": 1.9429726104529197,
+   "two_se": 0.025771574546493467
+  },
+  "quiet_gain_dephasing_0.20_16_replays": {
+   "mean": 1.0996619011109627,
+   "two_se": 0.012584154867916784
+  },
+  "storm_ghz4_wrong_minutes_8_replays": {
+   "mean": 1030.125,
+   "two_se": 169.75
+  },
+  "storm_ghz4_slips_8_replays": {
+   "mean": 20.125,
+   "two_se": 0.25
+  }
  },
  "storm_shot_noise_200_replays": {
   "ghz4_slips": {
@@ -163,6 +231,12 @@
    "common_fraction": 0.2891770344938628
   }
  },
+ "two_observatories_onset_1706": {
+  "boulder_nt": 12.560000000004948,
+  "tucson_nt": 21.5199999999968,
+  "difference_nt": -8.959999999991851,
+  "sum_nt": 34.080000000001746
+ },
  "challenge_fixed_strategies": {
   "IND8": 0.7710342747842126,
   "GHZ4": 49.611970364788526,
@@ -174,5 +248,88 @@
   6,
   8,
   9
- ]
+ ],
+ "challenge_strategies": {
+  "score": "mean over the 12 rounds of RMS error x sqrt(qubits / 8); lower is better",
+  "seeds": [
+   7,
+   8,
+   9,
+   10,
+   11,
+   12
+  ],
+  "always_by_seed": {
+   "7": {
+    "IND8": 0.7710342747842126,
+    "GHZ4": 49.611970364788526,
+    "CASC": 0.4734500331914841
+   },
+   "8": {
+    "IND8": 0.7842168268861495,
+    "GHZ4": 34.38651918079915,
+    "CASC": 0.46205305705909216
+   },
+   "9": {
+    "IND8": 0.762889195311529,
+    "GHZ4": 49.63574940714205,
+    "CASC": 0.4711680144162736
+   },
+   "10": {
+    "IND8": 0.7670108927447763,
+    "GHZ4": 49.6120823382008,
+    "CASC": 0.46555027163507057
+   },
+   "11": {
+    "IND8": 0.7416649257123336,
+    "GHZ4": 49.62109827704069,
+    "CASC": 0.46921258757254924
+   },
+   "12": {
+    "IND8": 0.7736441954912867,
+    "GHZ4": 34.38775626217552,
+    "CASC": 0.48986044168054876
+   }
+  },
+  "ghz4_rounds_1_2_then_cascade_by_seed": {
+   "7": 0.4565658343372372,
+   "8": 0.456447028646235,
+   "9": 0.44569526336471776,
+   "10": 0.44191110657773086,
+   "11": 0.4550605590303502,
+   "12": 0.44902739030836775
+  },
+  "hindsight_cascade_in_stormy_rounds_by_seed": {
+   "7": 0.4127075472334088,
+   "8": 0.39885612162466555,
+   "9": 0.4068631801142699,
+   "10": 0.4010108371688115,
+   "11": 0.4025285339974955,
+   "12": 0.4032878367467059
+  },
+  "reactive_cascade_after_a_step_beyond_range_seed_7": 16.51351361041183
+ },
+ "quiet_day_record": {
+  "date": "2026-10-01",
+  "range_nt": 30.207000000002154,
+  "largest_one_minute_step_nt": 0.9159999999974389,
+  "storm_range_nt": 987.5200000000041,
+  "storm_largest_one_minute_step_nt": 118.81999999999971
+ },
+ "recorded_ionq_aria1_visibility_se": {
+  "run_utc": "2026-10-10T13:57Z",
+  "shots": 200,
+  "GHZ-1": {
+   "visibility": 1.004041831797859,
+   "se": 0.04533477080896252
+  },
+  "GHZ-2": {
+   "visibility": 0.9751410154434075,
+   "se": 0.02648953862841406
+  },
+  "GHZ-4": {
+   "visibility": 0.9213576938409967,
+   "se": 0.045062709411211904
+  }
+ }
 }

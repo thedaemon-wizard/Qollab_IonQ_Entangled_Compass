@@ -1,0 +1,297 @@
+{
+ "tool": "axe-core 4.14.0",
+ "date": "2026-10-11",
+ "harness": "tools/devserver (local), same index.html, main.js, main.css and ui/ as the Qollab project",
+ "tags": [
+  "wcag2a",
+  "wcag2aa",
+  "wcag21a",
+  "wcag21aa",
+  "wcag22aa",
+  "best-practice"
+ ],
+ "states": "overview after the four answers; challenge on the round 2 card (round 1 played) and on the final card (12 rounds); tracker after a replay and a circuit run; 3D compass on the storm at minute 1307; two observatories after a replay and a twin run; method",
+ "hscroll": "true if the page itself scrolls sideways (documentElement.scrollWidth > clientWidth)",
+ "runs": [
+  {
+   "label": "1280 dark overview",
+   "violations": [],
+   "hscroll": false
+  },
+  {
+   "label": "1280 dark challenge-round2",
+   "violations": [],
+   "hscroll": false
+  },
+  {
+   "label": "1280 dark challenge-final",
+   "violations": [],
+   "hscroll": false
+  },
+  {
+   "label": "1280 dark tracker",
+   "violations": [],
+   "hscroll": false
+  },
+  {
+   "label": "1280 dark compass3d",
+   "violations": [],
+   "hscroll": false
+  },
+  {
+   "label": "1280 dark twin",
+   "violations": [],
+   "hscroll": false
+  },
+  {
+   "label": "1280 dark method",
+   "violations": [],
+   "hscroll": false
+  },
+  {
+   "label": "1280 light overview",
+   "violations": [],
+   "hscroll": false
+  },
+  {
+   "label": "1280 light challenge-round2",
+   "violations": [],
+   "hscroll": false
+  },
+  {
+   "label": "1280 light challenge-final",
+   "violations": [],
+   "hscroll": false
+  },
+  {
+   "label": "1280 light tracker",
+   "violations": [],
+   "hscroll": false
+  },
+  {
+   "label": "1280 light compass3d",
+   "violations": [],
+   "hscroll": false
+  },
+  {
+   "label": "1280 light twin",
+   "violations": [],
+   "hscroll": false
+  },
+  {
+   "label": "1280 light method",
+   "violations": [],
+   "hscroll": false
+  },
+  {
+   "label": "1014 dark overview",
+   "violations": [],
+   "hscroll": false
+  },
+  {
+   "label": "1014 dark challenge-round2",
+   "violations": [],
+   "hscroll": false
+  },
+  {
+   "label": "1014 dark challenge-final",
+   "violations": [],
+   "hscroll": false
+  },
+  {
+   "label": "1014 dark tracker",
+   "violations": [],
+   "hscroll": false
+  },
+  {
+   "label": "1014 dark compass3d",
+   "violations": [],
+   "hscroll": false
+  },
+  {
+   "label": "1014 dark twin",
+   "violations": [],
+   "hscroll": false
+  },
+  {
+   "label": "1014 dark method",
+   "violations": [],
+   "hscroll": false
+  },
+  {
+   "label": "1014 light overview",
+   "violations": [],
+   "hscroll": false
+  },
+  {
+   "label": "1014 light challenge-round2",
+   "violations": [],
+   "hscroll": false
+  },
+  {
+   "label": "1014 light challenge-final",
+   "violations": [],
+   "hscroll": false
+  },
+  {
+   "label": "1014 light tracker",
+   "violations": [],
+   "hscroll": false
+  },
+  {
+   "label": "1014 light compass3d",
+   "violations": [],
+   "hscroll": false
+  },
+  {
+   "label": "1014 light twin",
+   "violations": [],
+   "hscroll": false
+  },
+  {
+   "label": "1014 light method",
+   "violations": [],
+   "hscroll": false
+  },
+  {
+   "label": "375 dark overview",
+   "violations": [],
+   "hscroll": false
+  },
+  {
+   "label": "375 dark challenge-round2",
+   "violations": [],
+   "hscroll": false
+  },
+  {
+   "label": "375 dark challenge-final",
+   "violations": [],
+   "hscroll": false
+  },
+  {
+   "label": "375 dark tracker",
+   "violations": [],
+   "hscroll": false
+  },
+  {
+   "label": "375 dark compass3d",
+   "violations": [],
+   "hscroll": false
+  },
+  {
+   "label": "375 dark twin",
+   "violations": [],
+   "hscroll": false
+  },
+  {
+   "label": "375 dark method",
+   "violations": [],
+   "hscroll": false
+  },
+  {
+   "label": "375 light overview",
+   "violations": [],
+   "hscroll": false
+  },
+  {
+   "label": "375 light challenge-round2",
+   "violations": [],
+   "hscroll": false
+  },
+  {
+   "label": "375 light challenge-final",
+   "violations": [],
+   "hscroll": false
+  },
+  {
+   "label": "375 light tracker",
+   "violations": [],
+   "hscroll": false
+  },
+  {
+   "label": "375 light compass3d",
+   "violations": [],
+   "hscroll": false
+  },
+  {
+   "label": "375 light twin",
+   "violations": [],
+   "hscroll": false
+  },
+  {
+   "label": "375 light method",
+   "violations": [],
+   "hscroll": false
+  },
+  {
+   "label": "320 dark overview",
+   "violations": [],
+   "hscroll": false
+  },
+  {
+   "label": "320 dark challenge-round2",
+   "violations": [],
+   "hscroll": false
+  },
+  {
+   "label": "320 dark challenge-final",
+   "violations": [],
+   "hscroll": false
+  },
+  {
+   "label": "320 dark tracker",
+   "violations": [],
+   "hscroll": false
+  },
+  {
+   "label": "320 dark compass3d",
+   "violations": [],
+   "hscroll": false
+  },
+  {
+   "label": "320 dark twin",
+   "violations": [],
+   "hscroll": false
+  },
+  {
+   "label": "320 dark method",
+   "violations": [],
+   "hscroll": false
+  },
+  {
+   "label": "320 light overview",
+   "violations": [],
+   "hscroll": false
+  },
+  {
+   "label": "320 light challenge-round2",
+   "violations": [],
+   "hscroll": false
+  },
+  {
+   "label": "320 light challenge-final",
+   "violations": [],
+   "hscroll": false
+  },
+  {
+   "label": "320 light tracker",
+   "violations": [],
+   "hscroll": false
+  },
+  {
+   "label": "320 light compass3d",
+   "violations": [],
+   "hscroll": false
+  },
+  {
+   "label": "320 light twin",
+   "violations": [],
+   "hscroll": false
+  },
+  {
+   "label": "320 light method",
+   "violations": [],
+   "hscroll": false
+  }
+ ]
+}

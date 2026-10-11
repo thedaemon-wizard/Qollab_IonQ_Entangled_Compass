@@ -1,7 +1,7 @@
 // Time-series chart in SVG. Series differ by colour and by dash, the legend is text, and the
 // numbers behind the picture are in a table under <details>, so nothing depends on colour or
 // on seeing the plot.
-import { el, svg, uid } from './dom.js';
+import { el, minus, scroller, svg, uid } from './dom.js';
 
 const PAD = { l: 64, r: 14, t: 12, b: 40 };
 
@@ -32,13 +32,14 @@ export function timeChart(spec) {
   const tId = uid('t');
   const dId = uid('d');
   const clip = uid('clip');
-  const root = svg('svg', { viewBox: `0 0 ${W} ${H}`, role: 'img', 'aria-labelledby': `${tId} ${dId}`, style: `max-width:${Math.round(W * 1.25)}px` },
+  // min-width keeps 11-unit tick labels at about 9 px or more; narrower screens scroll sideways
+  const root = svg('svg', { viewBox: `0 0 ${W} ${H}`, role: 'img', 'aria-labelledby': `${tId} ${dId}`, style: `min-width:${Math.round(W * 0.82)}px;max-width:${Math.round(W * 1.25)}px` },
     svg('title', { id: tId, text: spec.title }), svg('desc', { id: dId, text: spec.desc }),
     svg('defs', null, svg('clipPath', { id: clip }, svg('rect', { x: PAD.l, y: PAD.t, width: iw, height: ih }))));
   const grid = svg('g', { class: 'grid' });
   for (const v of ticks(spec.yMin, spec.yMax)) {
     grid.append(svg('line', { x1: PAD.l, x2: PAD.l + iw, y1: sy(v), y2: sy(v) }),
-      svg('text', { x: PAD.l - 6, y: sy(v) + 4, 'text-anchor': 'end', class: 'tick', text: String(v) }));
+      svg('text', { x: PAD.l - 6, y: sy(v) + 4, 'text-anchor': 'end', class: 'tick', text: minus(v) }));
   }
   const every = spec.xEvery || Math.max(1, Math.round(n / 6));
   for (let i = 0; i < n; i += every) {
@@ -68,7 +69,7 @@ export function timeChart(spec) {
   const legend = el('ul', { class: 'legend', 'aria-hidden': 'true' },
     spec.series.map((s) => el('li', null, svgSwatch(s), s.name)),
     (spec.bands || []).filter((b) => b.name).map((b) => el('li', null, svgSwatch({ fill: b.fill }), b.name)));
-  const fig = el('figure', { class: 'chart' }, root, legend);
+  const fig = el('figure', { class: 'chart' }, scroller(root, spec.title), legend);
   if (spec.table) fig.append(dataTable(spec.table, 'Data behind this chart'));
   return fig;
 }

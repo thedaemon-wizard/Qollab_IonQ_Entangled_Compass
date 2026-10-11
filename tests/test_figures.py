@@ -106,6 +106,7 @@ def test_writeup_images():
         assert f"]({raw}{name}.png)" in final
     interim = mw.convert(readme, "main", True)
     assert "![" not in interim and "raw.githubusercontent.com" not in interim
-    assert interim.count("*Figure (shown in the app):") == 3
+    # every local image (the three figures and the app screenshots) becomes its alt text
+    assert interim.count("*Figure (shown in the app):") == readme.count("](docs/figures/") >= 3
     for name in ("model", "circuit", "architecture"):
         assert (ROOT / "docs" / "figures" / f"{name}.png").stat().st_size > 10_000

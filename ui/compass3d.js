@@ -287,7 +287,7 @@ export function compass3dView(init) {
   const play = el('button', { type: 'button', class: 'primary', id: 'ec3-play' }, 'Play');
   const back = el('button', { type: 'button' }, '− 1 minute');
   const fwd = el('button', { type: 'button' }, '+ 1 minute');
-  const toFirst = el('button', { type: 'button', id: 'ec3-first' }, 'Go to the first fringe change');
+  const toFirst = el('button', { type: 'button', id: 'ec3-first', 'aria-describedby': 'ec3-summary' }, 'Go to the first fringe change');
   const slider = el('input', { type: 'range', id: 'ec3-minute', min: '0', max: '0', step: '1', value: '0' });
   const sliderLabel = el('label', { for: 'ec3-minute' }, 'Minute');
   const status = el('p', { role: 'status', class: 'status', id: 'ec3-status' }, 'Open this tab to load the replay.');
@@ -303,8 +303,9 @@ export function compass3dView(init) {
     return b;
   });
   const resetView = el('button', { type: 'button' }, 'Reset view');
+  const camGroup = el('div', { class: 'toolbar', role: 'group', 'aria-label': 'Turn the 3D view' }, ...camButtons, resetView);
   const readout = el('dl', { class: 'c3d-readout', id: 'ec3-readout' });
-  const summary = el('p', { class: 'small' });
+  const summary = el('p', { class: 'small', id: 'ec3-summary' });
   const descId = uid('c3d');
 
   let data = null;
@@ -313,6 +314,7 @@ export function compass3dView(init) {
   let playing = false;
   let last = 0;
   let pending = false;
+  let noScene = false; // WebGL is not available: text panel only, no camera, no retry
 
   function describe(minute) {
     if (!data) return '';
@@ -381,6 +383,7 @@ export function compass3dView(init) {
   }
 
   function settle(minute) {
+    if (noScene) return; // the stage is plain text then, and a label on it would be ignored
     stage.setAttribute('aria-label', `3D compass. ${describe(minute)}`);
   }
 
@@ -444,24 +447,36 @@ export function compass3dView(init) {
   });
   resetView.addEventListener('click', () => { if (scene) { scene.reset(); draw(); } });
 
+  // The record select is never disabled, so it keeps keyboard focus and arrow keys keep working:
+  // a change during a replay is picked up when that replay ends.
+  let loadingRecord = null;
   async function load() {
+    if (loadingRecord !== null) return;
     if (playing) stop();
+    loadingRecord = dataset.value;
     status.textContent = 'Replaying the record (32 replays, 1000 shots per register per minute)…';
-    dataset.disabled = true;
     play.disabled = true;
+    toFirst.disabled = true;
     await nextPaint(); // the call blocks the page on Qollab: show the status first
+    let failed = false;
     try {
-      data = await py.storm3d({ dataset: dataset.value });
+      data = await py.storm3d({ dataset: loadingRecord });
     } catch (err) {
       status.textContent = `The replay failed: ${err.message}`;
-      return;
+      failed = true;
     } finally {
-      dataset.disabled = false;
       play.disabled = false;
+      toFirst.disabled = false;
     }
+    const again = dataset.value !== loadingRecord;
+    loadingRecord = null;
+    if (again) return load();
+    if (failed) return undefined;
     const n = data.times.length - 1;
     slider.max = String(n);
     const first = data.arms.GHZ4.fringe.findIndex((x) => x !== 0);
+    // nothing to go to on a record where GHZ-4 never changes fringe; the summary below says so
+    toFirst.disabled = first <= 0;
     t = 1;
     const tot = data.totals;
     status.textContent = `Replay ${data.replay.shown} of ${data.replay.of}, the one closest to their average: GHZ-4 alone changes fringe ${tot.GHZ4.slips} times and is on a wrong fringe for ${tot.GHZ4.wrong_minutes} minutes (averages over all ${data.replay.of}: ${fmt.n(data.replay.mean_slips, 1)} and ${fmt.n(data.replay.mean_wrong, 0)}); the cascade changes fringe ${tot.CASC.slips} times and 8 independent qubits ${tot.IND8.slips}.`;
@@ -470,27 +485,31 @@ export function compass3dView(init) {
       : 'GHZ-4 never leaves its fringe in this record: every minute’s step turns it less than half a turn.'));
     reserveHud();
     settle(1);
+    return undefined;
   }
 
   let starting = null; // one start at a time, however often the tab is shown
   async function start() {
     starting ??= (async () => {
       const loading = data ? null : load(); // the replay runs while three.js loads
-      if (!scene) {
+      if (!scene && !noScene) {
         try {
           scene = await makeScene(stage, () => { if (!playing) request(); }, reserveHud);
         } catch (err) {
+          noScene = true; // do not try again on every visit
           hud.style.position = 'static'; // no picture to lay it over
           stage.removeAttribute('role'); // the note must be read as text, not hidden inside an image
           stage.removeAttribute('aria-label');
           stage.replaceChildren(el('p', { class: 'note' }, `The 3D view is not available here (${err && err.message ? err.message : 'no WebGL'}). The panel below shows the same numbers minute by minute.`), hud);
+          // with no picture there is nothing to turn: hide the camera buttons and say why
+          camGroup.replaceWith(el('p', { class: 'small muted' }, 'The buttons that turn the view are hidden because there is no 3D picture here.'));
         }
       }
       await loading;
       if (data) reserveHud();
     })();
     await starting;
-    if (!scene || !data) starting = null; // try again on the next visit
+    if (!data) starting = null; // load the record again on the next visit
   }
   dataset.addEventListener('change', load);
 
@@ -504,7 +523,7 @@ export function compass3dView(init) {
     el('div', { class: 'field' }, sliderLabel, slider),
     status,
     stage,
-    el('div', { class: 'toolbar', role: 'group', 'aria-label': 'Turn the 3D view' }, ...camButtons, resetView),
+    camGroup,
     readout,
     summary,
     el('p', { class: 'small muted' }, 'Simulated sensors, real field data (USGS). The needles are drawn from one replay of the model in compass/replay.py, chosen as the replay closest to the average of 32; the tables in the Field tracker give the averages. Nothing ran on a magnetometer or on quantum hardware.'));

@@ -2,7 +2,7 @@
 // entangled pair. (|01> + |10>)/sqrt(2) reads only the DIFFERENCE of the two fields, so a change
 // both sites share cancels; (|00> + |11>)/sqrt(2) reads the SUM. The field records are real.
 import { dataTable, timeChart } from './chart.js';
-import { el, fmt, nextPaint } from './dom.js';
+import { el, fmt, keepFocus, nextPaint } from './dom.js';
 import { twinFigure } from './figures.js';
 import { py } from './py.js';
 import { rich } from './tex.js';
@@ -10,7 +10,7 @@ import { rich } from './tex.js';
 const MINUTES = [
   ['2024-05-10T17:06', 'storm onset: both sites jump together'],
   ['2024-05-11T02:07', 'largest step at Boulder: Tucson barely moves'],
-  ['2024-05-10T21:47', 'first minute where GHZ-4 alone jumps a fringe at Boulder'],
+  ['2024-05-10T21:47', 'first GHZ-4 fringe change at Boulder'],
 ];
 
 export function twinView(info) {
@@ -58,6 +58,7 @@ export function twinView(info) {
     } finally {
       replayBtn.disabled = false;
       out.removeAttribute('aria-busy');
+      keepFocus(replayBtn, status);
     }
   });
 
@@ -65,6 +66,7 @@ export function twinView(info) {
     const [m] = MINUTES[Number(minute.value)];
     runBtn.disabled = true;
     runStatus.textContent = `Submitting one job to ${info.name}…`;
+    runOut.setAttribute('aria-busy', 'true');
     await nextPaint();
     try {
       const r = await py.twinRun({ minute: m, shots: info.default_shots });
@@ -82,6 +84,8 @@ export function twinView(info) {
       runStatus.textContent = `The run failed: ${err.message}`;
     } finally {
       runBtn.disabled = info.kind === 'ionq';
+      runOut.removeAttribute('aria-busy');
+      keepFocus(runBtn, runStatus); // on IonQ the button stays disabled after the one job
     }
   });
 

@@ -44,7 +44,7 @@ export function methodView(init) {
     el('section', { class: 'card' }, el('h2', null, 'What the IonQ noise models can and cannot show'),
       el('ul', null,
         el('li', null, 'IonQ documents its Aria models (and Forte jobs before mid-September 2025) as depolarizing after each one- and two-qubit gate; the current Forte models are described as more complex and not yet documented, so this app reports what it measures and assumes nothing about their contents.'),
-        el('li', null, rich(String.raw`Gate depolarizing costs a GHZ register little (Aria 1: visibility 0.958 for GHZ-4), so it barely dents $\sqrt{N}$. Dephasing during the interrogation and correlated noise, which do, are not separate channels in the documented model; the knob in this app adds independent dephasing, clearly labelled.`)),
+        el('li', null, rich(String.raw`Gate depolarizing costs a GHZ register little (visibility 0.958 for GHZ-4, estimated from IonQ’s documented Aria 1 rates), so it barely dents $\sqrt{N}$. Dephasing during the interrogation and correlated noise, which do, are not separate channels in the documented model; the knob in this app adds independent dephasing, clearly labelled.`)),
         el('li', null, 'The model counts the abstract gates of our circuit (H, X and CX), with Rz and Sdg as noise-free virtual Z rotations. IonQ compiles circuits to its native gates before the noise is applied, so the model is an estimate; the visibility measured in a run is reported as measured.'))),
     el('section', { class: 'card' }, el('h2', null, 'What this app does not claim'),
       el('ul', null,

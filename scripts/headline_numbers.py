@@ -4,9 +4,8 @@ Usage: PYTHONPATH=. python scripts/headline_numbers.py  -> results/headline_numb
 
 Covered: the quiet-day gains (against the matched sensor and the SQL), the storm (exact means,
 200 replays, the 3D compass replay and the Overview's quick estimate), the challenge strategies,
-the two observatories, the quiet-day record itself, and the standard errors of the visibilities
-of the recorded IonQ Aria 1 run. Not covered: the circuit runs in "Where it ran", which come from
-results/qollab/*.json (values recorded on Qollab).
+the two observatories and the quiet-day record itself. Not covered: the circuit runs in "Where
+it ran", which come from results/qollab/*.json (values recorded on Qollab).
 """
 
 from __future__ import annotations

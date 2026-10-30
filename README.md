@@ -43,9 +43,9 @@ nothing ran on a magnetometer or on quantum hardware.
   cascade (14 qubits) never is. In the game, switching to the cascade when the storm grows beats
   every fixed choice.
 - **On Qollab's simulators.** One packed circuit per Run (17 qubits; 13 for the twin sensors),
-  recorded on the built-in simulator, the AWS Braket local simulator, an IBM noise model (Boston)
-  and IonQ's Aria 1 noise-model simulator, and the twin circuit on IonQ's Forte 1 noise-model
-  simulator (see "Where it ran").
+  recorded on the built-in simulator, the AWS Braket local simulator and an IBM noise model
+  (Boston); see "Where it ran". Results from IonQ's noise-model simulators are withheld for now
+  (see the note there).
 - **Run it on Qollab.** Open the **Code** tab, click **Run Project**, then **Run**; in **Select
   QPU** keep the free *Built-in simulator* (or pick another free simulator) and click **Run**
   again. The demo video above shows these steps and every tab.
@@ -267,8 +267,7 @@ difference the app reports, with its model value, for every setting.
   1.56 against 2.21 nT). Read in X and Y, the pair only matches the SQL for a difference
   with 4 qubits (1.58 nT); an optimally read pair would beat it by $`\sqrt{2}`$. At the storm's onset
   (17:06 UTC) both sites jumped together (+12.6 and +21.5 nT): the difference pair ideally
-  reads −9.0 nT of it and the sum pair +34.1 nT (the 200-shot Forte 1 noise-model run in "Where
-  it ran" read −3.1 and +33.4).
+  reads −9.0 nT of it and the sum pair +34.1 nT.
 - **Circuit runs** (one job each): see "Where it ran".
 
 ## Where it ran
@@ -277,25 +276,19 @@ difference the app reports, with its model value, for every setting.
 |---|---|---|
 | Local Qiskit BasicSimulator (tests and harness) | layout A, 2024-05-10 21:47 UTC, 1000–2000 shots | canary 1.000; cascade within ±1 nT, GHZ-4 alone one fringe off (−78 nT), as the model says |
 | Qollab built-in simulator (2026-10-10 13:52 UTC; values transcribed by hand from the run card, counts not exported) | layout A, 2024-05-10 21:47 UTC, 1000 shots, one job, 0.10 s | canary 1.000; cascade +0.29 nT, GHZ-4 alone −78.25 nT (one fringe off); visibilities GHZ-1/2/4 = 0.996 / 0.996 / 1.018 |
-| Qollab IonQ Aria 1 noise-model simulator (13:57 UTC) | the same, 200 shots, one job, 12.5 s | canary 1.000; cascade +0.29 nT, GHZ-4 alone −78.25 nT; measured visibilities GHZ-1/2/4 = 1.00 / 0.97 / 0.92 (documented-rate estimate 0.999 / 0.985 / 0.958; with 200 shots the standard error of each is about 0.03–0.05, by the delta method from the recorded parities), so $`2V_4/V_1 = 1.83`$ |
-| Qollab IonQ Forte 1 noise-model simulator (14:10 UTC) | twin circuit (13 qubits), 2024-05-10 17:06 UTC, 200 shots, one job, 13.0 s | canary 1.000; difference pair read −3.1 nT (true −9.0), sum pair +33.4 nT (true +34.1), single qubits +9.3 and +20.6 nT (true +12.6 and +21.5); one standard error is about 3.5 nT for a pair at 200 shots |
-| Qollab IonQ Aria 1 noise-model simulator (23:21 UTC) | layout A, 2024-05-10 21:47 UTC, 200 shots, one job, 11.9 s | canary 1.000; cascade −1.99 nT, GHZ-4 alone −80.53 nT (one fringe off) |
 | Qollab built-in simulator (2026-10-11 07:39 UTC, the demo video) | layout A, 2024-05-10 21:47 UTC, 1000 shots, one job, 0.105 s | canary 1.000; cascade −0.22 nT, GHZ-4 alone −78.76 nT (one fringe off) |
 | Qollab IBM Boston noise-model simulator (Heron r3 architecture, 156 qubits; 2026-10-11 13:27 UTC) | layout A, 2024-05-10 21:47 UTC, 200 shots (the app caps IBM noise models at 200), one job, 14.2 s | canary 0.99; cascade +0.34 nT, GHZ-4 alone −78.20 nT (one fringe off) |
 | Qollab AWS Braket local simulator (2026-10-11 13:33 UTC) | layout A, 2024-05-10 21:47 UTC, 1000 shots, one job, 3.7 s | canary 1.000; cascade +0.10 nT, GHZ-4 alone −78.44 nT (one fringe off) |
 
-The built-in (13:52 UTC) and IonQ Aria 1 (13:57 UTC) rows show the same GHZ-4 and cascade
-readings to 0.01 nT. Both readings depend only on the angle of the GHZ-4 register,
-$`\theta_4 = \mathrm{atan2}(Y, X)`$ of its parities (−0.400 and −0.830 in the 13:57 run), so equal
-angles give equal readings, while the other registers differ. Two independent samples agreeing
-this closely is unlikely, and the 13:52 row was read off the screen with no
-counts kept, so a copying error in that row cannot be ruled out; treat its GHZ-4 and cascade
-values as unconfirmed. The 23:21 UTC run is a separate 200-shot sample and reads differently
-(cascade −1.99 nT). IonQ has retired the Aria 1 hardware; Qollab still offers its noise model
-(Qollab docs, *Compute backends*, read 2026-10-11), and IonQ documents its depolarizing rates,
-which the replay uses. The values
-of the three Qollab runs of 13:52–14:10 UTC are in `results/qollab/compass_runs_20261010.json`; the
-23:21 UTC run was read off the screen (`results/qollab/video_runs_20261010.json`). The demo video is
+> **Note:** Results from IonQ's noise-model simulators (three runs on 2026-10-10) are withheld
+> while I check with IonQ whether they may be published (IonQ EULA, section 8.2). The app still
+> runs on those simulators.
+
+The 13:52 UTC built-in row was read off the screen with no counts kept, so a copying error in
+that row cannot be ruled out; treat its GHZ-4 and cascade values as unconfirmed. IonQ has retired
+the Aria 1 hardware; Qollab still offers its noise model (Qollab docs, *Compute backends*, read
+2026-10-11), and IonQ documents its depolarizing rates, which the replay uses. The values of the
+13:52 UTC run are in `results/qollab/compass_runs_20261010.json`. The demo video is
 one continuous take on Qollab with the built-in simulator; its circuit run and the console lines it
 shows are in `results/qollab/video_take_20261011.json`. The IBM and Braket runs are in
 `results/qollab/compass_runs_20261011.json` (console lines as Qollab printed them; run-card

@@ -151,21 +151,6 @@ def quiet_record() -> dict:
     }
 
 
-def recorded_visibility_se() -> dict:
-    """Delta-method standard error of each visibility V = sqrt(x^2 + y^2) of the recorded IonQ Aria 1
-    run (results/qollab/compass_runs_20261010.json, 13:57 UTC): SE(V) = sqrt(x^2 sx^2 + y^2 sy^2) / V."""
-    path = ROOT / "results" / "qollab" / "compass_runs_20261010.json"
-    runs = json.loads(path.read_text(encoding="utf-8"))
-    run = next(r for r in runs["runs"] if r["utc"] == "2026-10-10T13:57Z")
-    par = run["register_parities"]
-    out = {"run_utc": run["utc"], "shots": run["shots"]}
-    for name, key in (("GHZ-1", "G1"), ("GHZ-2", "G2"), ("GHZ-4", "G4")):
-        (x, sx), (y, sy) = par[key + "X"], par[key + "Y"]
-        v = math.hypot(x, y)
-        out[name] = {"visibility": v, "se": math.sqrt((x * sx) ** 2 + (y * sy) ** 2) / v}
-    return out
-
-
 def main() -> None:
     ideal_vis = {("ghz", 1): 1.0, ("ghz", 2): 1.0, ("ghz", 4): 1.0, ("mp", 4): 1.0}
     storm_times, f = data.load("storm")
@@ -223,7 +208,6 @@ def main() -> None:
         "challenge_rounds_with_a_step_beyond_ghz4_range": stormy,
         "challenge_strategies": challenge_strategies(),
         "quiet_day_record": quiet_record(),
-        "recorded_ionq_aria1_visibility_se": recorded_visibility_se(),
     }
     dest = ROOT / "results" / "headline_numbers.json"
     dest.write_text(json.dumps(out, indent=1) + "\n", encoding="utf-8")

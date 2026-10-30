@@ -31,7 +31,8 @@ MEDIUM = misleading or fragile, LOW = polish.
 | 21 | LOW | Fringe-jump wording, Leibfried and Ruster details | "fringe changes"; "a perfect experiment with three unentangled ions"; "up to 6.2 mm apart" |
 
 Not yet done at the time of writing: runs on Qollab's built-in and IonQ simulators ("Where it
-ran" in the README). Done the same evening, 13:52–14:10 UTC (`results/qollab/compass_runs_20261010.json`).
+ran" in the README). Done the same evening from 13:52 UTC (`results/qollab/compass_runs_20261010.json`;
+the IonQ runs are withheld for now, see the note under "Where it ran").
 
 ## Second review (2026-10-11): figures, formulas and the demo video
 
@@ -41,7 +42,7 @@ each finding was checked again by a second reviewer before it was fixed.
 | # | Severity | Finding | Fix |
 |---|---|---|---|
 | 1 | MEDIUM | "No code is shared" with Bell-Test Lab no longer held: both entries use the same small Temml helper and font declaration | Disclosed in the README and the Method view |
-| 2 | MEDIUM | "The two runs give the same readings" became ambiguous after the video run was added to "Where it ran" | The runs are named; the video run (23:21 UTC) is in time order and said to read differently |
+| 2 | MEDIUM | "The two runs give the same readings" became ambiguous after the video run was added to "Where it ran" | The runs are named and listed in time order (the IonQ runs are withheld for now) |
 | 3 | MEDIUM | Write-up formulas had no recorded check on Qollab | Pasted write-up checked in Qollab's preview: 59 KaTeX formulas, no error; 60 after the review fixes (2026-10-11 evening), no error (decision E11) |
 | 4 | LOW | "The dashed box" did not say which of two dashed boxes | "The grey dashed box (and the dashed ancilla wire)" in the README and the figure |
 | 5 | LOW | Accessibility sentence gave explanatory figures a data table | Charts have data tables; figures have a description in words |
@@ -98,11 +99,11 @@ checked by a second reviewer. The document fixes:
   the same.
 - `scripts/headline_numbers.py` now also writes the 3D compass replays, the Overview's quick
   estimates, the challenge strategies (the earlier "0.42 in our test game" could not be
-  reproduced and is replaced), the 17:06 steps, the quiet-day record and the standard errors of
-  the recorded Aria 1 visibilities (about 0.03–0.05, not 0.06). An unrecorded local run
-  (−8.0 and +34.2) was removed from the README.
-- The 13:52 UTC built-in row is marked as transcribed by hand: its GHZ-4 and cascade readings equal
-  those of the 13:57 IonQ run to 0.01 nT, which is unlikely by chance.
+  reproduced and is replaced), the 17:06 steps and the quiet-day record (it also wrote the
+  standard errors of the recorded Aria 1 visibilities, withheld for now with the IonQ runs). An
+  unrecorded local run (−8.0 and +34.2) was removed from the README.
+- The 13:52 UTC built-in row is marked as transcribed by hand, and its GHZ-4 and cascade readings
+  as unconfirmed.
 - Closest prior work is cited (Slepnev et al. 2026; Cao et al. 2024; Kessler et al. 2014;
   Finkelstein et al. 2024 for the two-quadrature readout), with DOIs; the originality claim rests
   on the real-storm replay, the two baselines under IonQ's documented noise, and the game.

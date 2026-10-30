@@ -123,9 +123,10 @@ behind it, and what would make us revisit it.
   Qollab's write-up preview with no KaTeX error; after the review fixes the pasted write-up
   (22,843 characters, 2026-10-11 evening) shows 60, again with no KaTeX error. The final
   write-up, which `scripts/make_writeup.py` makes from the README with links to the tag
-  `v1.0-submission`, has 40,714 characters (Qollab's limit is 65,000) and 77 formulas, all
-  inline `$…$`; the version before the last documents check had 39,685 characters and the same
-  77 formulas. A test keeps these two counts equal to the script's output.
+  `v1.0-submission`, had 40,714 characters and 77 formulas at submission, all inline `$…$`;
+  the version before the last documents check had 39,685 characters and the same 77 formulas.
+  With the IonQ results withheld (2026-10-30), it has 39,341 characters (Qollab's limit is
+  65,000) and 75 formulas. A test keeps these two counts equal to the script's output.
 - **Revisit if** the app must work offline (vendor Temml and the font with their licences).
 
 ## E12 — The storm on a 3D compass, drawn from one typical replay

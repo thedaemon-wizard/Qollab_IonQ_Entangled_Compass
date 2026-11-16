@@ -113,6 +113,10 @@ def test_readme_quotes_the_recomputed_numbers():
         assert ch["ghz4_rounds_1_2_then_cascade_by_seed"][str(s)] < ch["always_by_seed"][str(s)]["CASC"]
     onset = HEADLINE["two_observatories_onset_1706"]
     assert f"{onset['difference_nt']:+.1f}".replace("-", "−") in README
+    se = HEADLINE["recorded_ionq_aria1_visibility_se"]
+    lo = min(se[k]["se"] for k in ("GHZ-1", "GHZ-2", "GHZ-4"))
+    hi = max(se[k]["se"] for k in ("GHZ-1", "GHZ-2", "GHZ-4"))
+    assert f"about {lo:.2f}\N{EN DASH}{hi:.2f}" in README
 
 
 def test_readme_links_point_at_files_in_the_repository():

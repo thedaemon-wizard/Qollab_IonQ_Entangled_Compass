@@ -125,8 +125,10 @@ behind it, and what would make us revisit it.
   write-up, which `scripts/make_writeup.py` makes from the README with links to the tag
   `v1.0-submission`, had 40,714 characters and 77 formulas at submission, all inline `$…$`;
   the version before the last documents check had 39,685 characters and the same 77 formulas.
-  With the IonQ results withheld (2026-10-30), it has 39,341 characters (Qollab's limit is
-  65,000) and 75 formulas. A test keeps these two counts equal to the script's output.
+  With the IonQ results withheld (2026-10-30) it had 39,341 characters and 75 formulas; with them
+  restored after IonQ's written consent (2026-11-16, decision E14), it has 41,399 characters
+  (Qollab's limit is 65,000) and 77 formulas. A test keeps these two counts equal to the script's
+  output.
 - **Revisit if** the app must work offline (vendor Temml and the font with their licences).
 
 ## E12 — The storm on a 3D compass, drawn from one typical replay
@@ -167,3 +169,19 @@ behind it, and what would make us revisit it.
   Qollab. Three needles and their tubes need no more than WebGL, and without WebGL the view falls
   back to the text panel with the same numbers.
 - **Revisit if** Qollab's project frame exposes WebGPU, or the view needs far more geometry.
+
+## E14 — IonQ results published with IonQ's written consent
+
+- **Decision** (2026-11-16). The three IonQ noise-model runs of 2026-10-10 (Aria 1 at 13:57 and
+  23:21 UTC, Forte 1 at 14:10 UTC), the two run files and the recorded-visibility entry in
+  `results/headline_numbers.json` are back on `main`. They were withheld from 2026-10-30 while
+  IonQ's consent was sought (IonQ EULA, section 8.2).
+- **Evidence.** IonQ gave written consent through its support channel on 2026-11-14 (UTC) for the
+  Qollab project page, this repository and later write-ups, with the same wording as for the
+  first entry: these are results from IonQ's noise-model simulators, not hardware measurements;
+  the noise models are approximations, so the numbers are not device specifications or a ranking
+  of the machines; and the attribution line under "Data and licence". The visibilities the app
+  computes from IonQ's documented Aria 1 rates come from public documentation and stay labelled
+  a model replay, not an IonQ run.
+- **Revisit if** IonQ asks for a change, or a run on IonQ hardware is added (that needs IonQ's
+  consent again).

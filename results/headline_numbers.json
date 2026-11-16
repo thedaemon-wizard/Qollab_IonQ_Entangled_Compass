@@ -315,5 +315,21 @@
   "largest_one_minute_step_nt": 0.9159999999974389,
   "storm_range_nt": 987.5200000000041,
   "storm_largest_one_minute_step_nt": 118.81999999999971
+ },
+ "recorded_ionq_aria1_visibility_se": {
+  "run_utc": "2026-10-10T13:57Z",
+  "shots": 200,
+  "GHZ-1": {
+   "visibility": 1.004041831797859,
+   "se": 0.04533477080896252
+  },
+  "GHZ-2": {
+   "visibility": 0.9751410154434075,
+   "se": 0.02648953862841406
+  },
+  "GHZ-4": {
+   "visibility": 0.9213576938409967,
+   "se": 0.045062709411211904
+  }
  }
 }
